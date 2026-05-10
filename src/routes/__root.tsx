@@ -78,14 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Camvcc is a professional investment platform in Cameroon. Earn daily returns in XAF with secure, transparent plans." },
       { name: "author", content: "Camvcc" },
       { property: "og:title", content: "Camvcc — Grow your capital with confidence" },
-      { property: "og:description", content: "Camvcc is a professional investment platform in Cameroon. Earn daily returns in XAF with secure, transparent plans." },
+      { property: "og:description", content: "Daily returns in XAF. Secure manual deposits via Mobile Money, bank transfer or crypto." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Camvcc — Grow your capital with confidence" },
-      { name: "twitter:description", content: "Camvcc is a professional investment platform in Cameroon. Earn daily returns in XAF with secure, transparent plans." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c5921af2-9a20-4243-81d6-e3e836366f50/id-preview-57a44420--c47711f5-315b-4008-944c-466307a2ea61.lovable.app-1778440432398.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c5921af2-9a20-4243-81d6-e3e836366f50/id-preview-57a44420--c47711f5-315b-4008-944c-466307a2ea61.lovable.app-1778440432398.png" },
     ],
     links: [
       {
