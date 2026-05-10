@@ -74,7 +74,7 @@ function DashboardLayout() {
               return (
                 <Link
                   key={item.to}
-                  to={item.to}
+                  to={item.to as never}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                     active
                       ? "bg-primary text-primary-foreground"
@@ -102,7 +102,7 @@ function DashboardLayout() {
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to as never}
                 className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-medium ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
