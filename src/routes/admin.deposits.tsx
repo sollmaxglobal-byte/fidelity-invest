@@ -23,10 +23,17 @@ function AdminDeposits() {
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
-    let q = supabase.from("deposits").select("*, payment_methods(label), profiles(full_name, phone)").order("created_at", { ascending: false }).limit(100);
+    let q = supabase.from("deposits").select("*, payment_methods(label)").order("created_at", { ascending: false }).limit(100);
     if (filter !== "all") q = q.eq("status", filter);
     const { data } = await q;
-    setList((data as Deposit[]) ?? []);
+    const rows = (data ?? []) as unknown as Deposit[];
+    const ids = Array.from(new Set(rows.map((r) => r.user_id)));
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("id,full_name,phone").in("id", ids);
+      const map = new Map((profs ?? []).map((p) => [p.id, p]));
+      rows.forEach((r) => { r.profiles = (map.get(r.user_id) as never) ?? null; });
+    }
+    setList(rows);
   }
   useEffect(() => { load(); }, [filter]);
 

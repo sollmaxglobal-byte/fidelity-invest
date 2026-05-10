@@ -22,10 +22,17 @@ function AdminWithdrawals() {
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
-    let q = supabase.from("withdrawals").select("*, profiles(full_name, phone)").order("created_at", { ascending: false }).limit(100);
+    let q = supabase.from("withdrawals").select("*").order("created_at", { ascending: false }).limit(100);
     if (filter !== "all") q = q.eq("status", filter);
     const { data } = await q;
-    setList((data as W[]) ?? []);
+    const rows = (data ?? []) as unknown as W[];
+    const ids = Array.from(new Set(rows.map((r) => r.user_id)));
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("id,full_name,phone").in("id", ids);
+      const map = new Map((profs ?? []).map((p) => [p.id, p]));
+      rows.forEach((r) => { r.profiles = (map.get(r.user_id) as never) ?? null; });
+    }
+    setList(rows);
   }
   useEffect(() => { load(); }, [filter]);
 
