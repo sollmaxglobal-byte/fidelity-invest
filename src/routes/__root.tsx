@@ -7,6 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { AuthProvider } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -72,11 +74,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Camvcc — Grow your capital with confidence" },
+      { name: "description", content: "Camvcc is a professional investment platform in Cameroon. Earn daily returns in XAF with secure, transparent plans." },
+      { name: "author", content: "Camvcc" },
+      { property: "og:title", content: "Camvcc — Grow your capital with confidence" },
+      { property: "og:description", content: "Daily returns in XAF. Secure manual deposits via Mobile Money, bank transfer or crypto." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -113,7 +115,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+        <Toaster richColors position="top-right" />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
