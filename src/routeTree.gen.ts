@@ -10,14 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PlansRouteImport } from './routes/plans'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdraw'
+import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
+import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
+import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
 
 const PlansRoute = PlansRouteImport.update({
   id: '/plans',
   path: '/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -40,13 +51,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardWithdrawRoute = DashboardWithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardInvestRoute = DashboardInvestRouteImport.update({
+  id: '/invest',
+  path: '/invest',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardHistoryRoute = DashboardHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDepositRoute = DashboardDepositRouteImport.update({
+  id: '/deposit',
+  path: '/deposit',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/plans': typeof PlansRoute
+  '/dashboard/deposit': typeof DashboardDepositRoute
+  '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/invest': typeof DashboardInvestRoute
+  '/dashboard/withdraw': typeof DashboardWithdrawRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +96,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/plans': typeof PlansRoute
+  '/dashboard/deposit': typeof DashboardDepositRoute
+  '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/invest': typeof DashboardInvestRoute
+  '/dashboard/withdraw': typeof DashboardWithdrawRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +108,53 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/plans': typeof PlansRoute
+  '/dashboard/deposit': typeof DashboardDepositRoute
+  '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/invest': typeof DashboardInvestRoute
+  '/dashboard/withdraw': typeof DashboardWithdrawRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/auth' | '/contact' | '/plans'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/dashboard'
+    | '/plans'
+    | '/dashboard/deposit'
+    | '/dashboard/history'
+    | '/dashboard/invest'
+    | '/dashboard/withdraw'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth' | '/contact' | '/plans'
-  id: '__root__' | '/' | '/about' | '/auth' | '/contact' | '/plans'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/plans'
+    | '/dashboard/deposit'
+    | '/dashboard/history'
+    | '/dashboard/invest'
+    | '/dashboard/withdraw'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/dashboard'
+    | '/plans'
+    | '/dashboard/deposit'
+    | '/dashboard/history'
+    | '/dashboard/invest'
+    | '/dashboard/withdraw'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +162,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   PlansRoute: typeof PlansRoute
 }
 
@@ -86,6 +173,13 @@ declare module '@tanstack/react-router' {
       path: '/plans'
       fullPath: '/plans'
       preLoaderRoute: typeof PlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -116,14 +210,70 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/withdraw': {
+      id: '/dashboard/withdraw'
+      path: '/withdraw'
+      fullPath: '/dashboard/withdraw'
+      preLoaderRoute: typeof DashboardWithdrawRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/invest': {
+      id: '/dashboard/invest'
+      path: '/invest'
+      fullPath: '/dashboard/invest'
+      preLoaderRoute: typeof DashboardInvestRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/history': {
+      id: '/dashboard/history'
+      path: '/history'
+      fullPath: '/dashboard/history'
+      preLoaderRoute: typeof DashboardHistoryRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/deposit': {
+      id: '/dashboard/deposit'
+      path: '/deposit'
+      fullPath: '/dashboard/deposit'
+      preLoaderRoute: typeof DashboardDepositRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardDepositRoute: typeof DashboardDepositRoute
+  DashboardHistoryRoute: typeof DashboardHistoryRoute
+  DashboardInvestRoute: typeof DashboardInvestRoute
+  DashboardWithdrawRoute: typeof DashboardWithdrawRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardDepositRoute: DashboardDepositRoute,
+  DashboardHistoryRoute: DashboardHistoryRoute,
+  DashboardInvestRoute: DashboardInvestRoute,
+  DashboardWithdrawRoute: DashboardWithdrawRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   PlansRoute: PlansRoute,
 }
 export const routeTree = rootRouteImport
