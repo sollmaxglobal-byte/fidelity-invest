@@ -30,7 +30,6 @@ const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitc
 const schema = z.object({
   amount: z.number().min(1000, "Minimum 1,000 XAF").max(100_000_000),
   payment_method_id: z.string().uuid(),
-  reference: z.string().min(2).max(120),
 });
 
 function DepositPage() {
