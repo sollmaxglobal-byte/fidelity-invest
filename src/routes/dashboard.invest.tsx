@@ -80,6 +80,19 @@ function InvestPage() {
         user_id: user.id, type: "investment", amount: -amount,
         description: `Invested in ${plan.name}`, ref_id: inv?.id,
       });
+      if (user.email) {
+        sendEmail({
+          to: user.email,
+          template_key: "investment_started",
+          variables: {
+            name: user.user_metadata?.full_name ?? "Investor",
+            amount: amount.toLocaleString("fr-CM"),
+            plan: plan.name,
+            roi: plan.daily_roi_percent,
+            days: plan.duration_days,
+          },
+        });
+      }
       toast.success("Investment created — earnings will accrue daily");
       setBalance((b) => b - amount);
     } catch (err) {
