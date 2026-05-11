@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Smartphone, Building2, Bitcoin, Upload, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,6 @@ const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitc
 const schema = z.object({
   amount: z.number().min(1000, "Minimum 1,000 XAF").max(100_000_000),
   payment_method_id: z.string().uuid(),
-  reference: z.string().min(2).max(120),
 });
 
 function DepositPage() {
@@ -65,30 +65,39 @@ function DepositPage() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
+    if (!file) { toast.error("Please upload your payment screenshot"); return; }
     setBusy(true);
     const fd = new FormData(e.currentTarget);
     try {
       const v = schema.parse({
         amount: Number(fd.get("amount")),
         payment_method_id: selected,
-        reference: String(fd.get("reference") ?? ""),
       });
-      let proof_url: string | null = null;
-      if (file) {
-        const path = `${user.id}/${Date.now()}-${file.name}`;
-        const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, file);
-        if (upErr) throw upErr;
-        proof_url = path;
-      }
+      const path = `${user.id}/${Date.now()}-${file.name}`;
+      const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, file);
+      if (upErr) throw upErr;
+      const proof_url = path;
+      const method = methods.find((m) => m.id === v.payment_method_id);
       const { error } = await supabase.from("deposits").insert({
         user_id: user.id,
         amount: v.amount,
         payment_method_id: v.payment_method_id,
-        reference: v.reference,
         proof_url,
         status: "pending",
       });
       if (error) throw error;
+      // Notify user
+      if (user.email) {
+        sendEmail({
+          to: user.email,
+          template_key: "deposit_submitted",
+          variables: {
+            name: user.user_metadata?.full_name ?? "Investor",
+            amount: v.amount.toLocaleString("fr-CM"),
+            method: method?.label ?? "—",
+          },
+        });
+      }
       toast.success("Deposit submitted — pending review");
       (e.target as HTMLFormElement).reset();
       setFile(null);
@@ -153,16 +162,13 @@ function DepositPage() {
             <Input id="amount" name="amount" type="number" min={1000} step={500} required placeholder="50000" />
           </div>
           <div>
-            <Label htmlFor="reference">Transaction reference</Label>
-            <Input id="reference" name="reference" required maxLength={120} placeholder="MoMo SMS code, bank ref…" />
-          </div>
-          <div>
-            <Label htmlFor="proof">Proof (screenshot)</Label>
+            <Label htmlFor="proof">Payment screenshot <span className="text-destructive">*</span></Label>
             <label className="mt-1 flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border bg-background p-3 text-sm text-muted-foreground hover:border-primary">
-              <Upload className="h-4 w-4" />
-              <span className="truncate">{file?.name ?? "Click to upload image"}</span>
-              <input id="proof" type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              <Upload className="h-4 w-4 shrink-0" />
+              <span className="truncate">{file?.name ?? "Tap to upload your proof of payment"}</span>
+              <input id="proof" type="file" accept="image/*" required className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </label>
+            <p className="mt-1 text-[11px] text-muted-foreground">A clear screenshot of the transfer is required.</p>
           </div>
           <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
             {busy ? "Submitting…" : "Submit deposit"}

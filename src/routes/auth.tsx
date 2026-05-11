@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,6 +64,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Welcome email (non-blocking)
+        sendEmail({ to: v.email, template_key: "welcome", variables: { name: v.full_name } });
         toast.success("Account created — welcome!");
       } else {
         const v = loginSchema.parse({

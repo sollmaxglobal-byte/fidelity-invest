@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { formatXAF, formatDate } from "@/lib/format";
 
@@ -55,6 +56,16 @@ function AdminDeposits() {
           description: `Deposit approved (${d.payment_methods?.label ?? ""})`, ref_id: d.id,
         });
       }
+      // Notify user (edge function looks up email server-side via user_id)
+      sendEmail({
+        to: `user_id:${d.user_id}`,
+        template_key: status === "approved" ? "deposit_approved" : "deposit_rejected",
+        variables: {
+          name: d.profiles?.full_name ?? "Investor",
+          amount: Number(d.amount).toLocaleString("fr-CM"),
+          note: status === "rejected" ? "Could not verify payment" : "",
+        },
+      });
       toast.success(`Deposit ${status}`);
       load();
     } catch (err) {

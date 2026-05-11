@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: number
+          site_name: string
+          site_url: string | null
+          smtp_from_email: string | null
+          smtp_from_name: string | null
+          smtp_host: string | null
+          smtp_password: string | null
+          smtp_port: number | null
+          smtp_secure: boolean | null
+          smtp_user: string | null
+          tidio_public_key: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          site_name?: string
+          site_url?: string | null
+          smtp_from_email?: string | null
+          smtp_from_name?: string | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_secure?: boolean | null
+          smtp_user?: string | null
+          tidio_public_key?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          site_name?: string
+          site_url?: string | null
+          smtp_from_email?: string | null
+          smtp_from_name?: string | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_secure?: boolean | null
+          smtp_user?: string | null
+          tidio_public_key?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deposits: {
         Row: {
           admin_note: string | null
@@ -60,6 +105,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_logs: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          recipient: string
+          status: string
+          subject: string | null
+          template_key: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          recipient: string
+          status: string
+          subject?: string | null
+          template_key?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          recipient?: string
+          status?: string
+          subject?: string | null
+          template_key?: string | null
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          enabled: boolean
+          html_body: string
+          key: string
+          name: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          enabled?: boolean
+          html_body: string
+          key: string
+          name: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          enabled?: boolean
+          html_body?: string
+          key?: string
+          name?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       investments: {
         Row: {
@@ -305,7 +407,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_settings: {
+        Row: {
+          id: number | null
+          site_name: string | null
+          site_url: string | null
+          tidio_public_key: string | null
+        }
+        Insert: {
+          id?: number | null
+          site_name?: string | null
+          site_url?: string | null
+          tidio_public_key?: string | null
+        }
+        Update: {
+          id?: number | null
+          site_name?: string | null
+          site_url?: string | null
+          tidio_public_key?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

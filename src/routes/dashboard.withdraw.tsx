@@ -4,6 +4,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +66,18 @@ function WithdrawPage() {
         status: "pending",
       });
       if (error) throw error;
+      if (user.email) {
+        sendEmail({
+          to: user.email,
+          template_key: "withdrawal_submitted",
+          variables: {
+            name: user.user_metadata?.full_name ?? "Investor",
+            amount: v.amount.toLocaleString("fr-CM"),
+            method: v.method.replace("_", " "),
+            account: `${v.account_name} (${v.account_number})`,
+          },
+        });
+      }
       toast.success("Withdrawal request submitted");
       (e.target as HTMLFormElement).reset();
       refresh();
