@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { formatXAF, formatDate } from "@/lib/format";
 
