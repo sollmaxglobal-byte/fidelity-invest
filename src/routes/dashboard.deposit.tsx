@@ -65,30 +65,39 @@ function DepositPage() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
+    if (!file) { toast.error("Please upload your payment screenshot"); return; }
     setBusy(true);
     const fd = new FormData(e.currentTarget);
     try {
       const v = schema.parse({
         amount: Number(fd.get("amount")),
         payment_method_id: selected,
-        reference: String(fd.get("reference") ?? ""),
       });
-      let proof_url: string | null = null;
-      if (file) {
-        const path = `${user.id}/${Date.now()}-${file.name}`;
-        const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, file);
-        if (upErr) throw upErr;
-        proof_url = path;
-      }
+      const path = `${user.id}/${Date.now()}-${file.name}`;
+      const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, file);
+      if (upErr) throw upErr;
+      const proof_url = path;
+      const method = methods.find((m) => m.id === v.payment_method_id);
       const { error } = await supabase.from("deposits").insert({
         user_id: user.id,
         amount: v.amount,
         payment_method_id: v.payment_method_id,
-        reference: v.reference,
         proof_url,
         status: "pending",
       });
       if (error) throw error;
+      // Notify user
+      if (user.email) {
+        sendEmail({
+          to: user.email,
+          template_key: "deposit_submitted",
+          variables: {
+            name: user.user_metadata?.full_name ?? "Investor",
+            amount: v.amount.toLocaleString("fr-CM"),
+            method: method?.label ?? "—",
+          },
+        });
+      }
       toast.success("Deposit submitted — pending review");
       (e.target as HTMLFormElement).reset();
       setFile(null);
