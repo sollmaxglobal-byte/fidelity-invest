@@ -162,16 +162,13 @@ function DepositPage() {
             <Input id="amount" name="amount" type="number" min={1000} step={500} required placeholder="50000" />
           </div>
           <div>
-            <Label htmlFor="reference">Transaction reference</Label>
-            <Input id="reference" name="reference" required maxLength={120} placeholder="MoMo SMS code, bank ref…" />
-          </div>
-          <div>
-            <Label htmlFor="proof">Proof (screenshot)</Label>
+            <Label htmlFor="proof">Payment screenshot <span className="text-destructive">*</span></Label>
             <label className="mt-1 flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border bg-background p-3 text-sm text-muted-foreground hover:border-primary">
-              <Upload className="h-4 w-4" />
-              <span className="truncate">{file?.name ?? "Click to upload image"}</span>
-              <input id="proof" type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              <Upload className="h-4 w-4 shrink-0" />
+              <span className="truncate">{file?.name ?? "Tap to upload your proof of payment"}</span>
+              <input id="proof" type="file" accept="image/*" required className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </label>
+            <p className="mt-1 text-[11px] text-muted-foreground">A clear screenshot of the transfer is required.</p>
           </div>
           <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
             {busy ? "Submitting…" : "Submit deposit"}
