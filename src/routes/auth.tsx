@@ -64,6 +64,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Welcome email (non-blocking)
+        sendEmail({ to: v.email, template_key: "welcome", variables: { name: v.full_name } });
         toast.success("Account created — welcome!");
       } else {
         const v = loginSchema.parse({
