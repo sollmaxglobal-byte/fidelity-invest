@@ -117,10 +117,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-        <Toaster richColors position="top-right" />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Outlet />
+          <Toaster richColors position="top-right" />
+          <TidioLoader />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
