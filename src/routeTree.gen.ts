@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlansRouteImport } from './routes/plans'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -19,8 +21,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdraw'
+import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
-import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
 import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -28,9 +31,19 @@ import { Route as AdminPlansRouteImport } from './routes/admin.plans'
 import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlansRoute = PlansRouteImport.update({
   id: '/plans',
   path: '/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -78,14 +91,19 @@ const DashboardWithdrawRoute = DashboardWithdrawRouteImport.update({
   path: '/withdraw',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardWalletRoute = DashboardWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardInvestRoute = DashboardInvestRouteImport.update({
   id: '/invest',
   path: '/invest',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardHistoryRoute = DashboardHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardDepositRoute = DashboardDepositRouteImport.update({
@@ -126,15 +144,18 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/plans': typeof PlansRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
-  '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/invest': typeof DashboardInvestRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/wallet': typeof DashboardWalletRoute
   '/dashboard/withdraw': typeof DashboardWithdrawRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -144,15 +165,18 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/plans': typeof PlansRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
-  '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/invest': typeof DashboardInvestRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/wallet': typeof DashboardWalletRoute
   '/dashboard/withdraw': typeof DashboardWithdrawRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -165,15 +189,18 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/plans': typeof PlansRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
-  '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/invest': typeof DashboardInvestRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/wallet': typeof DashboardWalletRoute
   '/dashboard/withdraw': typeof DashboardWithdrawRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -187,15 +214,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/dashboard'
+    | '/forgot-password'
     | '/plans'
+    | '/reset-password'
     | '/admin/deposits'
     | '/admin/methods'
     | '/admin/plans'
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
-    | '/dashboard/history'
     | '/dashboard/invest'
+    | '/dashboard/profile'
+    | '/dashboard/wallet'
     | '/dashboard/withdraw'
     | '/admin/'
     | '/dashboard/'
@@ -205,15 +235,18 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/forgot-password'
     | '/plans'
+    | '/reset-password'
     | '/admin/deposits'
     | '/admin/methods'
     | '/admin/plans'
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
-    | '/dashboard/history'
     | '/dashboard/invest'
+    | '/dashboard/profile'
+    | '/dashboard/wallet'
     | '/dashboard/withdraw'
     | '/admin'
     | '/dashboard'
@@ -225,15 +258,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/dashboard'
+    | '/forgot-password'
     | '/plans'
+    | '/reset-password'
     | '/admin/deposits'
     | '/admin/methods'
     | '/admin/plans'
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
-    | '/dashboard/history'
     | '/dashboard/invest'
+    | '/dashboard/profile'
+    | '/dashboard/wallet'
     | '/dashboard/withdraw'
     | '/admin/'
     | '/dashboard/'
@@ -246,16 +282,32 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   PlansRoute: typeof PlansRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/plans': {
       id: '/plans'
       path: '/plans'
       fullPath: '/plans'
       preLoaderRoute: typeof PlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -321,18 +373,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWithdrawRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/wallet': {
+      id: '/dashboard/wallet'
+      path: '/wallet'
+      fullPath: '/dashboard/wallet'
+      preLoaderRoute: typeof DashboardWalletRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/invest': {
       id: '/dashboard/invest'
       path: '/invest'
       fullPath: '/dashboard/invest'
       preLoaderRoute: typeof DashboardInvestRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/history': {
-      id: '/dashboard/history'
-      path: '/history'
-      fullPath: '/dashboard/history'
-      preLoaderRoute: typeof DashboardHistoryRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/deposit': {
@@ -402,16 +461,18 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardDepositRoute: typeof DashboardDepositRoute
-  DashboardHistoryRoute: typeof DashboardHistoryRoute
   DashboardInvestRoute: typeof DashboardInvestRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardWalletRoute: typeof DashboardWalletRoute
   DashboardWithdrawRoute: typeof DashboardWithdrawRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDepositRoute: DashboardDepositRoute,
-  DashboardHistoryRoute: DashboardHistoryRoute,
   DashboardInvestRoute: DashboardInvestRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardWalletRoute: DashboardWalletRoute,
   DashboardWithdrawRoute: DashboardWithdrawRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
@@ -427,18 +488,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   PlansRoute: PlansRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

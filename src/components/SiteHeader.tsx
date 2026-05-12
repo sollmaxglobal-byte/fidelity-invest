@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, ShieldCheck } from "lucide-react";
+import { Menu, X, Leaf } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
@@ -20,11 +20,11 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-hero text-gold">
-            <ShieldCheck className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Leaf className="h-5 w-5" />
           </div>
-          <span className="font-display text-2xl font-semibold tracking-tight text-primary">
-            Camvcc
+          <span className="font-display text-xl font-semibold tracking-tight text-primary">
+            SafeGrow <span className="text-accent">Invest</span>
           </span>
         </Link>
 
@@ -54,10 +54,7 @@ export function SiteHeader() {
               </Button>
               <Button
                 variant="outline"
-                onClick={async () => {
-                  await signOut();
-                  nav({ to: "/" });
-                }}
+                onClick={async () => { await signOut(); nav({ to: "/" }); }}
               >
                 Sign out
               </Button>
@@ -68,10 +65,10 @@ export function SiteHeader() {
                 Sign in
               </Button>
               <Button
-                className="bg-gold text-gold-foreground hover:opacity-90"
-                onClick={() => nav({ to: "/auth", search: { mode: "signup" } as never })}
+                className="bg-primary text-primary-foreground hover:opacity-90"
+                onClick={() => nav({ to: "/auth" })}
               >
-                Open account
+                Get started
               </Button>
             </>
           )}
@@ -119,8 +116,8 @@ export function SiteHeader() {
                   <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
                     Sign in
                   </Button>
-                  <Button className="bg-gold text-gold-foreground hover:opacity-90" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
-                    Open account
+                  <Button className="bg-primary text-primary-foreground hover:opacity-90" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
+                    Get started
                   </Button>
                 </>
               )}
