@@ -24,7 +24,6 @@ import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdr
 import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
-import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
 import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -107,11 +106,6 @@ const DashboardInvestRoute = DashboardInvestRouteImport.update({
   path: '/invest',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardHistoryRoute = DashboardHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardDepositRoute = DashboardDepositRouteImport.update({
   id: '/deposit',
   path: '/deposit',
@@ -159,7 +153,6 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
-  '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/invest': typeof DashboardInvestRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
@@ -181,7 +174,6 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
-  '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/invest': typeof DashboardInvestRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
@@ -206,7 +198,6 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
-  '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/invest': typeof DashboardInvestRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
@@ -232,7 +223,6 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
-    | '/dashboard/history'
     | '/dashboard/invest'
     | '/dashboard/profile'
     | '/dashboard/wallet'
@@ -254,7 +244,6 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
-    | '/dashboard/history'
     | '/dashboard/invest'
     | '/dashboard/profile'
     | '/dashboard/wallet'
@@ -278,7 +267,6 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
-    | '/dashboard/history'
     | '/dashboard/invest'
     | '/dashboard/profile'
     | '/dashboard/wallet'
@@ -406,13 +394,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardInvestRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/history': {
-      id: '/dashboard/history'
-      path: '/history'
-      fullPath: '/dashboard/history'
-      preLoaderRoute: typeof DashboardHistoryRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/deposit': {
       id: '/dashboard/deposit'
       path: '/deposit'
@@ -480,7 +461,6 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardDepositRoute: typeof DashboardDepositRoute
-  DashboardHistoryRoute: typeof DashboardHistoryRoute
   DashboardInvestRoute: typeof DashboardInvestRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardWalletRoute: typeof DashboardWalletRoute
@@ -490,7 +470,6 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDepositRoute: DashboardDepositRoute,
-  DashboardHistoryRoute: DashboardHistoryRoute,
   DashboardInvestRoute: DashboardInvestRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardWalletRoute: DashboardWalletRoute,
