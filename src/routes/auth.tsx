@@ -1,8 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { ShieldCheck } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Leaf } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,8 +13,8 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Camvcc" },
-      { name: "description", content: "Sign in or open an account on Camvcc." },
+      { title: "Sign in — SafeGrow Invest" },
+      { name: "description", content: "Sign in or create your SafeGrow Invest account." },
     ],
   }),
   component: AuthPage,
@@ -64,9 +63,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        // Welcome email (non-blocking)
         sendEmail({ to: v.email, template_key: "welcome", variables: { name: v.full_name } });
-        toast.success("Account created — welcome!");
+        toast.success("Account created — welcome to SafeGrow!");
       } else {
         const v = loginSchema.parse({
           email: fd.get("email"),
@@ -92,33 +90,33 @@ function AuthPage() {
       {/* Left — brand panel */}
       <div className="relative hidden bg-hero p-12 text-primary-foreground md:flex md:flex-col md:justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white/10 text-gold">
-            <ShieldCheck className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+            <Leaf className="h-5 w-5" />
           </div>
-          <span className="font-display text-2xl text-gold">Camvcc</span>
+          <span className="font-display text-2xl">SafeGrow Invest</span>
         </Link>
         <div>
           <h2 className="font-display text-5xl">
-            Capital that <em className="text-gold not-italic">works</em> while you sleep.
+            Grow your money <em className="not-italic text-success">safely</em>.
           </h2>
           <p className="mt-4 max-w-md opacity-80">
-            Daily XAF returns. Manual verification. Real Cameroonian support.
+            Capital + profit paid at the end of every plan. Manual verification. Real Cameroonian support.
           </p>
         </div>
-        <p className="text-xs opacity-60">© Camvcc {new Date().getFullYear()}</p>
+        <p className="text-xs opacity-60">© SafeGrow Invest {new Date().getFullYear()}</p>
       </div>
 
       {/* Right — form */}
       <div className="flex items-center justify-center bg-background p-6 md:p-12">
         <div className="w-full max-w-sm">
           <Link to="/" className="mb-6 inline-flex items-center gap-2 md:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-hero text-gold">
-              <ShieldCheck className="h-4 w-4" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Leaf className="h-4 w-4" />
             </div>
-            <span className="font-display text-xl text-primary">Camvcc</span>
+            <span className="font-display text-xl text-primary">SafeGrow Invest</span>
           </Link>
           <h1 className="font-display text-3xl text-primary">
-            {mode === "login" ? "Welcome back" : "Open your account"}
+            {mode === "login" ? "Welcome back" : "Create your account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "login" ? "Sign in to your dashboard." : "Takes less than a minute."}
@@ -142,7 +140,14 @@ function AuthPage() {
               <Input id="email" name="email" type="email" required autoComplete="email" />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {mode === "login" && (
+                  <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                    Forgot password?
+                  </Link>
+                )}
+              </div>
               <Input id="password" name="password" type="password" required minLength={mode === "signup" ? 8 : 1} autoComplete={mode === "signup" ? "new-password" : "current-password"} />
             </div>
             <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
@@ -151,7 +156,7 @@ function AuthPage() {
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "login" ? "New to Camvcc?" : "Already have an account?"}{" "}
+            {mode === "login" ? "New to SafeGrow?" : "Already have an account?"}{" "}
             <button
               className="font-medium text-primary underline underline-offset-4"
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
@@ -159,6 +164,10 @@ function AuthPage() {
               {mode === "login" ? "Create one" : "Sign in"}
             </button>
           </div>
+
+          <p className="mt-8 text-center text-[11px] leading-relaxed text-muted-foreground">
+            Not a licensed financial institution. Investments carry risk. Only invest what you can afford to lose.
+          </p>
         </div>
       </div>
     </div>
