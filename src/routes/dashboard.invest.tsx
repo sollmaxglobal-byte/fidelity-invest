@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { sendEmail } from "@/lib/email-client";
@@ -19,6 +19,8 @@ type Plan = {
   id: string; name: string; description: string | null;
   min_amount: number; max_amount: number; daily_roi_percent: number; duration_days: number;
 };
+
+const POPULAR = "Growth Plan";
 
 function InvestPage() {
   const { user } = useAuth();
@@ -37,7 +39,6 @@ function InvestPage() {
       ]);
       const ps = (p as Plan[]) ?? [];
       setPlans(ps);
-      if (ps[0]) { setPlanId(ps[0].id); setAmount(ps[0].min_amount); }
       setBalance(Number(prof?.balance ?? 0));
     })();
   }, [user]);
@@ -45,23 +46,25 @@ function InvestPage() {
   const plan = plans.find((p) => p.id === planId);
   const projection = useMemo(() => {
     if (!plan) return null;
-    const dailyROI = (amount * plan.daily_roi_percent) / 100;
-    const total = dailyROI * plan.duration_days;
-    return { dailyROI, total, finalBalance: amount + total };
+    // daily_roi_percent stored as TOTAL term ROI (e.g. 12, 30, 75)
+    const profit = (amount * plan.daily_roi_percent) / 100;
+    return { profit, payout: amount + profit };
   }, [plan, amount]);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function activate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user || !plan) return;
     setBusy(true);
     try {
       const schema = z.object({
-        amount: z.number().min(plan.min_amount, `Min ${formatXAF(plan.min_amount)}`).max(plan.max_amount, `Max ${formatXAF(plan.max_amount)}`),
+        amount: z.number()
+          .min(plan.min_amount, `Min ${formatXAF(plan.min_amount)}`)
+          .max(plan.max_amount, `Max ${formatXAF(plan.max_amount)}`),
       });
       schema.parse({ amount });
-      if (amount > balance) throw new Error("Insufficient balance — make a deposit first");
+      if (amount > balance) throw new Error("Insufficient wallet balance — make a deposit first");
 
-      const end = new Date(Date.now() + plan.duration_days * 86_400_000).toISOString();
+      const end = new Date(Date.now() + plan.duration_days * 86400000).toISOString();
       const { data: inv, error } = await supabase.from("investments").insert({
         user_id: user.id, plan_id: plan.id, amount,
         daily_roi_percent: plan.daily_roi_percent,
@@ -78,12 +81,11 @@ function InvestPage() {
       }).eq("id", user.id);
       await supabase.from("transactions").insert({
         user_id: user.id, type: "investment", amount: -amount,
-        description: `Invested in ${plan.name}`, ref_id: inv?.id,
+        description: `Activated ${plan.name}`, ref_id: inv?.id,
       });
       if (user.email) {
         sendEmail({
-          to: user.email,
-          template_key: "investment_started",
+          to: user.email, template_key: "investment_started",
           variables: {
             name: user.user_metadata?.full_name ?? "Investor",
             amount: amount.toLocaleString("fr-CM"),
@@ -93,8 +95,9 @@ function InvestPage() {
           },
         });
       }
-      toast.success("Investment created — earnings will accrue daily");
+      toast.success(`${plan.name} activated`);
       setBalance((b) => b - amount);
+      setPlanId("");
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
       toast.error(msg);
@@ -104,99 +107,104 @@ function InvestPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-primary md:text-4xl">New investment</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Pick a plan and any amount within its range.</p>
+          <h1 className="font-display text-2xl text-primary md:text-3xl">Investment plans</h1>
+          <p className="mt-0.5 text-xs text-muted-foreground">Capital + profit paid at end of term.</p>
         </div>
-        <div className="rounded-xl border border-border bg-card px-4 py-2 text-right">
+        <div className="rounded-xl border border-border bg-card px-3 py-1.5 text-right">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Wallet</div>
-          <div className="font-display text-xl text-primary">{formatXAF(balance)}</div>
+          <div className="font-display text-base text-primary">{formatXAF(balance)}</div>
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="space-y-4">
         {plans.map((p) => {
-          const active = p.id === planId;
+          const popular = p.name === POPULAR;
           return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => { setPlanId(p.id); setAmount(p.min_amount); }}
-              className={`rounded-2xl border p-5 text-left transition ${
-                active ? "border-gold bg-primary text-primary-foreground shadow-elegant" : "border-border bg-card hover:border-primary"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-display text-2xl">{p.name}</span>
-                <TrendingUp className={`h-5 w-5 ${active ? "text-gold" : "text-primary"}`} />
+            <div key={p.id} className={`relative rounded-2xl border p-5 ${
+              popular ? "border-primary bg-card shadow-elegant" : "border-border bg-card"
+            }`}>
+              {popular && (
+                <span className="absolute -top-2.5 left-4 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
+                  Popular
+                </span>
+              )}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="font-display text-xl text-primary">{p.name}</div>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="font-display text-3xl text-success">{p.daily_roi_percent}%</span>
+                    <span className="text-xs text-muted-foreground">ROI · {p.duration_days} days</span>
+                  </div>
+                </div>
+                <TrendingUp className="h-5 w-5 text-accent" />
               </div>
-              <div className={`mt-2 text-xs ${active ? "opacity-80" : "text-muted-foreground"}`}>
-                {formatXAF(p.min_amount)} – {formatXAF(p.max_amount)}
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-lg bg-secondary p-2">
+                  <div className="text-muted-foreground">Min</div>
+                  <div className="font-medium">{formatXAF(p.min_amount)}</div>
+                </div>
+                <div className="rounded-lg bg-secondary p-2">
+                  <div className="text-muted-foreground">Max</div>
+                  <div className="font-medium">{formatXAF(p.max_amount)}</div>
+                </div>
               </div>
-              <div className={`mt-3 font-display text-3xl ${active ? "text-gold" : "text-accent"}`}>
-                {p.daily_roi_percent}%
-                <span className="ml-1 text-xs uppercase opacity-70">/ day · {p.duration_days}d</span>
-              </div>
-            </button>
+              <Button
+                onClick={() => { setPlanId(p.id); setAmount(p.min_amount); }}
+                className="mt-4 w-full bg-primary text-primary-foreground hover:opacity-90"
+              >
+                Activate
+              </Button>
+              <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+                Capital + Profit paid at end of term. Investments carry risk.
+              </p>
+            </div>
           );
         })}
       </div>
 
       {plan && (
-        <form onSubmit={onSubmit} className="grid gap-6 rounded-2xl border border-border bg-card p-5 md:grid-cols-2 md:p-7">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="amount">Amount to invest (XAF)</Label>
-              <Input
-                id="amount" type="number" required
-                min={plan.min_amount} max={plan.max_amount} step={500}
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-              />
-              <div className="mt-1 text-xs text-muted-foreground">
-                Min {formatXAF(plan.min_amount)} • Max {formatXAF(plan.max_amount)}
-              </div>
+        <form onSubmit={activate} className="rounded-2xl border border-primary bg-card p-5 shadow-elegant">
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Activate</div>
+          <div className="font-display text-xl text-primary">{plan.name}</div>
+
+          <div className="mt-4">
+            <Label htmlFor="amount">Amount (XAF)</Label>
+            <Input
+              id="amount" type="number" required
+              min={plan.min_amount} max={plan.max_amount} step={500}
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+            />
+            <div className="mt-1 text-xs text-muted-foreground">
+              Min {formatXAF(plan.min_amount)} · Max {formatXAF(plan.max_amount)}
             </div>
-
-            {balance < amount && (
-              <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs">
-                Your wallet is below the chosen amount.{" "}
-                <Link to="/dashboard/deposit" className="font-medium underline">Top up →</Link>
-              </div>
-            )}
-
-            <Button type="submit" disabled={busy || !projection} className="w-full bg-gold text-gold-foreground hover:opacity-90">
-              {busy ? "Creating…" : "Confirm investment"}
-            </Button>
           </div>
 
           {projection && (
-            <div className="rounded-xl bg-secondary p-5">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">Projection</div>
-              <div className="mt-3 space-y-2 text-sm">
-                <Row label="Daily earnings" value={formatXAF(projection.dailyROI)} />
-                <Row label="Duration" value={`${plan.duration_days} days`} />
-                <Row label="Total ROI" value={formatXAF(projection.total)} accent />
-                <div className="my-3 border-t border-border" />
-                <Row label="Capital + ROI" value={formatXAF(projection.finalBalance)} bold />
-              </div>
+            <div className="mt-4 rounded-xl bg-secondary p-3 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Profit</span><span className="font-medium text-success">{formatXAF(projection.profit)}</span></div>
+              <div className="mt-1 flex justify-between border-t border-border pt-1"><span className="text-muted-foreground">Payout at end</span><span className="font-display text-base text-primary">{formatXAF(projection.payout)}</span></div>
             </div>
           )}
+
+          {balance < amount && (
+            <div className="mt-3 rounded-lg border border-warning/40 bg-warning/10 p-2.5 text-xs">
+              Wallet too low. <Link to="/dashboard/deposit" className="font-medium underline">Top up →</Link>
+            </div>
+          )}
+
+          <div className="mt-4 flex gap-2">
+            <Button type="button" variant="outline" onClick={() => setPlanId("")} className="flex-1">Cancel</Button>
+            <Button type="submit" disabled={busy} className="flex-1 bg-primary text-primary-foreground hover:opacity-90">
+              <CheckCircle2 className="mr-1 h-4 w-4" />
+              {busy ? "Activating…" : "Confirm"}
+            </Button>
+          </div>
         </form>
       )}
-    </div>
-  );
-}
-
-function Row({ label, value, accent, bold }: { label: string; value: string; accent?: boolean; bold?: boolean }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className={`${accent ? "text-success" : ""} ${bold ? "font-display text-lg text-primary" : "font-medium"}`}>
-        {value}
-      </span>
     </div>
   );
 }
