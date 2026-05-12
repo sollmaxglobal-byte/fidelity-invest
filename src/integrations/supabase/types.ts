@@ -65,6 +65,7 @@ export type Database = {
           amount: number
           created_at: string
           id: string
+          payer_phone: string | null
           payment_method_id: string | null
           proof_url: string | null
           reference: string | null
@@ -77,6 +78,7 @@ export type Database = {
           amount: number
           created_at?: string
           id?: string
+          payer_phone?: string | null
           payment_method_id?: string | null
           proof_url?: string | null
           reference?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           amount?: number
           created_at?: string
           id?: string
+          payer_phone?: string | null
           payment_method_id?: string | null
           proof_url?: string | null
           reference?: string | null
@@ -288,7 +291,9 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          kyc_status: string
           phone: string | null
+          referral_code: string | null
           total_earned: number
           total_invested: number
           updated_at: string
@@ -298,7 +303,9 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          kyc_status?: string
           phone?: string | null
+          referral_code?: string | null
           total_earned?: number
           total_invested?: number
           updated_at?: string
@@ -308,7 +315,9 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          kyc_status?: string
           phone?: string | null
+          referral_code?: string | null
           total_earned?: number
           total_invested?: number
           updated_at?: string
