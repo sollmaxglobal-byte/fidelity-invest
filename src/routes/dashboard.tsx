@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
 
 function DashboardLayout() {
   const { user, loading, isAdmin } = useAuth();
+  const { t } = useI18n();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -30,7 +31,7 @@ function DashboardLayout() {
   }, [user, loading, nav]);
 
   if (loading || !user) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Loading…</div>;
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.loading")}</div>;
   }
 
   const isActive = (to: string, exact?: boolean) =>
