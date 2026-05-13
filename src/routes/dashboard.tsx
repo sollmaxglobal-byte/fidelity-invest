@@ -2,23 +2,27 @@ import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tan
 import { useEffect } from "react";
 import { Home, TrendingUp, Wallet, User, Leaf } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean };
+type NavKey = "nav.home" | "nav.invest" | "nav.wallet" | "nav.profile";
+type NavItem = { to: string; label: NavKey; icon: typeof Home; exact?: boolean };
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Home", icon: Home, exact: true },
-  { to: "/dashboard/invest", label: "Invest", icon: TrendingUp },
-  { to: "/dashboard/wallet", label: "Wallet", icon: Wallet },
-  { to: "/dashboard/profile", label: "Profile", icon: User },
+  { to: "/dashboard", label: "nav.home", icon: Home, exact: true },
+  { to: "/dashboard/invest", label: "nav.invest", icon: TrendingUp },
+  { to: "/dashboard/wallet", label: "nav.wallet", icon: Wallet },
+  { to: "/dashboard/profile", label: "nav.profile", icon: User },
 ];
 
 function DashboardLayout() {
   const { user, loading, isAdmin } = useAuth();
+  const { t } = useI18n();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -27,7 +31,7 @@ function DashboardLayout() {
   }, [user, loading, nav]);
 
   if (loading || !user) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Loading…</div>;
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.loading")}</div>;
   }
 
   const isActive = (to: string, exact?: boolean) =>
@@ -44,11 +48,12 @@ function DashboardLayout() {
             </div>
             <span className="font-display text-lg font-semibold text-primary">SafeGrow</span>
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            <LanguageToggle />
             <ThemeToggle />
             {isAdmin && (
               <Button size="sm" variant="ghost" onClick={() => nav({ to: "/admin" })}>
-                Admin
+                {t("nav.admin")}
               </Button>
             )}
           </div>
@@ -70,7 +75,7 @@ function DashboardLayout() {
                   }`}
                 >
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               );
             })}
@@ -91,15 +96,15 @@ function DashboardLayout() {
               <Link
                 key={item.to}
                 to={item.to as never}
-                className="flex flex-col items-center justify-center gap-1 py-2.5"
+                className="flex flex-col items-center justify-center gap-1 py-2 active:scale-95 transition-transform"
               >
                 <span className={`flex h-9 w-12 items-center justify-center rounded-full transition ${
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  active ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground"
                 }`}>
                   <item.icon className="h-5 w-5" />
                 </span>
                 <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
-                  {item.label}
+                  {t(item.label)}
                 </span>
               </Link>
             );

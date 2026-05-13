@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ const schema = z.object({
 
 function DepositPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [deposits, setDeposits] = useState<Deposit[]>([]);
@@ -102,7 +103,7 @@ function DepositPage() {
       (e.target as HTMLFormElement).reset();
       setFile(null);
       setAmount("");
-      refresh();
+      navigate({ to: "/dashboard/wallet", search: { filter: "Deposits" } as never });
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
       toast.error(msg);

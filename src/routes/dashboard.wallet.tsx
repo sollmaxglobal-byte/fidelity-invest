@@ -1,11 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatXAF, formatDate } from "@/lib/format";
 
+const searchSchema = z.object({
+  filter: z.enum(["All", "Deposits", "Withdrawals", "Profits"]).optional(),
+});
+
 export const Route = createFileRoute("/dashboard/wallet")({
+  validateSearch: (s) => searchSchema.parse(s),
   component: WalletPage,
 });
 
@@ -23,11 +29,14 @@ type Filter = typeof FILTERS[number];
 
 function WalletPage() {
   const { user } = useAuth();
+  const search = Route.useSearch();
   const [tx, setTx] = useState<Tx[]>([]);
   const [pendingDeposits, setPendingDeposits] = useState<Pending[]>([]);
   const [pendingWithdrawals, setPendingWithdrawals] = useState<Pending[]>([]);
-  const [filter, setFilter] = useState<Filter>("All");
+  const [filter, setFilter] = useState<Filter>(search.filter ?? "All");
   const [balance, setBalance] = useState(0);
+
+  useEffect(() => { if (search.filter) setFilter(search.filter); }, [search.filter]);
 
   useEffect(() => {
     if (!user) return;

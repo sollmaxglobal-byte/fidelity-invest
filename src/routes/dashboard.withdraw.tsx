@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ const schema = z.object({
 
 function WithdrawPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [list, setList] = useState<Withdrawal[]>([]);
   const [busy, setBusy] = useState(false);
@@ -80,7 +81,7 @@ function WithdrawPage() {
       }
       toast.success("Withdrawal request submitted");
       (e.target as HTMLFormElement).reset();
-      refresh();
+      navigate({ to: "/dashboard/wallet", search: { filter: "Withdrawals" } as never });
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
       toast.error(msg);
