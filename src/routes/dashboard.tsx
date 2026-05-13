@@ -48,11 +48,12 @@ function DashboardLayout() {
             </div>
             <span className="font-display text-lg font-semibold text-primary">SafeGrow</span>
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            <LanguageToggle />
             <ThemeToggle />
             {isAdmin && (
               <Button size="sm" variant="ghost" onClick={() => nav({ to: "/admin" })}>
-                Admin
+                {t("nav.admin")}
               </Button>
             )}
           </div>
