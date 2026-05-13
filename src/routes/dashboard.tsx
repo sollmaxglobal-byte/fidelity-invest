@@ -96,15 +96,15 @@ function DashboardLayout() {
               <Link
                 key={item.to}
                 to={item.to as never}
-                className="flex flex-col items-center justify-center gap-1 py-2.5"
+                className="flex flex-col items-center justify-center gap-1 py-2 active:scale-95 transition-transform"
               >
                 <span className={`flex h-9 w-12 items-center justify-center rounded-full transition ${
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  active ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground"
                 }`}>
                   <item.icon className="h-5 w-5" />
                 </span>
                 <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
-                  {item.label}
+                  {t(item.label)}
                 </span>
               </Link>
             );
