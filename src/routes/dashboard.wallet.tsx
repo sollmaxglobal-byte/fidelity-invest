@@ -29,11 +29,14 @@ type Filter = typeof FILTERS[number];
 
 function WalletPage() {
   const { user } = useAuth();
+  const search = Route.useSearch();
   const [tx, setTx] = useState<Tx[]>([]);
   const [pendingDeposits, setPendingDeposits] = useState<Pending[]>([]);
   const [pendingWithdrawals, setPendingWithdrawals] = useState<Pending[]>([]);
-  const [filter, setFilter] = useState<Filter>("All");
+  const [filter, setFilter] = useState<Filter>(search.filter ?? "All");
   const [balance, setBalance] = useState(0);
+
+  useEffect(() => { if (search.filter) setFilter(search.filter); }, [search.filter]);
 
   useEffect(() => {
     if (!user) return;
