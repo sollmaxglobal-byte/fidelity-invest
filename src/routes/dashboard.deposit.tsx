@@ -101,6 +101,7 @@ function DepositPage() {
       toast.success("Deposit submitted — pending review");
       (e.target as HTMLFormElement).reset();
       setFile(null);
+      setAmount("");
       refresh();
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
