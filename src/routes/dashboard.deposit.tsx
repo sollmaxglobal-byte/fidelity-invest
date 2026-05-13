@@ -39,6 +39,7 @@ function DepositPage() {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [amount, setAmount] = useState<string>("");
 
   useEffect(() => {
     if (!user) return;
