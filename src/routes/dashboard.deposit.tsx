@@ -68,10 +68,9 @@ function DepositPage() {
     if (!user) return;
     if (!file) { toast.error("Please upload your payment screenshot"); return; }
     setBusy(true);
-    const fd = new FormData(e.currentTarget);
     try {
       const v = schema.parse({
-        amount: Number(fd.get("amount")),
+        amount: Number(amount),
         payment_method_id: selected,
       });
       const path = `${user.id}/${Date.now()}-${file.name}`;
