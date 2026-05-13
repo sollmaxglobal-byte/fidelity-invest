@@ -34,6 +34,7 @@ const schema = z.object({
 
 function DepositPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [deposits, setDeposits] = useState<Deposit[]>([]);
