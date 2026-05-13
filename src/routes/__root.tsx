@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { I18nProvider } from "@/hooks/useI18n";
 import { TidioLoader } from "@/components/TidioLoader";
 import { Toaster } from "@/components/ui/sonner";
 
