@@ -29,6 +29,7 @@ const schema = z.object({
 
 function WithdrawPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [list, setList] = useState<Withdrawal[]>([]);
   const [busy, setBusy] = useState(false);
