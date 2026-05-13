@@ -1,11 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatXAF, formatDate } from "@/lib/format";
 
+const searchSchema = z.object({
+  filter: z.enum(["All", "Deposits", "Withdrawals", "Profits"]).optional(),
+});
+
 export const Route = createFileRoute("/dashboard/wallet")({
+  validateSearch: (s) => searchSchema.parse(s),
   component: WalletPage,
 });
 
