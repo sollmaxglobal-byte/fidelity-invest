@@ -147,6 +147,10 @@ function DepositPage() {
               <div className="mt-2 space-y-2">
                 <CopyRow label="Account name" value={sel.account_name ?? ""} />
                 <CopyRow label="Account / Number" value={sel.account_number ?? ""} />
+                <CopyRow
+                  label="Amount to send (XAF)"
+                  value={amount && Number(amount) > 0 ? Number(amount).toLocaleString("fr-CM") : "Enter an amount →"}
+                />
               </div>
               <div className="mt-4 rounded-lg bg-secondary p-3 text-sm leading-relaxed">
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent">Instructions</div>
@@ -160,7 +164,17 @@ function DepositPage() {
         <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-5 lg:col-span-2">
           <div>
             <Label htmlFor="amount">Amount (XAF)</Label>
-            <Input id="amount" name="amount" type="number" min={1000} step={500} required placeholder="50000" />
+            <Input
+              id="amount"
+              name="amount"
+              type="number"
+              min={1000}
+              step={500}
+              required
+              placeholder="50000"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
           </div>
           <div>
             <Label htmlFor="proof">Payment screenshot <span className="text-destructive">*</span></Label>
@@ -169,7 +183,7 @@ function DepositPage() {
               <span className="truncate">{file?.name ?? "Tap to upload your proof of payment"}</span>
               <input id="proof" type="file" accept="image/*" required className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </label>
-            <p className="mt-1 text-[11px] text-muted-foreground">A clear screenshot of the transfer is required.</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">A clear screenshot of the transfer is the only thing required — no transaction reference needed.</p>
           </div>
           <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
             {busy ? "Submitting…" : "Submit deposit"}
