@@ -75,7 +75,7 @@ function DashboardLayout() {
                   }`}
                 >
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               );
             })}
