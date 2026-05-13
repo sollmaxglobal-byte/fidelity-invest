@@ -2,19 +2,22 @@ import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tan
 import { useEffect } from "react";
 import { Home, TrendingUp, Wallet, User, Leaf } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean };
+type NavKey = "nav.home" | "nav.invest" | "nav.wallet" | "nav.profile";
+type NavItem = { to: string; label: NavKey; icon: typeof Home; exact?: boolean };
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Home", icon: Home, exact: true },
-  { to: "/dashboard/invest", label: "Invest", icon: TrendingUp },
-  { to: "/dashboard/wallet", label: "Wallet", icon: Wallet },
-  { to: "/dashboard/profile", label: "Profile", icon: User },
+  { to: "/dashboard", label: "nav.home", icon: Home, exact: true },
+  { to: "/dashboard/invest", label: "nav.invest", icon: TrendingUp },
+  { to: "/dashboard/wallet", label: "nav.wallet", icon: Wallet },
+  { to: "/dashboard/profile", label: "nav.profile", icon: User },
 ];
 
 function DashboardLayout() {
