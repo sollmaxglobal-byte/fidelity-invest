@@ -119,11 +119,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <Outlet />
-          <Toaster richColors position="top-right" />
-          <TidioLoader />
-        </AuthProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <Outlet />
+            <Toaster richColors position="top-right" />
+            <TidioLoader />
+          </AuthProvider>
+        </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
