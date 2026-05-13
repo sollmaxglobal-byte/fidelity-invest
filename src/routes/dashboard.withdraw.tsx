@@ -81,7 +81,7 @@ function WithdrawPage() {
       }
       toast.success("Withdrawal request submitted");
       (e.target as HTMLFormElement).reset();
-      refresh();
+      navigate({ to: "/dashboard/wallet", search: { filter: "Withdrawals" } as never });
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
       toast.error(msg);
