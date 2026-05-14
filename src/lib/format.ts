@@ -1,17 +1,21 @@
+// Deterministic formatting (no Intl) to avoid SSR/CSR hydration mismatches
+// caused by different ICU versions on server vs client.
+
 export function formatXAF(n: number | string | null | undefined): string {
-  const num = Number(n ?? 0);
-  return new Intl.NumberFormat("fr-CM", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-  }).format(num);
+  const num = Math.round(Number(n ?? 0));
+  const abs = Math.abs(num);
+  const grouped = String(abs).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return `${num < 0 ? "-" : ""}${grouped} XAF`;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function formatDate(d: string | Date | null | undefined): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return "—";
+  const day = String(dt.getUTCDate()).padStart(2, "0");
+  const month = MONTHS[dt.getUTCMonth()];
+  const year = dt.getUTCFullYear();
+  return `${day} ${month} ${year}`;
 }
