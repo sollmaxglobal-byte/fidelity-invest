@@ -5,10 +5,12 @@ import { Leaf } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -34,6 +36,7 @@ const loginSchema = z.object({
 
 function AuthPage() {
   const { user, loading } = useAuth();
+  const { t } = useI18n();
   const nav = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [busy, setBusy] = useState(false);
@@ -64,7 +67,7 @@ function AuthPage() {
         });
         if (error) throw error;
         sendEmail({ to: v.email, template_key: "welcome", variables: { name: v.full_name } });
-        toast.success("Account created — welcome to SafeGrow!");
+        toast.success(t("auth.created"));
       } else {
         const v = loginSchema.parse({
           email: fd.get("email"),
@@ -75,7 +78,7 @@ function AuthPage() {
           password: v.password,
         });
         if (error) throw error;
-        toast.success("Welcome back");
+        toast.success(t("auth.welcomeToast"));
       }
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
@@ -97,76 +100,80 @@ function AuthPage() {
         </Link>
         <div>
           <h2 className="font-display text-5xl">
-            Grow your money <em className="not-italic text-success">safely</em>.
+            {t("auth.heroLine1")} <em className="not-italic text-success">{t("auth.heroLine2")}</em>.
           </h2>
-          <p className="mt-4 max-w-md opacity-80">
-            Capital + profit paid at the end of every plan. Manual verification. Real Cameroonian support.
-          </p>
+          <p className="mt-4 max-w-md opacity-80">{t("auth.heroSub")}</p>
         </div>
-        <p className="text-xs opacity-60">© SafeGrow Invest {new Date().getFullYear()}</p>
+        <p className="text-xs opacity-60">© SafeGrow Invest 2026</p>
       </div>
 
       {/* Right — form */}
       <div className="flex items-center justify-center bg-background p-6 md:p-12">
         <div className="w-full max-w-sm">
-          <Link to="/" className="mb-6 inline-flex items-center gap-2 md:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Leaf className="h-4 w-4" />
-            </div>
-            <span className="font-display text-xl text-primary">SafeGrow Invest</span>
-          </Link>
+          <div className="mb-6 flex items-center justify-between md:hidden">
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <Leaf className="h-4 w-4" />
+              </div>
+              <span className="font-display text-xl text-primary">SafeGrow Invest</span>
+            </Link>
+            <LanguageToggle />
+          </div>
+          <div className="hidden justify-end md:flex">
+            <LanguageToggle />
+          </div>
           <h1 className="font-display text-3xl text-primary">
-            {mode === "login" ? "Welcome back" : "Create your account"}
+            {mode === "login" ? t("auth.welcomeBack") : t("auth.createAcc")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "login" ? "Sign in to your dashboard." : "Takes less than a minute."}
+            {mode === "login" ? t("auth.signInSub") : t("auth.signUpSub")}
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             {mode === "signup" && (
               <>
                 <div>
-                  <Label htmlFor="full_name">Full name</Label>
+                  <Label htmlFor="full_name">{t("auth.fullName")}</Label>
                   <Input id="full_name" name="full_name" required maxLength={80} />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">{t("auth.phone")}</Label>
                   <Input id="phone" name="phone" type="tel" required placeholder="+237 6XX XXX XXX" />
                 </div>
               </>
             )}
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input id="email" name="email" type="email" required autoComplete="email" />
             </div>
             <div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("auth.password")}</Label>
                 {mode === "login" && (
                   <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                    Forgot password?
+                    {t("auth.forgot")}
                   </Link>
                 )}
               </div>
               <Input id="password" name="password" type="password" required minLength={mode === "signup" ? 8 : 1} autoComplete={mode === "signup" ? "new-password" : "current-password"} />
             </div>
             <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
-              {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
+              {busy ? t("common.pleaseWait") : mode === "login" ? t("auth.signIn") : t("auth.signUp")}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "login" ? "New to SafeGrow?" : "Already have an account?"}{" "}
+            {mode === "login" ? t("auth.newHere") : t("auth.haveAccount")}{" "}
             <button
               className="font-medium text-primary underline underline-offset-4"
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
             >
-              {mode === "login" ? "Create one" : "Sign in"}
+              {mode === "login" ? t("auth.createOne") : t("auth.signIn")}
             </button>
           </div>
 
           <p className="mt-8 text-center text-[11px] leading-relaxed text-muted-foreground">
-            Not a licensed financial institution. Investments carry risk. Only invest what you can afford to lose.
+            {t("auth.disclaimer")}
           </p>
         </div>
       </div>

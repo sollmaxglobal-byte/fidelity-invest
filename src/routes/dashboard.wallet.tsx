@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 
 const searchSchema = z.object({
@@ -29,6 +30,7 @@ type Filter = typeof FILTERS[number];
 
 function WalletPage() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const search = Route.useSearch();
   const [tx, setTx] = useState<Tx[]>([]);
   const [pendingDeposits, setPendingDeposits] = useState<Pending[]>([]);
@@ -88,42 +90,50 @@ function WalletPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl text-primary md:text-3xl">Wallet</h1>
-        <p className="mt-0.5 text-xs text-muted-foreground">All your money movements in one place.</p>
+        <h1 className="font-display text-2xl text-primary md:text-3xl">{t("wallet.title")}</h1>
+        <p className="mt-0.5 text-xs text-muted-foreground">{t("wallet.subtitle")}</p>
       </div>
 
       <div className="rounded-2xl bg-hero p-5 text-primary-foreground shadow-elegant">
-        <div className="text-xs uppercase tracking-wider opacity-80">Available balance</div>
+        <div className="text-xs uppercase tracking-wider opacity-80">{t("wallet.balance")}</div>
         <div className="mt-1 font-display text-3xl">{formatXAF(balance)}</div>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm font-medium hover:bg-white/25">
-            <ArrowDownToLine className="h-4 w-4" /> Deposit
+            <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
           </Link>
           <Link to="/dashboard/withdraw" className="flex items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-primary hover:bg-white/90">
-            <ArrowUpFromLine className="h-4 w-4" /> Withdraw
+            <ArrowUpFromLine className="h-4 w-4" /> {t("common.withdraw")}
           </Link>
         </div>
       </div>
 
       {/* Filter tabs */}
       <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium ${
-              filter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
+        {FILTERS.map((f) => {
+          const labels: Record<typeof FILTERS[number], string> = {
+            All: t("wallet.filter.all"),
+            Deposits: t("wallet.filter.deposits"),
+            Withdrawals: t("wallet.filter.withdrawals"),
+            Profits: t("wallet.filter.profits"),
+          };
+          return (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium ${
+                filter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {labels[f]}
+            </button>
+          );
+        })}
       </div>
 
       {/* Transactions list */}
       {rows.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No transactions yet.
+          {t("wallet.empty")}
         </div>
       ) : (
         <div className="space-y-2">

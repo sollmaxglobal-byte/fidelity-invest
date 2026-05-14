@@ -2,18 +2,21 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X, Leaf } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export function SiteHeader() {
   const { user, isAdmin, signOut } = useAuth();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const nav = useNavigate();
 
   const links = [
-    { to: "/", label: "Home" },
-    { to: "/plans", label: "Plans" },
-    { to: "/about", label: "About" },
-    { to: "/contact", label: "Contact" },
+    { to: "/", label: t("nav.home") },
+    { to: "/plans", label: t("nav.plans") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/contact", label: t("nav.contact") },
   ] as const;
 
   return (
@@ -42,45 +45,45 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageToggle />
           {user ? (
             <>
               {isAdmin && (
                 <Button variant="ghost" onClick={() => nav({ to: "/admin" })}>
-                  Admin
+                  {t("nav.admin")}
                 </Button>
               )}
               <Button variant="ghost" onClick={() => nav({ to: "/dashboard" })}>
-                Dashboard
+                {t("nav.dashboard")}
               </Button>
               <Button
                 variant="outline"
                 onClick={async () => { await signOut(); nav({ to: "/" }); }}
               >
-                Sign out
+                {t("nav.signout")}
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" onClick={() => nav({ to: "/auth" })}>
-                Sign in
+                {t("nav.signin")}
               </Button>
               <Button
                 className="bg-primary text-primary-foreground hover:opacity-90"
                 onClick={() => nav({ to: "/auth" })}
               >
-                Get started
+                {t("nav.getStarted")}
               </Button>
             </>
           )}
         </div>
 
-        <button
-          className="md:hidden"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="menu"
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-1.5 md:hidden">
+          <LanguageToggle />
+          <button onClick={() => setOpen((o) => !o)} aria-label="menu">
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -101,23 +104,23 @@ export function SiteHeader() {
                 <>
                   {isAdmin && (
                     <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/admin" }); }}>
-                      Admin
+                      {t("nav.admin")}
                     </Button>
                   )}
                   <Button onClick={() => { setOpen(false); nav({ to: "/dashboard" }); }}>
-                    Dashboard
+                    {t("nav.dashboard")}
                   </Button>
                   <Button variant="ghost" onClick={async () => { await signOut(); setOpen(false); nav({ to: "/" }); }}>
-                    Sign out
+                    {t("nav.signout")}
                   </Button>
                 </>
               ) : (
                 <>
                   <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
-                    Sign in
+                    {t("nav.signin")}
                   </Button>
                   <Button className="bg-primary text-primary-foreground hover:opacity-90" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
-                    Get started
+                    {t("nav.getStarted")}
                   </Button>
                 </>
               )}
