@@ -4,6 +4,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ const schema = z.object({
 
 function WithdrawPage() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [list, setList] = useState<Withdrawal[]>([]);
@@ -57,7 +59,7 @@ function WithdrawPage() {
         account_name: String(fd.get("account_name") ?? ""),
         account_number: String(fd.get("account_number") ?? ""),
       });
-      if (v.amount > balance) throw new Error("Amount exceeds your wallet balance");
+      if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
       const { error } = await supabase.from("withdrawals").insert({
         user_id: user.id,
         amount: v.amount,
@@ -73,13 +75,13 @@ function WithdrawPage() {
           template_key: "withdrawal_submitted",
           variables: {
             name: user.user_metadata?.full_name ?? "Investor",
-            amount: v.amount.toLocaleString("fr-CM"),
+            amount: String(v.amount),
             method: v.method.replace("_", " "),
             account: `${v.account_name} (${v.account_number})`,
           },
         });
       }
-      toast.success("Withdrawal request submitted");
+      toast.success(t("withdraw.submitted"));
       (e.target as HTMLFormElement).reset();
       navigate({ to: "/dashboard/wallet", search: { filter: "Withdrawals" } as never });
     } catch (err) {
@@ -94,47 +96,47 @@ function WithdrawPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-primary md:text-4xl">Withdraw funds</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Funds are sent within 24h after admin review.</p>
+          <h1 className="font-display text-3xl text-primary md:text-4xl">{t("withdraw.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("withdraw.subtitle")}</p>
         </div>
         <div className="rounded-xl border border-border bg-card px-4 py-2 text-right">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Available</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("withdraw.available")}</div>
           <div className="font-display text-xl text-primary">{formatXAF(balance)}</div>
         </div>
       </div>
 
       <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
         <div>
-          <Label htmlFor="amount">Amount (XAF)</Label>
+          <Label htmlFor="amount">{t("common.amount")}</Label>
           <Input id="amount" name="amount" type="number" min={1000} step={500} required />
         </div>
         <div>
-          <Label htmlFor="method">Method</Label>
+          <Label htmlFor="method">{t("common.method")}</Label>
           <select id="method" name="method" required className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-            <option value="mobile_money">Mobile Money (MTN/Orange)</option>
-            <option value="bank_transfer">Bank transfer</option>
-            <option value="crypto">Crypto (USDT)</option>
+            <option value="mobile_money">{t("withdraw.method.mobile")}</option>
+            <option value="bank_transfer">{t("withdraw.method.bank")}</option>
+            <option value="crypto">{t("withdraw.method.crypto")}</option>
           </select>
         </div>
         <div>
-          <Label htmlFor="account_name">Account name</Label>
+          <Label htmlFor="account_name">{t("withdraw.accountName")}</Label>
           <Input id="account_name" name="account_name" required maxLength={120} />
         </div>
         <div>
-          <Label htmlFor="account_number">Account / Phone / Wallet</Label>
+          <Label htmlFor="account_number">{t("withdraw.accountNumber")}</Label>
           <Input id="account_number" name="account_number" required maxLength={120} />
         </div>
         <div className="md:col-span-2">
           <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90 md:w-auto">
-            {busy ? "Submitting…" : "Request withdrawal"}
+            {busy ? t("deposit.submitting") : t("withdraw.submit")}
           </Button>
         </div>
       </form>
 
       <div>
-        <h2 className="mb-3 font-display text-xl text-primary">Recent withdrawals</h2>
+        <h2 className="mb-3 font-display text-xl text-primary">{t("withdraw.recent")}</h2>
         {list.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No withdrawals yet.</div>
+          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{t("withdraw.empty")}</div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-border">
             <table className="w-full text-sm">
