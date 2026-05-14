@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -28,6 +29,7 @@ type Investment = {
 
 function DashboardHome() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [chartData, setChartData] = useState<{ d: string; v: number }[]>([]);
@@ -72,22 +74,22 @@ function DashboardHome() {
     <div className="space-y-5">
       {/* Greeting */}
       <div>
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">Welcome back</p>
-        <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? "Investor"}</h1>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
+        <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? t("home.investor")}</h1>
       </div>
 
       {/* Hero balance card */}
       <div className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="relative">
-          <div className="text-xs uppercase tracking-wider opacity-80">Available balance</div>
+          <div className="text-xs uppercase tracking-wider opacity-80">{t("home.availableBalance")}</div>
           <div className="mt-2 font-display text-4xl">{formatXAF(profile?.balance ?? 0)}</div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25">
-              <ArrowDownToLine className="h-4 w-4" /> Deposit
+              <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
             </Link>
             <Link to="/dashboard/withdraw" className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-primary transition hover:bg-white/90">
-              <ArrowUpFromLine className="h-4 w-4" /> Withdraw
+              <ArrowUpFromLine className="h-4 w-4" /> {t("common.withdraw")}
             </Link>
           </div>
         </div>
@@ -95,14 +97,14 @@ function DashboardHome() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3">
-        <StatCard icon={Sparkles} label="Total profit" value={formatXAF(profile?.total_earned ?? 0)} accent="success" />
-        <StatCard icon={TrendingUp} label="Active plans" value={String(activeCount)} accent="primary" />
+        <StatCard icon={Sparkles} label={t("home.totalProfit")} value={formatXAF(profile?.total_earned ?? 0)} accent="success" />
+        <StatCard icon={TrendingUp} label={t("home.activePlans")} value={String(activeCount)} accent="primary" />
       </div>
 
       {/* Profit chart */}
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg text-primary">Profit growth</h2>
+          <h2 className="font-display text-lg text-primary">{t("home.profitGrowth")}</h2>
           <span className="text-xs text-muted-foreground">XAF</span>
         </div>
         <div className="mt-3 h-44">
@@ -122,7 +124,7 @@ function DashboardHome() {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                formatter={(v: number) => [formatXAF(Number(v)), "Profit"]}
+                formatter={(v: number) => [formatXAF(Number(v)), t("wallet.profit")]}
                 labelFormatter={(l) => formatDate(String(l))}
               />
               <Area type="monotone" dataKey="v" stroke="oklch(0.5 0.09 160)" strokeWidth={2} fill="url(#profit)" />
@@ -134,12 +136,12 @@ function DashboardHome() {
       {/* Active plans list */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg text-primary">Your plans</h2>
-          <Link to="/dashboard/invest" className="text-xs font-medium text-primary hover:underline">+ New investment</Link>
+          <h2 className="font-display text-lg text-primary">{t("home.yourPlans")}</h2>
+          <Link to="/dashboard/invest" className="text-xs font-medium text-primary hover:underline">{t("home.newInvestment")}</Link>
         </div>
         {investments.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            No investments yet. <Link to="/dashboard/invest" className="font-medium text-primary underline">Activate a plan →</Link>
+            {t("home.noInvestments")} <Link to="/dashboard/invest" className="font-medium text-primary underline">{t("home.activatePlan")}</Link>
           </div>
         ) : (
           <div className="space-y-3">
@@ -148,7 +150,7 @@ function DashboardHome() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="font-display text-base text-primary">{inv.plans?.name ?? "Plan"}</div>
-                    <div className="text-xs text-muted-foreground">Ends {formatDate(inv.end_date)}</div>
+                    <div className="text-xs text-muted-foreground">{t("home.ends")} {formatDate(inv.end_date)}</div>
                   </div>
                   <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase ${
                     inv.status === "active" ? "bg-success/15 text-success" :
@@ -159,9 +161,9 @@ function DashboardHome() {
                   </span>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-3 border-t border-border pt-3 text-sm">
-                  <Mini label="Invested" v={formatXAF(inv.amount)} />
-                  <Mini label="ROI" v={`${inv.daily_roi_percent}%`} />
-                  <Mini label="Earned" v={formatXAF(inv.total_earned)} accent />
+                  <Mini label={t("home.invested")} v={formatXAF(inv.amount)} />
+                  <Mini label={t("home.roi")} v={`${inv.daily_roi_percent}%`} />
+                  <Mini label={t("home.earned")} v={formatXAF(inv.total_earned)} accent />
                 </div>
               </div>
             ))}
