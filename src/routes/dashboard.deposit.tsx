@@ -71,20 +71,40 @@ function DepositPage() {
     if (!user) return;
     if (!file) { toast.error(t("deposit.errNoFile")); return; }
     setBusy(true);
+
+    const retry = async <T,>(fn: () => Promise<T>, attempts = 3): Promise<T> => {
+      let lastErr: unknown;
+      for (let i = 0; i < attempts; i++) {
+        try { return await fn(); }
+        catch (e) {
+          lastErr = e;
+          const msg = (e as Error)?.message ?? "";
+          if (!/fetch|network|load failed/i.test(msg)) throw e;
+          await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+        }
+      }
+      throw lastErr;
+    };
+
     try {
       const v = schema.parse({ amount: amountNum, payment_method_id: selected });
-      const path = `${user.id}/${Date.now()}-${file.name}`;
-      const { error: upErr } = await supabase.storage.from("payment-proofs").upload(path, file);
-      if (upErr) throw upErr;
-      const method = methods.find((m) => m.id === v.payment_method_id);
-      const { error } = await supabase.from("deposits").insert({
-        user_id: user.id,
-        amount: v.amount,
-        payment_method_id: v.payment_method_id,
-        proof_url: path,
-        status: "pending",
+      const path = `${user.id}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+      await retry(async () => {
+        const { error: upErr } = await supabase.storage.from("payment-proofs")
+          .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
+        if (upErr) throw upErr;
       });
-      if (error) throw error;
+      const method = methods.find((m) => m.id === v.payment_method_id);
+      await retry(async () => {
+        const { error } = await supabase.from("deposits").insert({
+          user_id: user.id,
+          amount: v.amount,
+          payment_method_id: v.payment_method_id,
+          proof_url: path,
+          status: "pending",
+        });
+        if (error) throw error;
+      });
       if (user.email) {
         sendEmail({
           to: user.email,
@@ -99,8 +119,11 @@ function DepositPage() {
       toast.success(t("deposit.submitted"));
       setSuccess(true);
     } catch (err) {
-      const msg = (err as Error).message ?? "Error";
-      toast.error(msg);
+      const raw = (err as Error).message ?? "Error";
+      const friendly = /fetch|network|load failed/i.test(raw)
+        ? "Network problem. Please check your connection and try again."
+        : raw;
+      toast.error(friendly);
     } finally {
       setBusy(false);
     }
