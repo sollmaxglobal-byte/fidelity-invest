@@ -167,7 +167,7 @@ function DepositPage() {
             </div>
             <div>
               <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">{t("deposit.quickPick")}</div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
                 {QUICK_AMOUNTS.map((q) => (
                   <button key={q} type="button" onClick={() => setAmount(String(q))}
                     className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${
