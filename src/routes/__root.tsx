@@ -125,6 +125,7 @@ function RootComponent() {
             <Outlet />
             <Toaster richColors position="top-right" />
             <TidioLoader />
+            <SendPulseLoader />
           </AuthProvider>
         </I18nProvider>
       </ThemeProvider>
