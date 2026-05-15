@@ -375,6 +375,11 @@ const DICT = {
     "deposit.submitted": "Dépôt soumis — en attente de validation",
     "deposit.errNoFile": "Veuillez téléverser votre capture de paiement",
     "deposit.errMin": "Minimum 1 000 XAF",
+    "deposit.successTitle": "Dépôt soumis avec succès",
+    "deposit.successDesc": "Votre dépôt est en attente d'approbation. Vous serez notifié dès sa confirmation.",
+    "deposit.returnHome": "Retour au tableau de bord",
+    "deposit.viewHistory": "Voir l'historique des dépôts",
+    "status.pending": "En attente",
 
     // Withdraw
     "withdraw.title": "Retirer des fonds",
