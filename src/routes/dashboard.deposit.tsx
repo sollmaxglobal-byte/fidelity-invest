@@ -295,6 +295,50 @@ function DepositPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={success} onOpenChange={(o) => { if (!o) navigate({ to: "/dashboard" }); }}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader className="items-center text-center">
+            <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-success/15">
+              <CheckCircle2 className="h-10 w-10 text-success" />
+            </div>
+            <DialogTitle className="font-display text-xl text-primary">
+              {t("deposit.successTitle") ?? "Deposit submitted successfully"}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {t("deposit.successDesc") ?? "Your deposit is awaiting admin approval. You'll be notified once it's confirmed."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 rounded-xl bg-muted/40 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.amount")}</span>
+              <span className="font-display text-lg text-primary">{formatXAF(amountNum)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.status") ?? "Status"}</span>
+              <span className="rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">
+                {t("status.pending") ?? "Pending"}
+              </span>
+            </div>
+            {sel && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.method")}</span>
+                <span className="text-sm font-medium">{sel.label}</span>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 flex flex-col gap-2">
+            <Button asChild className="w-full bg-primary text-primary-foreground hover:opacity-90">
+              <Link to="/dashboard"><Home className="mr-2 h-4 w-4" /> {t("deposit.returnHome") ?? "Return to dashboard"}</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
+                <History className="mr-2 h-4 w-4" /> {t("deposit.viewHistory") ?? "View deposit history"}
+              </Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
