@@ -27,6 +27,7 @@ import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
 import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPlansRouteImport } from './routes/admin.plans'
 import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
@@ -121,6 +122,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPlansRoute = AdminPlansRouteImport.update({
   id: '/plans',
   path: '/plans',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/admin/deposits'
     | '/admin/methods'
     | '/admin/plans'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/admin/deposits'
     | '/admin/methods'
     | '/admin/plans'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/admin/deposits'
     | '/admin/methods'
     | '/admin/plans'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin/withdrawals'
     | '/dashboard/deposit'
@@ -415,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/plans': {
       id: '/admin/plans'
       path: '/plans'
@@ -443,6 +462,7 @@ interface AdminRouteChildren {
   AdminDepositsRoute: typeof AdminDepositsRoute
   AdminMethodsRoute: typeof AdminMethodsRoute
   AdminPlansRoute: typeof AdminPlansRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -452,6 +472,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDepositsRoute: AdminDepositsRoute,
   AdminMethodsRoute: AdminMethodsRoute,
   AdminPlansRoute: AdminPlansRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminWithdrawalsRoute: AdminWithdrawalsRoute,
   AdminIndexRoute: AdminIndexRoute,
