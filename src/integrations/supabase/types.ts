@@ -17,6 +17,7 @@ export type Database = {
       app_settings: {
         Row: {
           id: number
+          sendpulse_chat_id: string | null
           site_name: string
           site_url: string | null
           smtp_from_email: string | null
@@ -31,6 +32,7 @@ export type Database = {
         }
         Insert: {
           id?: number
+          sendpulse_chat_id?: string | null
           site_name?: string
           site_url?: string | null
           smtp_from_email?: string | null
@@ -45,6 +47,7 @@ export type Database = {
         }
         Update: {
           id?: number
+          sendpulse_chat_id?: string | null
           site_name?: string
           site_url?: string | null
           smtp_from_email?: string | null
