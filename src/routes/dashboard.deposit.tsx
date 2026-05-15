@@ -97,7 +97,7 @@ function DepositPage() {
         });
       }
       toast.success(t("deposit.submitted"));
-      navigate({ to: "/dashboard/wallet", search: { filter: "Deposits" } as never });
+      setSuccess(true);
     } catch (err) {
       const msg = (err as Error).message ?? "Error";
       toast.error(msg);
