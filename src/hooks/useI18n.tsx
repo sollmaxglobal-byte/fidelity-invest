@@ -174,6 +174,12 @@ const DICT = {
     "deposit.submitted": "Deposit submitted — pending review",
     "deposit.errNoFile": "Please upload your payment screenshot",
     "deposit.errMin": "Minimum 1,000 XAF",
+    "deposit.successTitle": "Deposit submitted successfully",
+    "deposit.successDesc": "Your deposit is awaiting admin approval. You'll be notified once it's confirmed.",
+    "deposit.returnHome": "Return to dashboard",
+    "deposit.viewHistory": "View deposit history",
+    "common.status": "Status",
+    "status.pending": "Pending",
 
     // Withdraw
     "withdraw.title": "Withdraw funds",
