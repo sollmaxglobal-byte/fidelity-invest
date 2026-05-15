@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  Smartphone, Building2, Bitcoin, Upload, Copy, Check, ArrowLeft, ArrowRight, Wallet,
+  Smartphone, Building2, Bitcoin, Upload, Copy, Check, ArrowLeft, ArrowRight, Wallet, CheckCircle2, Home, History,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,7 @@ import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatXAF } from "@/lib/format";
 
 export const Route = createFileRoute("/dashboard/deposit")({
@@ -24,7 +25,7 @@ type PaymentMethod = {
 };
 
 const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitcoin };
-const QUICK_AMOUNTS = [10000, 25000, 50000, 100000];
+const QUICK_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 250000, 500000];
 
 const schema = z.object({
   amount: z.number().min(1000),
