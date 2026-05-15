@@ -41,20 +41,19 @@ function AdminSettings() {
     if (!s) return;
     setBusy(true);
     try {
-      const payload: Record<string, unknown> = {
-        site_name: s.site_name ?? undefined,
-        site_url: s.site_url ?? undefined,
-        tidio_public_key: s.tidio_public_key ?? undefined,
-        sendpulse_chat_id: s.sendpulse_chat_id ?? undefined,
-        smtp_host: s.smtp_host ?? undefined,
-        smtp_port: s.smtp_port ?? undefined,
-        smtp_secure: s.smtp_secure ?? undefined,
-        smtp_user: s.smtp_user ?? undefined,
-        smtp_password: s.smtp_password ?? undefined,
-        smtp_from_name: s.smtp_from_name ?? undefined,
-        smtp_from_email: s.smtp_from_email ?? undefined,
-      };
-      const { error } = await supabase.from("app_settings").update(payload).eq("id", 1);
+      const { error } = await supabase.from("app_settings").update({
+        site_name: s.site_name ?? "Camvcc",
+        site_url: s.site_url,
+        tidio_public_key: s.tidio_public_key,
+        sendpulse_chat_id: s.sendpulse_chat_id,
+        smtp_host: s.smtp_host,
+        smtp_port: s.smtp_port,
+        smtp_secure: s.smtp_secure,
+        smtp_user: s.smtp_user,
+        smtp_password: s.smtp_password,
+        smtp_from_name: s.smtp_from_name,
+        smtp_from_email: s.smtp_from_email,
+      }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
     } catch (e) {
