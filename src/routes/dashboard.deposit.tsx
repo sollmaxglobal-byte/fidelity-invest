@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  Smartphone, Building2, Bitcoin, Upload, Copy, Check, ArrowLeft, ArrowRight, Wallet,
+  Smartphone, Building2, Bitcoin, Upload, Copy, Check, ArrowLeft, ArrowRight, Wallet, CheckCircle2, Home, History,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,7 @@ import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatXAF } from "@/lib/format";
 
 export const Route = createFileRoute("/dashboard/deposit")({
@@ -24,7 +25,7 @@ type PaymentMethod = {
 };
 
 const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitcoin };
-const QUICK_AMOUNTS = [10000, 25000, 50000, 100000];
+const QUICK_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 250000, 500000];
 
 const schema = z.object({
   amount: z.number().min(1000),
@@ -41,6 +42,7 @@ function DepositPage() {
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [amount, setAmount] = useState<string>("");
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -95,7 +97,7 @@ function DepositPage() {
         });
       }
       toast.success(t("deposit.submitted"));
-      navigate({ to: "/dashboard/wallet", search: { filter: "Deposits" } as never });
+      setSuccess(true);
     } catch (err) {
       const msg = (err as Error).message ?? "Error";
       toast.error(msg);
@@ -165,7 +167,7 @@ function DepositPage() {
             </div>
             <div>
               <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">{t("deposit.quickPick")}</div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
                 {QUICK_AMOUNTS.map((q) => (
                   <button key={q} type="button" onClick={() => setAmount(String(q))}
                     className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${
@@ -293,6 +295,50 @@ function DepositPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={success} onOpenChange={(o) => { if (!o) navigate({ to: "/dashboard" }); }}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader className="items-center text-center">
+            <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-success/15">
+              <CheckCircle2 className="h-10 w-10 text-success" />
+            </div>
+            <DialogTitle className="font-display text-xl text-primary">
+              {t("deposit.successTitle") ?? "Deposit submitted successfully"}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {t("deposit.successDesc") ?? "Your deposit is awaiting admin approval. You'll be notified once it's confirmed."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 rounded-xl bg-muted/40 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.amount")}</span>
+              <span className="font-display text-lg text-primary">{formatXAF(amountNum)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.status") ?? "Status"}</span>
+              <span className="rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">
+                {t("status.pending") ?? "Pending"}
+              </span>
+            </div>
+            {sel && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.method")}</span>
+                <span className="text-sm font-medium">{sel.label}</span>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 flex flex-col gap-2">
+            <Button asChild className="w-full bg-primary text-primary-foreground hover:opacity-90">
+              <Link to="/dashboard"><Home className="mr-2 h-4 w-4" /> {t("deposit.returnHome") ?? "Return to dashboard"}</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
+                <History className="mr-2 h-4 w-4" /> {t("deposit.viewHistory") ?? "View deposit history"}
+              </Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

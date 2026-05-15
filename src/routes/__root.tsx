@@ -11,6 +11,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { I18nProvider } from "@/hooks/useI18n";
 import { TidioLoader } from "@/components/TidioLoader";
+import { SendPulseLoader } from "@/components/SendPulseLoader";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
@@ -124,6 +125,7 @@ function RootComponent() {
             <Outlet />
             <Toaster richColors position="top-right" />
             <TidioLoader />
+            <SendPulseLoader />
           </AuthProvider>
         </I18nProvider>
       </ThemeProvider>
