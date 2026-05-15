@@ -178,7 +178,6 @@ const DICT = {
     "deposit.successDesc": "Your deposit is awaiting admin approval. You'll be notified once it's confirmed.",
     "deposit.returnHome": "Return to dashboard",
     "deposit.viewHistory": "View deposit history",
-    "common.status": "Status",
     "status.pending": "Pending",
 
     // Withdraw
