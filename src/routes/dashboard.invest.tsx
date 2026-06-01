@@ -140,9 +140,12 @@ function InvestPage() {
                 <div>
                   <div className="font-display text-xl text-primary">{p.name}</div>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="font-display text-3xl text-success">{p.daily_roi_percent}%</span>
-                    <span className="text-xs text-muted-foreground">ROI · {p.duration_days} days</span>
+                    <span className="font-display text-3xl text-success">
+                      {p.profit_type === "fixed" ? formatXAF(p.fixed_daily_profit) : `${p.daily_roi_percent}%`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">/ day · {p.duration_days} days</span>
                   </div>
+
                 </div>
                 <TrendingUp className="h-5 w-5 text-accent" />
               </div>
