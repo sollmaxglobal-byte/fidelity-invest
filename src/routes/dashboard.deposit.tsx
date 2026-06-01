@@ -196,9 +196,10 @@ function DepositPage() {
                     className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${
                       amountNum === q ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary"
                     }`}>
-                    {q >= 1000 ? `${q / 1000}k` : q}
+                    {q.toLocaleString("en-US").replace(/,/g, " ")}
                   </button>
                 ))}
+
               </div>
             </div>
           </div>
