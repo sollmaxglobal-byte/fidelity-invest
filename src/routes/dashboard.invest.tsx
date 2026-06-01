@@ -18,7 +18,9 @@ export const Route = createFileRoute("/dashboard/invest")({
 type Plan = {
   id: string; name: string; description: string | null;
   min_amount: number; max_amount: number; daily_roi_percent: number; duration_days: number;
+  profit_type: "percent" | "fixed"; fixed_daily_profit: number;
 };
+
 
 const POPULAR = "Growth Plan";
 
@@ -46,10 +48,13 @@ function InvestPage() {
   const plan = plans.find((p) => p.id === planId);
   const projection = useMemo(() => {
     if (!plan) return null;
-    // daily_roi_percent stored as TOTAL term ROI (e.g. 12, 30, 75)
-    const profit = (amount * plan.daily_roi_percent) / 100;
-    return { profit, payout: amount + profit };
+    const dailyProfit = plan.profit_type === "fixed"
+      ? Number(plan.fixed_daily_profit)
+      : (amount * Number(plan.daily_roi_percent)) / 100;
+    const profit = dailyProfit * plan.duration_days;
+    return { dailyProfit, profit, payout: amount + profit };
   }, [plan, amount]);
+
 
   async function activate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -135,9 +140,12 @@ function InvestPage() {
                 <div>
                   <div className="font-display text-xl text-primary">{p.name}</div>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="font-display text-3xl text-success">{p.daily_roi_percent}%</span>
-                    <span className="text-xs text-muted-foreground">ROI · {p.duration_days} days</span>
+                    <span className="font-display text-3xl text-success">
+                      {p.profit_type === "fixed" ? formatXAF(p.fixed_daily_profit) : `${p.daily_roi_percent}%`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">/ day · {p.duration_days} days</span>
                   </div>
+
                 </div>
                 <TrendingUp className="h-5 w-5 text-accent" />
               </div>
@@ -184,11 +192,13 @@ function InvestPage() {
           </div>
 
           {projection && (
-            <div className="mt-4 rounded-xl bg-secondary p-3 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Profit</span><span className="font-medium text-success">{formatXAF(projection.profit)}</span></div>
+            <div className="mt-4 space-y-1 rounded-xl bg-secondary p-3 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Daily profit</span><span className="font-medium text-success">{formatXAF(projection.dailyProfit)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Total profit ({plan.duration_days} days)</span><span className="font-medium text-success">{formatXAF(projection.profit)}</span></div>
               <div className="mt-1 flex justify-between border-t border-border pt-1"><span className="text-muted-foreground">Payout at end</span><span className="font-display text-base text-primary">{formatXAF(projection.payout)}</span></div>
             </div>
           )}
+
 
           {balance < amount && (
             <div className="mt-3 rounded-lg border border-warning/40 bg-warning/10 p-2.5 text-xs">

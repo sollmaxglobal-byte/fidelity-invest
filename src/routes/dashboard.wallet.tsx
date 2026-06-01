@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
+import { Money } from "@/components/Money";
+
 
 const searchSchema = z.object({
   filter: z.enum(["All", "Deposits", "Withdrawals", "Profits"]).optional(),
@@ -95,8 +97,9 @@ function WalletPage() {
       </div>
 
       <div className="rounded-2xl bg-hero p-5 text-primary-foreground shadow-elegant">
-        <div className="text-xs uppercase tracking-wider opacity-80">{t("wallet.balance")}</div>
-        <div className="mt-1 font-display text-3xl">{formatXAF(balance)}</div>
+        <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("wallet.balance")}</div>
+        <div className="mt-1 font-display text-3xl"><Money value={balance} /></div>
+
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm font-medium hover:bg-white/25">
             <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
@@ -158,8 +161,9 @@ function WalletPage() {
               </div>
               <div className="flex flex-col items-end gap-0.5">
                 <span className={`text-sm font-medium ${r.amount >= 0 ? "text-success" : "text-destructive"}`}>
-                  {r.amount >= 0 ? "+" : ""}{formatXAF(r.amount)}
+                  {r.amount >= 0 ? "+" : "-"}<Money value={Math.abs(r.amount)} />
                 </span>
+
                 <StatusPill status={r.status} />
               </div>
             </div>

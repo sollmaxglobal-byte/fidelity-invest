@@ -259,10 +259,12 @@ export type Database = {
           daily_roi_percent: number
           description: string | null
           duration_days: number
+          fixed_daily_profit: number
           id: string
           max_amount: number
           min_amount: number
           name: string
+          profit_type: string
         }
         Insert: {
           active?: boolean
@@ -270,10 +272,12 @@ export type Database = {
           daily_roi_percent: number
           description?: string | null
           duration_days: number
+          fixed_daily_profit?: number
           id?: string
           max_amount: number
           min_amount: number
           name: string
+          profit_type?: string
         }
         Update: {
           active?: boolean
@@ -281,10 +285,12 @@ export type Database = {
           daily_roi_percent?: number
           description?: string | null
           duration_days?: number
+          fixed_daily_profit?: number
           id?: string
           max_amount?: number
           min_amount?: number
           name?: string
+          profit_type?: string
         }
         Relationships: []
       }

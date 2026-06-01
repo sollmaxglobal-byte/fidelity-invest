@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
+import { Money } from "@/components/Money";
+
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
@@ -82,8 +84,9 @@ function DashboardHome() {
       <div className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="relative">
-          <div className="text-xs uppercase tracking-wider opacity-80">{t("home.availableBalance")}</div>
-          <div className="mt-2 font-display text-4xl">{formatXAF(profile?.balance ?? 0)}</div>
+          <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
+          <div className="mt-2 font-display text-4xl"><Money value={profile?.balance ?? 0} /></div>
+
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25">
               <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
@@ -187,7 +190,10 @@ function StatCard({
         </span>
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</span>
       </div>
-      <div className="mt-2 font-display text-xl text-primary">{value}</div>
+      <div className="mt-2 font-display text-xl text-primary">
+        {/XAF/.test(value) ? <Money value={Number(value.replace(/\D/g, "")) || 0} /> : value}
+      </div>
+
     </div>
   );
 }
