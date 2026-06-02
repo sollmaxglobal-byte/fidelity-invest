@@ -130,8 +130,8 @@ function AdminPlans() {
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                     <div><div className="text-xs text-muted-foreground">Range</div><div>{formatXAF(p.min_amount)} – {formatXAF(p.max_amount)}</div></div>
                     <div><div className="text-xs text-muted-foreground">Daily profit</div><div>{dailyLabel}</div></div>
+                    <div><div className="text-xs text-muted-foreground">Payout</div><div className="capitalize">{(p.payout_frequency ?? "daily").replace("_", " ")}</div></div>
                     <div><div className="text-xs text-muted-foreground">Duration</div><div>{p.duration_days} days</div></div>
-                    <div><div className="text-xs text-muted-foreground">Type</div><div className="capitalize">{p.profit_type}</div></div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
