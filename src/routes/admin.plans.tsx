@@ -99,6 +99,17 @@ function AdminPlans() {
           <div><Label>Fixed daily profit (XAF)</Label><Input name="fixed_daily_profit" type="number" step={100} required min={0} /></div>
         )}
 
+        <div>
+          <Label>Payout frequency</Label>
+          <select name="payout_frequency" required defaultValue="daily"
+            className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="end_of_term">End of term</option>
+          </select>
+        </div>
+
         <div className="sm:col-span-2 md:col-span-3">
           <Button type="submit" className="bg-primary text-primary-foreground hover:opacity-90">
             <Plus className="mr-1 h-4 w-4" /> Add plan
