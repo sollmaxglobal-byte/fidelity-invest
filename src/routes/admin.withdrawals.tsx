@@ -44,18 +44,21 @@ function AdminWithdrawals() {
       }).eq("id", w.id);
       if (error) throw error;
 
+      // Funds are already held (debited) when the user submits the request.
       if (status === "approved" || status === "paid") {
-        // Deduct balance only the first time we move to approved
+        // Just log a transaction the first time we move it past pending.
         if (w.status === "pending") {
-          const { data: prof } = await supabase.from("profiles").select("balance").eq("id", w.user_id).single();
-          await supabase.from("profiles").update({
-            balance: Number(prof?.balance ?? 0) - Number(w.amount),
-          }).eq("id", w.user_id);
           await supabase.from("transactions").insert({
             user_id: w.user_id, type: "withdrawal", amount: -Number(w.amount),
             description: `Withdrawal ${status} (${w.method})`, ref_id: w.id,
           });
         }
+      } else if (status === "rejected" && w.status === "pending") {
+        // Refund the held amount back to the user's balance.
+        const { data: prof } = await supabase.from("profiles").select("balance").eq("id", w.user_id).single();
+        await supabase.from("profiles").update({
+          balance: Number(prof?.balance ?? 0) + Number(w.amount),
+        }).eq("id", w.user_id);
       }
       toast.success(`Withdrawal ${status}`);
       load();
