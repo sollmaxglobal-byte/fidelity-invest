@@ -69,6 +69,11 @@ function WithdrawPage() {
         status: "pending",
       });
       if (error) throw error;
+      // Hold funds immediately — balance leaves the account on submit.
+      // Refunded automatically if the admin rejects the request.
+      await supabase.from("profiles").update({
+        balance: balance - v.amount,
+      }).eq("id", user.id);
       if (user.email) {
         sendEmail({
           to: user.email,

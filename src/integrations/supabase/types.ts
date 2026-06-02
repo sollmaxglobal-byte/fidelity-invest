@@ -264,6 +264,7 @@ export type Database = {
           max_amount: number
           min_amount: number
           name: string
+          payout_frequency: string
           profit_type: string
         }
         Insert: {
@@ -277,6 +278,7 @@ export type Database = {
           max_amount: number
           min_amount: number
           name: string
+          payout_frequency?: string
           profit_type?: string
         }
         Update: {
@@ -290,6 +292,7 @@ export type Database = {
           max_amount?: number
           min_amount?: number
           name?: string
+          payout_frequency?: string
           profit_type?: string
         }
         Relationships: []

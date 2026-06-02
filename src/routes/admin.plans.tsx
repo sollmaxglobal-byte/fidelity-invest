@@ -18,6 +18,7 @@ type Plan = {
   min_amount: number; max_amount: number;
   daily_roi_percent: number; duration_days: number; active: boolean;
   profit_type: "percent" | "fixed"; fixed_daily_profit: number;
+  payout_frequency: "daily" | "weekly" | "monthly" | "end_of_term";
 };
 
 function AdminPlans() {
@@ -42,6 +43,7 @@ function AdminPlans() {
       profit_type: profitType,
       daily_roi_percent: profitType === "percent" ? Number(fd.get("daily_roi_percent")) : 0,
       fixed_daily_profit: profitType === "fixed" ? Number(fd.get("fixed_daily_profit")) : 0,
+      payout_frequency: String(fd.get("payout_frequency") || "daily"),
       active: true,
     });
     if (error) return toast.error(error.message);
@@ -97,6 +99,17 @@ function AdminPlans() {
           <div><Label>Fixed daily profit (XAF)</Label><Input name="fixed_daily_profit" type="number" step={100} required min={0} /></div>
         )}
 
+        <div>
+          <Label>Payout frequency</Label>
+          <select name="payout_frequency" required defaultValue="daily"
+            className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="end_of_term">End of term</option>
+          </select>
+        </div>
+
         <div className="sm:col-span-2 md:col-span-3">
           <Button type="submit" className="bg-primary text-primary-foreground hover:opacity-90">
             <Plus className="mr-1 h-4 w-4" /> Add plan
@@ -117,8 +130,8 @@ function AdminPlans() {
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                     <div><div className="text-xs text-muted-foreground">Range</div><div>{formatXAF(p.min_amount)} – {formatXAF(p.max_amount)}</div></div>
                     <div><div className="text-xs text-muted-foreground">Daily profit</div><div>{dailyLabel}</div></div>
+                    <div><div className="text-xs text-muted-foreground">Payout</div><div className="capitalize">{(p.payout_frequency ?? "daily").replace("_", " ")}</div></div>
                     <div><div className="text-xs text-muted-foreground">Duration</div><div>{p.duration_days} days</div></div>
-                    <div><div className="text-xs text-muted-foreground">Type</div><div className="capitalize">{p.profit_type}</div></div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

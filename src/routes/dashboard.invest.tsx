@@ -19,6 +19,7 @@ type Plan = {
   id: string; name: string; description: string | null;
   min_amount: number; max_amount: number; daily_roi_percent: number; duration_days: number;
   profit_type: "percent" | "fixed"; fixed_daily_profit: number;
+  payout_frequency: "daily" | "weekly" | "monthly" | "end_of_term";
 };
 
 
@@ -145,7 +146,9 @@ function InvestPage() {
                     </span>
                     <span className="text-xs text-muted-foreground">/ day · {p.duration_days} days</span>
                   </div>
-
+                  <div className="mt-1 inline-flex rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
+                    Paid {(p.payout_frequency ?? "daily").replace("_", " ")}
+                  </div>
                 </div>
                 <TrendingUp className="h-5 w-5 text-accent" />
               </div>
@@ -166,7 +169,7 @@ function InvestPage() {
                 Activate
               </Button>
               <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-                Capital + Profit paid at end of term. Investments carry risk.
+                Profit paid {(p.payout_frequency ?? "daily").replace("_", " ")}. Investments carry risk.
               </p>
             </div>
           );
