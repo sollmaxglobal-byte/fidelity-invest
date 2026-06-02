@@ -43,6 +43,7 @@ function AdminPlans() {
       profit_type: profitType,
       daily_roi_percent: profitType === "percent" ? Number(fd.get("daily_roi_percent")) : 0,
       fixed_daily_profit: profitType === "fixed" ? Number(fd.get("fixed_daily_profit")) : 0,
+      payout_frequency: String(fd.get("payout_frequency") || "daily"),
       active: true,
     });
     if (error) return toast.error(error.message);
