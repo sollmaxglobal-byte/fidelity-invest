@@ -1,26 +1,27 @@
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Fallback SendPulse live chat ID. Admin can override via app_settings.sendpulse_chat_id.
-const FALLBACK_SENDPULSE_ID = "demo";
-
-/** Loads the SendPulse live chat widget site-wide. */
+/**
+ * Loads the SendPulse live chat widget site-wide.
+ * Only injects the script when an admin has saved a real chat ID in
+ * Admin → Settings (`app_settings.sendpulse_chat_id`).
+ */
 export function SendPulseLoader() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      let id = FALLBACK_SENDPULSE_ID;
+      let id = "";
       try {
         const { data } = await supabase
           .from("app_settings")
           .select("sendpulse_chat_id")
           .maybeSingle();
-        const saved = (data as { sendpulse_chat_id?: string } | null)?.sendpulse_chat_id?.trim();
-        if (saved) id = saved;
+        id = (data as { sendpulse_chat_id?: string } | null)?.sendpulse_chat_id?.trim() ?? "";
       } catch {
-        // fall back
+        return;
       }
       if (cancelled) return;
+      if (!id) return; // No widget until admin configures the chat ID
       if (document.getElementById("sendpulse-livechat-script")) return;
       const s = document.createElement("script");
       s.id = "sendpulse-livechat-script";
