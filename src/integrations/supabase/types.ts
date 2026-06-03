@@ -17,6 +17,7 @@ export type Database = {
       app_settings: {
         Row: {
           id: number
+          referral_percent: number
           sendpulse_chat_id: string | null
           site_name: string
           site_url: string | null
@@ -32,6 +33,7 @@ export type Database = {
         }
         Insert: {
           id?: number
+          referral_percent?: number
           sendpulse_chat_id?: string | null
           site_name?: string
           site_url?: string | null
@@ -47,6 +49,7 @@ export type Database = {
         }
         Update: {
           id?: number
+          referral_percent?: number
           sendpulse_chat_id?: string | null
           site_name?: string
           site_url?: string | null
@@ -176,6 +179,7 @@ export type Database = {
           duration_days: number
           end_date: string
           id: string
+          is_paused: boolean
           last_payout_at: string | null
           plan_id: string
           start_date: string
@@ -189,6 +193,7 @@ export type Database = {
           duration_days: number
           end_date: string
           id?: string
+          is_paused?: boolean
           last_payout_at?: string | null
           plan_id: string
           start_date?: string
@@ -202,6 +207,7 @@ export type Database = {
           duration_days?: number
           end_date?: string
           id?: string
+          is_paused?: boolean
           last_payout_at?: string | null
           plan_id?: string
           start_date?: string
@@ -306,6 +312,8 @@ export type Database = {
           kyc_status: string
           phone: string | null
           referral_code: string | null
+          referral_earnings: number
+          referred_by: string | null
           total_earned: number
           total_invested: number
           updated_at: string
@@ -318,6 +326,8 @@ export type Database = {
           kyc_status?: string
           phone?: string | null
           referral_code?: string | null
+          referral_earnings?: number
+          referred_by?: string | null
           total_earned?: number
           total_invested?: number
           updated_at?: string
@@ -330,6 +340,8 @@ export type Database = {
           kyc_status?: string
           phone?: string | null
           referral_code?: string | null
+          referral_earnings?: number
+          referred_by?: string | null
           total_earned?: number
           total_invested?: number
           updated_at?: string
@@ -451,6 +463,7 @@ export type Database = {
       }
     }
     Functions: {
+      distribute_profits: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -470,6 +483,9 @@ export type Database = {
         | "roi"
         | "withdrawal"
         | "adjustment"
+        | "profit"
+        | "referral"
+        | "investment_return"
       withdrawal_status: "pending" | "approved" | "rejected" | "paid"
     }
     CompositeTypes: {
@@ -608,6 +624,9 @@ export const Constants = {
         "roi",
         "withdrawal",
         "adjustment",
+        "profit",
+        "referral",
+        "investment_return",
       ],
       withdrawal_status: ["pending", "approved", "rejected", "paid"],
     },
