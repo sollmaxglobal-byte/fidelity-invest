@@ -57,12 +57,13 @@ function AuthPage() {
           email: fd.get("email"),
           password: fd.get("password"),
         });
+        const refCode = new URLSearchParams(window.location.search).get("ref") ?? "";
         const { error } = await supabase.auth.signUp({
           email: v.email,
           password: v.password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: v.full_name, phone: v.phone },
+            data: { full_name: v.full_name, phone: v.phone, referral_code: refCode },
           },
         });
         if (error) throw error;
