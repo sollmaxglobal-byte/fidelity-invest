@@ -157,7 +157,15 @@ function DashboardHome() {
           </div>
         ) : (
           <div className="space-y-3">
-            {investments.map((inv) => (
+            {investments.map((inv) => {
+              const freq = inv.plans?.payout_frequency ?? "daily";
+              const cycleDays = freq === "daily" ? 1 : freq === "weekly" ? 7 : freq === "monthly" ? 30 : inv.duration_days;
+              const last = inv.last_payout_at ? new Date(inv.last_payout_at) : new Date(inv.start_date);
+              const nextPayoutMs = last.getTime() + cycleDays * 86400000;
+              const endMs = new Date(inv.end_date).getTime();
+              const nextPayout = new Date(Math.min(nextPayoutMs, endMs));
+              const isActive = inv.status === "active" && !inv.is_paused;
+              return (
               <div key={inv.id} className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -165,22 +173,93 @@ function DashboardHome() {
                     <div className="text-xs text-muted-foreground">{t("home.ends")} {formatDate(inv.end_date)}</div>
                   </div>
                   <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase ${
+                    inv.is_paused ? "bg-warning/15 text-warning" :
                     inv.status === "active" ? "bg-success/15 text-success" :
                     inv.status === "completed" ? "bg-muted text-foreground/70" :
                     "bg-destructive/15 text-destructive"
                   }`}>
-                    {inv.status}
+                    {inv.is_paused ? "Suspended" : inv.status}
                   </span>
                 </div>
+                {isActive && (
+                  <div className="mt-3 space-y-2 rounded-xl bg-secondary/50 p-3">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Next profit payout ({freq})</div>
+                      <div className="mt-1"><Countdown to={nextPayout} /></div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border pt-2">
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Investment ends in</span>
+                      <Countdown to={inv.end_date} compact />
+                    </div>
+                  </div>
+                )}
                 <div className="mt-3 grid grid-cols-3 gap-3 border-t border-border pt-3 text-sm">
                   <Mini label={t("home.invested")} v={formatXAF(inv.amount)} />
                   <Mini label={t("home.roi")} v={`${inv.daily_roi_percent}%`} />
                   <Mini label={t("home.earned")} v={formatXAF(inv.total_earned)} accent />
                 </div>
               </div>
-            ))}
+            );})}
           </div>
         )}
+      </div>
+
+      {/* Referral card */}
+      <ReferralCard
+        code={profile?.referral_code ?? null}
+        earnings={Number(profile?.referral_earnings ?? 0)}
+        count={referralCount}
+      />
+    </div>
+  );
+}
+
+function ReferralCard({ code, earnings, count }: { code: string | null; earnings: number; count: number }) {
+  const link = useMemo(
+    () => (code && typeof window !== "undefined" ? `${window.location.origin}/auth?ref=${code}` : ""),
+    [code],
+  );
+  const share = async () => {
+    if (!link) return;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try { await navigator.share({ title: "Join me on SafeGrow", url: link }); return; } catch { /* fall through */ }
+    }
+    navigator.clipboard.writeText(link);
+    toast.success("Referral link copied");
+  };
+  const copy = () => { navigator.clipboard.writeText(link); toast.success("Copied"); };
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-card p-5">
+      <div className="flex items-center gap-2">
+        <Share2 className="h-4 w-4 text-primary" />
+        <h2 className="font-display text-lg text-primary">Refer & earn</h2>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">Earn commission on every profit your invitees make.</p>
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-secondary p-3">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <Users className="h-3 w-3" /> Invitees
+          </div>
+          <div className="mt-1 font-display text-xl text-primary">{count}</div>
+        </div>
+        <div className="rounded-xl bg-secondary p-3">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Commissions</div>
+          <div className="mt-1 font-display text-xl text-success">
+            <Money value={earnings} />
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 rounded-xl border border-border bg-secondary/50 p-2.5">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Your referral link</div>
+        <div className="mt-1 truncate font-mono text-xs">{link || "—"}</div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button variant="outline" size="sm" onClick={copy} disabled={!link}>
+          <Copy className="mr-1 h-4 w-4" /> Copy
+        </Button>
+        <Button size="sm" onClick={share} disabled={!link} className="bg-primary text-primary-foreground hover:opacity-90">
+          <Share2 className="mr-1 h-4 w-4" /> Share
+        </Button>
       </div>
     </div>
   );
