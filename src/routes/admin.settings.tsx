@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, MessageCircle, Mail } from "lucide-react";
+import { Save, MessageCircle, Mail, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ type Settings = {
   site_url: string | null;
   tidio_public_key: string | null;
   sendpulse_chat_id: string | null;
+  referral_percent: number | null;
   smtp_host: string | null;
   smtp_port: number | null;
   smtp_secure: boolean | null;
@@ -46,6 +47,7 @@ function AdminSettings() {
         site_url: s.site_url,
         tidio_public_key: s.tidio_public_key,
         sendpulse_chat_id: s.sendpulse_chat_id,
+        referral_percent: s.referral_percent ?? 5,
         smtp_host: s.smtp_host,
         smtp_port: s.smtp_port,
         smtp_secure: s.smtp_secure,
@@ -77,6 +79,23 @@ function AdminSettings() {
         <div className="grid gap-3 sm:grid-cols-2">
           <div><Label>Site name</Label><Input value={s.site_name ?? ""} onChange={(e) => set("site_name", e.target.value)} /></div>
           <div><Label>Site URL</Label><Input value={s.site_url ?? ""} onChange={(e) => set("site_url", e.target.value)} placeholder="https://..." /></div>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <Share2 className="h-5 w-5" /> Referral program
+        </h2>
+        <div className="max-w-xs">
+          <Label>Referral commission (%)</Label>
+          <Input
+            type="number" min={0} max={100} step={0.5}
+            value={s.referral_percent ?? 5}
+            onChange={(e) => set("referral_percent", Number(e.target.value))}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Paid to referrer on every profit payout from their invitees.
+          </p>
         </div>
       </section>
 
