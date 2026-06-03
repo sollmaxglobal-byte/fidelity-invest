@@ -25,11 +25,14 @@ type Profile = {
   balance: number;
   total_invested: number;
   total_earned: number;
+  referral_code: string | null;
+  referral_earnings: number | null;
 };
 type Investment = {
   id: string; amount: number; daily_roi_percent: number; duration_days: number;
   start_date: string; end_date: string; status: string; total_earned: number;
-  plans: { name: string } | null;
+  is_paused: boolean | null; last_payout_at: string | null;
+  plans: { name: string; payout_frequency: string } | null;
 };
 
 function DashboardHome() {
@@ -37,18 +40,21 @@ function DashboardHome() {
   const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [investments, setInvestments] = useState<Investment[]>([]);
+  const [referralCount, setReferralCount] = useState(0);
   const [chartData, setChartData] = useState<{ d: string; v: number }[]>([]);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { data: inv }, { data: tx }] = await Promise.all([
-        supabase.from("profiles").select("full_name,balance,total_invested,total_earned").eq("id", user.id).maybeSingle(),
-        supabase.from("investments").select("*, plans(name)").eq("user_id", user.id).order("start_date", { ascending: false }).limit(5),
+      const [{ data: p }, { data: inv }, { data: tx }, { count: refCount }] = await Promise.all([
+        supabase.from("profiles").select("full_name,balance,total_invested,total_earned,referral_code,referral_earnings").eq("id", user.id).maybeSingle(),
+        supabase.from("investments").select("*, plans(name,payout_frequency)").eq("user_id", user.id).order("start_date", { ascending: false }).limit(5),
         supabase.from("transactions").select("amount,created_at,type").eq("user_id", user.id).order("created_at", { ascending: true }),
+        supabase.from("profiles").select("*", { count: "exact", head: true }).eq("referred_by", user.id),
       ]);
       setProfile(p as Profile);
       setInvestments((inv as Investment[]) ?? []);
+      setReferralCount(refCount ?? 0);
 
       // Build cumulative profit chart from "profit" transactions
       const buckets = new Map<string, number>();
