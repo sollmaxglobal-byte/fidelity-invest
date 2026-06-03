@@ -47,6 +47,7 @@ function AdminSettings() {
         site_url: s.site_url,
         tidio_public_key: s.tidio_public_key,
         sendpulse_chat_id: s.sendpulse_chat_id,
+        referral_percent: s.referral_percent ?? 5,
         smtp_host: s.smtp_host,
         smtp_port: s.smtp_port,
         smtp_secure: s.smtp_secure,
