@@ -84,6 +84,23 @@ function AdminSettings() {
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <Share2 className="h-5 w-5" /> Referral program
+        </h2>
+        <div className="max-w-xs">
+          <Label>Referral commission (%)</Label>
+          <Input
+            type="number" min={0} max={100} step={0.5}
+            value={s.referral_percent ?? 5}
+            onChange={(e) => set("referral_percent", Number(e.target.value))}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Paid to referrer on every profit payout from their invitees.
+          </p>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
           <MessageCircle className="h-5 w-5" /> Live chat widgets
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
