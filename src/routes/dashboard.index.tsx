@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles,
+  ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles, Share2, Copy, Users,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 import { Money } from "@/components/Money";
+import { Countdown } from "@/components/Countdown";
+import { Button } from "@/components/ui/button";
 
 
 export const Route = createFileRoute("/dashboard/")({
