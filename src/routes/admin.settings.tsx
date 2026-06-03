@@ -18,6 +18,7 @@ type Settings = {
   site_url: string | null;
   tidio_public_key: string | null;
   sendpulse_chat_id: string | null;
+  referral_percent: number | null;
   smtp_host: string | null;
   smtp_port: number | null;
   smtp_secure: boolean | null;
