@@ -309,6 +309,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_suspended: boolean
           kyc_status: string
           phone: string | null
           referral_code: string | null
@@ -323,6 +324,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_suspended?: boolean
           kyc_status?: string
           phone?: string | null
           referral_code?: string | null
@@ -337,6 +339,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_suspended?: boolean
           kyc_status?: string
           phone?: string | null
           referral_code?: string | null
