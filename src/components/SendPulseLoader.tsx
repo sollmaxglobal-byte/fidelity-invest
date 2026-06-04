@@ -3,8 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Loads the SendPulse live chat widget site-wide.
- * Only injects the script when an admin has saved a real chat ID in
- * Admin → Settings (`app_settings.sendpulse_chat_id`).
+ * Reads the chat id from app_settings.sendpulse_chat_id (admin-configured).
  */
 export function SendPulseLoader() {
   useEffect(() => {
@@ -15,13 +14,16 @@ export function SendPulseLoader() {
         const { data } = await supabase
           .from("app_settings")
           .select("sendpulse_chat_id")
+          .eq("id", 1)
           .maybeSingle();
-        id = (data as { sendpulse_chat_id?: string } | null)?.sendpulse_chat_id?.trim() ?? "";
+        id =
+          (data as { sendpulse_chat_id?: string } | null)?.sendpulse_chat_id
+            ?.replace(/^["'\s]+|["'\s]+$/g, "")
+            .trim() ?? "";
       } catch {
         return;
       }
-      if (cancelled) return;
-      if (!id) return; // No widget until admin configures the chat ID
+      if (cancelled || !id) return;
       if (document.getElementById("sendpulse-livechat-script")) return;
       const s = document.createElement("script");
       s.id = "sendpulse-livechat-script";
