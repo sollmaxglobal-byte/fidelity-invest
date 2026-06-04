@@ -92,6 +92,11 @@ function AdminUsers() {
                       Admin
                     </span>
                   )}
+                  {r.is_suspended && (
+                    <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-destructive">
+                      Suspended
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground">{r.phone ?? "—"} • Joined {formatDate(r.created_at)}</div>
                 <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
@@ -104,8 +109,18 @@ function AdminUsers() {
                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(r)}>
                   {r.is_admin ? <><ShieldOff className="mr-1 h-4 w-4" />Remove admin</> : <><Shield className="mr-1 h-4 w-4" />Make admin</>}
                 </Button>
+                <Button
+                  size="sm"
+                  variant={r.is_suspended ? "outline" : "destructive"}
+                  onClick={() => toggleSuspend(r)}
+                >
+                  {r.is_suspended
+                    ? <><CheckCircle2 className="mr-1 h-4 w-4" />Reactivate</>
+                    : <><Ban className="mr-1 h-4 w-4" />Suspend</>}
+                </Button>
               </div>
             </div>
+
 
             <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-border pt-3">
               <div>
