@@ -31,6 +31,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPlansRouteImport } from './routes/admin.plans'
 import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
 import { Route as AdminInvestmentsRouteImport } from './routes/admin.investments'
+import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -143,6 +144,11 @@ const AdminInvestmentsRoute = AdminInvestmentsRouteImport.update({
   path: '/investments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEmailsRoute = AdminEmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDepositsRoute = AdminDepositsRouteImport.update({
   id: '/deposits',
   path: '/deposits',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/plans': typeof PlansRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
+  '/admin/emails': typeof AdminEmailsRoute
   '/admin/investments': typeof AdminInvestmentsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/plans': typeof PlansRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
+  '/admin/emails': typeof AdminEmailsRoute
   '/admin/investments': typeof AdminInvestmentsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/plans': typeof PlansRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
+  '/admin/emails': typeof AdminEmailsRoute
   '/admin/investments': typeof AdminInvestmentsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/reset-password'
     | '/admin/deposits'
+    | '/admin/emails'
     | '/admin/investments'
     | '/admin/methods'
     | '/admin/plans'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/reset-password'
     | '/admin/deposits'
+    | '/admin/emails'
     | '/admin/investments'
     | '/admin/methods'
     | '/admin/plans'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/reset-password'
     | '/admin/deposits'
+    | '/admin/emails'
     | '/admin/investments'
     | '/admin/methods'
     | '/admin/plans'
@@ -467,6 +479,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvestmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/emails': {
+      id: '/admin/emails'
+      path: '/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AdminEmailsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/deposits': {
       id: '/admin/deposits'
       path: '/deposits'
@@ -479,6 +498,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminDepositsRoute: typeof AdminDepositsRoute
+  AdminEmailsRoute: typeof AdminEmailsRoute
   AdminInvestmentsRoute: typeof AdminInvestmentsRoute
   AdminMethodsRoute: typeof AdminMethodsRoute
   AdminPlansRoute: typeof AdminPlansRoute
@@ -490,6 +510,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDepositsRoute: AdminDepositsRoute,
+  AdminEmailsRoute: AdminEmailsRoute,
   AdminInvestmentsRoute: AdminInvestmentsRoute,
   AdminMethodsRoute: AdminMethodsRoute,
   AdminPlansRoute: AdminPlansRoute,

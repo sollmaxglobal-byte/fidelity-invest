@@ -25,11 +25,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    async function checkSuspended(uid: string) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", uid)
+        .maybeSingle();
+      if ((data as { is_suspended?: boolean } | null)?.is_suspended) {
+        await supabase.auth.signOut();
+        if (typeof window !== "undefined") {
+          alert("Your account has been suspended. Please contact support.");
+        }
+        return true;
+      }
+      return false;
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
         setTimeout(async () => {
+          if (await checkSuspended(s.user.id)) return;
           const { data } = await supabase
             .from("user_roles")
             .select("role")
@@ -43,18 +60,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
       setLoading(false);
       if (s?.user) {
-        supabase
+        if (await checkSuspended(s.user.id)) return;
+        const { data } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", s.user.id)
           .eq("role", "admin")
-          .maybeSingle()
-          .then(({ data }) => setIsAdmin(!!data));
+          .maybeSingle();
+        setIsAdmin(!!data);
       }
     });
 

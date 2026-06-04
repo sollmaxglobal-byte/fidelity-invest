@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Shield, ShieldOff, Plus, Minus } from "lucide-react";
+import { Shield, ShieldOff, Plus, Minus, Ban, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ type Row = {
   id: string; full_name: string | null; phone: string | null;
   balance: number; total_invested: number; total_earned: number; created_at: string;
   is_admin: boolean;
+  is_suspended: boolean;
 };
 
 function AdminUsers() {
@@ -24,7 +25,7 @@ function AdminUsers() {
 
   async function load() {
     const { data: profs } = await supabase.from("profiles")
-      .select("id,full_name,phone,balance,total_invested,total_earned,created_at")
+      .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended")
       .order("created_at", { ascending: false }).limit(200);
     const { data: roles } = await supabase.from("user_roles").select("user_id,role").eq("role", "admin");
     const adminSet = new Set((roles ?? []).map((r) => r.user_id));
@@ -57,6 +58,14 @@ function AdminUsers() {
     load();
   }
 
+  async function toggleSuspend(r: Row) {
+    const next = !r.is_suspended;
+    const { error } = await supabase.from("profiles").update({ is_suspended: next }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(next ? "Account suspended" : "Account reactivated");
+    load();
+  }
+
   const filtered = rows.filter((r) =>
     !q || (r.full_name ?? "").toLowerCase().includes(q.toLowerCase()) || (r.phone ?? "").includes(q)
   );
@@ -83,6 +92,11 @@ function AdminUsers() {
                       Admin
                     </span>
                   )}
+                  {r.is_suspended && (
+                    <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-destructive">
+                      Suspended
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground">{r.phone ?? "—"} • Joined {formatDate(r.created_at)}</div>
                 <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
@@ -95,8 +109,18 @@ function AdminUsers() {
                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(r)}>
                   {r.is_admin ? <><ShieldOff className="mr-1 h-4 w-4" />Remove admin</> : <><Shield className="mr-1 h-4 w-4" />Make admin</>}
                 </Button>
+                <Button
+                  size="sm"
+                  variant={r.is_suspended ? "outline" : "destructive"}
+                  onClick={() => toggleSuspend(r)}
+                >
+                  {r.is_suspended
+                    ? <><CheckCircle2 className="mr-1 h-4 w-4" />Reactivate</>
+                    : <><Ban className="mr-1 h-4 w-4" />Suspend</>}
+                </Button>
               </div>
             </div>
+
 
             <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-border pt-3">
               <div>

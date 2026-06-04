@@ -13,6 +13,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 import { Money } from "@/components/Money";
 import { Countdown } from "@/components/Countdown";
+import { DateTimeWidget } from "@/components/DateTimeWidget";
 import { Button } from "@/components/ui/button";
 
 
@@ -88,6 +89,9 @@ function DashboardHome() {
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
         <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? t("home.investor")}</h1>
       </div>
+
+      <DateTimeWidget />
+
 
       {/* Hero balance card */}
       <div className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant">
