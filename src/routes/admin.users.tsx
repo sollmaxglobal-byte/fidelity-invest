@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Shield, ShieldOff, Plus, Minus } from "lucide-react";
+import { Shield, ShieldOff, Plus, Minus, Ban, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ type Row = {
   id: string; full_name: string | null; phone: string | null;
   balance: number; total_invested: number; total_earned: number; created_at: string;
   is_admin: boolean;
+  is_suspended: boolean;
 };
 
 function AdminUsers() {
@@ -24,7 +25,7 @@ function AdminUsers() {
 
   async function load() {
     const { data: profs } = await supabase.from("profiles")
-      .select("id,full_name,phone,balance,total_invested,total_earned,created_at")
+      .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended")
       .order("created_at", { ascending: false }).limit(200);
     const { data: roles } = await supabase.from("user_roles").select("user_id,role").eq("role", "admin");
     const adminSet = new Set((roles ?? []).map((r) => r.user_id));
@@ -54,6 +55,14 @@ function AdminUsers() {
     });
     toast.success("Balance updated");
     setAdj({ id: "", amount: "" });
+    load();
+  }
+
+  async function toggleSuspend(r: Row) {
+    const next = !r.is_suspended;
+    const { error } = await supabase.from("profiles").update({ is_suspended: next }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(next ? "Account suspended" : "Account reactivated");
     load();
   }
 
