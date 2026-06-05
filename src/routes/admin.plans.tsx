@@ -155,7 +155,7 @@ function AdminPlans() {
                   <div className="font-display text-xl text-primary">{p.name}</div>
                   <div className="text-xs text-muted-foreground">{p.description}</div>
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-                    <div><div className="text-xs text-muted-foreground">Range</div><div>{formatXAF(p.min_amount)} – {formatXAF(p.max_amount)}</div></div>
+                    <div><div className="text-xs text-muted-foreground">Amount</div><div>{p.amount_type === "fixed" ? formatXAF(p.fixed_amount) : `${formatXAF(p.min_amount)} – ${formatXAF(p.max_amount)}`}</div></div>
                     <div><div className="text-xs text-muted-foreground">Daily profit</div><div>{dailyLabel}</div></div>
                     <div><div className="text-xs text-muted-foreground">Payout</div><div className="capitalize">{(p.payout_frequency ?? "daily").replace("_", " ")}</div></div>
                     <div><div className="text-xs text-muted-foreground">Duration</div><div>{p.duration_days} days</div></div>
