@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/admin/settings")({
   component: AdminSettings,
@@ -18,6 +19,7 @@ type Settings = {
   site_url: string | null;
   tidio_public_key: string | null;
   sendpulse_chat_id: string | null;
+  sendpulse_embed_html: string | null;
   referral_percent: number | null;
   smtp_host: string | null;
   smtp_port: number | null;
@@ -47,6 +49,7 @@ function AdminSettings() {
         site_url: s.site_url,
         tidio_public_key: s.tidio_public_key,
         sendpulse_chat_id: s.sendpulse_chat_id,
+        sendpulse_embed_html: s.sendpulse_embed_html,
         referral_percent: s.referral_percent ?? 5,
         smtp_host: s.smtp_host,
         smtp_port: s.smtp_port,
@@ -115,6 +118,18 @@ function AdminSettings() {
             <Input value={s.tidio_public_key ?? ""} onChange={(e) => set("tidio_public_key", e.target.value)}
               placeholder="Optional" />
             <p className="mt-1 text-xs text-muted-foreground">Leave empty to disable Tidio.</p>
+          </div>
+          <div className="sm:col-span-2">
+            <Label>SendPulse full embed snippet (recommended)</Label>
+            <Textarea
+              className="min-h-[120px] font-mono text-xs"
+              value={s.sendpulse_embed_html ?? ""}
+              onChange={(e) => set("sendpulse_embed_html", e.target.value)}
+              placeholder="<script ...></script>  — paste the exact code from SendPulse → Live Chat → Install"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              If filled, this is used instead of the Chat ID. Paste it exactly as SendPulse provides.
+            </p>
           </div>
         </div>
       </section>

@@ -17,7 +17,8 @@ function render(tpl: string, vars: Record<string, any>) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
-  if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: cors });
+  if (req.method !== "POST")
+    return new Response("Method not allowed", { status: 405, headers: cors });
 
   const url = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -25,53 +26,130 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { to, template_key, variables = {}, subject: customSubject, html: customHtml } = body ?? {};
+    let { to } = body ?? {};
+    const { template_key, variables = {}, subject: customSubject, html: customHtml } = body ?? {};
     if (!to || (!template_key && !customHtml)) {
-      return new Response(JSON.stringify({ error: "to and template_key (or html) required" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      return new Response(
+        JSON.stringify({ error: "to and template_key (or html) required" }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
+      );
     }
 
-    // Load settings
-    const { data: settings } = await admin.from("app_settings").select("*").eq("id", 1).maybeSingle();
+    // Resolve "user_id:<uuid>" recipients to the user's email
+    if (typeof to === "string" && to.startsWith("user_id:")) {
+      const uid = to.slice(8).trim();
+      try {
+        const { data } = await admin.auth.admin.getUserById(uid);
+        if (data?.user?.email) to = data.user.email;
+        else
+          return new Response(JSON.stringify({ error: "User email not found" }), {
+            status: 404,
+            headers: { ...cors, "Content-Type": "application/json" },
+          });
+      } catch (_e) {
+        return new Response(JSON.stringify({ error: "User lookup failed" }), {
+          status: 500,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    const { data: settings } = await admin
+      .from("app_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
     if (!settings?.smtp_host || !settings?.smtp_user || !settings?.smtp_password) {
-      return new Response(JSON.stringify({ error: "SMTP not configured. Open Admin → Settings to add SMTP credentials." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      return new Response(
+        JSON.stringify({
+          error: "SMTP not configured. Open Admin → Settings to add SMTP credentials.",
+        }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
+      );
     }
 
     let subject = customSubject as string | undefined;
     let html = customHtml as string | undefined;
 
     if (template_key) {
-      const { data: tpl } = await admin.from("email_templates").select("*").eq("key", template_key).maybeSingle();
-      if (!tpl) return new Response(JSON.stringify({ error: `Template ${template_key} not found` }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
-      if (!tpl.enabled) return new Response(JSON.stringify({ ok: true, skipped: "disabled" }), { headers: { ...cors, "Content-Type": "application/json" } });
-      const fullVars = { site_name: settings.site_name ?? "Camvcc", site_url: settings.site_url ?? "", ...variables };
+      const { data: tpl } = await admin
+        .from("email_templates")
+        .select("*")
+        .eq("key", template_key)
+        .maybeSingle();
+      if (!tpl)
+        return new Response(JSON.stringify({ error: `Template ${template_key} not found` }), {
+          status: 404,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      if (!tpl.enabled)
+        return new Response(JSON.stringify({ ok: true, skipped: "disabled" }), {
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      const fullVars = {
+        site_name: settings.site_name ?? "Camvcc",
+        site_url: settings.site_url ?? "",
+        ...variables,
+      };
       subject = render(tpl.subject, fullVars);
       html = render(tpl.html_body, fullVars);
     }
 
+    const port = Number(settings.smtp_port ?? 465);
+    // Auto-derive secure: 465 = SSL, others = STARTTLS
+    const secure = settings.smtp_secure === null || settings.smtp_secure === undefined
+      ? port === 465
+      : !!settings.smtp_secure;
+
     const transporter = nodemailer.createTransport({
       host: settings.smtp_host,
-      port: settings.smtp_port ?? 465,
-      secure: settings.smtp_secure ?? true,
+      port,
+      secure,
       auth: { user: settings.smtp_user, pass: settings.smtp_password },
+      requireTLS: !secure && port === 587,
+      tls: { rejectUnauthorized: false, servername: settings.smtp_host },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
     });
 
     const fromName = settings.smtp_from_name || settings.site_name || "Camvcc";
     const fromEmail = settings.smtp_from_email || settings.smtp_user;
 
     try {
-      await transporter.sendMail({
+      const info = await transporter.sendMail({
         from: `"${fromName}" <${fromEmail}>`,
         to,
         subject: subject || "(no subject)",
         html: html || "",
       });
-      await admin.from("email_logs").insert({ recipient: to, template_key: template_key ?? null, subject, status: "sent" });
-      return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, "Content-Type": "application/json" } });
+      await admin.from("email_logs").insert({
+        recipient: to,
+        template_key: template_key ?? null,
+        subject,
+        status: "sent",
+      });
+      return new Response(JSON.stringify({ ok: true, messageId: info?.messageId }), {
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
     } catch (sendErr: any) {
-      await admin.from("email_logs").insert({ recipient: to, template_key: template_key ?? null, subject, status: "failed", error: String(sendErr?.message ?? sendErr) });
-      return new Response(JSON.stringify({ error: String(sendErr?.message ?? sendErr) }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+      const errMsg = String(sendErr?.response ?? sendErr?.message ?? sendErr);
+      await admin.from("email_logs").insert({
+        recipient: to,
+        template_key: template_key ?? null,
+        subject,
+        status: "failed",
+        error: errMsg,
+      });
+      return new Response(JSON.stringify({ error: errMsg }), {
+        status: 500,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
     }
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: String(err?.message ?? err) }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: String(err?.message ?? err) }), {
+      status: 500,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
   }
 });
