@@ -64,6 +64,61 @@ function DashboardLayout() {
                 {t("nav.admin")}
               </Button>
             )}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button size="icon" variant="ghost" aria-label="Open site menu">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72">
+                <SheetHeader>
+                  <SheetTitle className="font-display text-primary">Site menu</SheetTitle>
+                </SheetHeader>
+                <nav className="mt-4 flex flex-col gap-1">
+                  {SITE_MENU.map((m) => (
+                    <SheetClose asChild key={m.to}>
+                      <Link
+                        to={m.to as never}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted"
+                      >
+                        <m.icon className="h-4 w-4 text-primary" />
+                        {m.label}
+                      </Link>
+                    </SheetClose>
+                  ))}
+                  <div className="my-2 h-px bg-border" />
+                  <div className="px-3 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Account</div>
+                  {NAV.map((item) => (
+                    <SheetClose asChild key={item.to}>
+                      <Link
+                        to={item.to as never}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted"
+                      >
+                        <item.icon className="h-4 w-4 text-primary" />
+                        {t(item.label)}
+                      </Link>
+                    </SheetClose>
+                  ))}
+                  <SheetClose asChild>
+                    <Link
+                      to="/dashboard/deposit"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted"
+                    >
+                      <FileText className="h-4 w-4 text-primary" />
+                      Make a deposit
+                    </Link>
+                  </SheetClose>
+                  <div className="my-2 h-px bg-border" />
+                  <button
+                    onClick={() => signOut()}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-destructive hover:bg-destructive/10"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
