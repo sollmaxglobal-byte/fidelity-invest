@@ -95,15 +95,17 @@ function DepositPage() {
         if (upErr) throw upErr;
       });
       const method = methods.find((m) => m.id === v.payment_method_id);
+      let depositId = "";
       await retry(async () => {
-        const { error } = await supabase.from("deposits").insert({
+        const { data: inserted, error } = await supabase.from("deposits").insert({
           user_id: user.id,
           amount: v.amount,
           payment_method_id: v.payment_method_id,
           proof_url: path,
           status: "pending",
-        });
+        }).select("id").single();
         if (error) throw error;
+        depositId = inserted!.id as string;
       });
       if (user.email) {
         sendEmail({
@@ -117,7 +119,8 @@ function DepositPage() {
         });
       }
       toast.success(t("deposit.submitted"));
-      setSuccess(true);
+      navigate({ to: "/dashboard/deposit/pending/$id", params: { id: depositId } });
+      return;
     } catch (err) {
       const raw = (err as Error).message ?? "Error";
       const friendly = /fetch|network|load failed/i.test(raw)

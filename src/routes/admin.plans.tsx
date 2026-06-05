@@ -19,11 +19,13 @@ type Plan = {
   daily_roi_percent: number; duration_days: number; active: boolean;
   profit_type: "percent" | "fixed"; fixed_daily_profit: number;
   payout_frequency: "daily" | "weekly" | "monthly" | "end_of_term";
+  amount_type: "range" | "fixed"; fixed_amount: number;
 };
 
 function AdminPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [profitType, setProfitType] = useState<"percent" | "fixed">("percent");
+  const [amountType, setAmountType] = useState<"range" | "fixed">("range");
 
   async function load() {
     const { data } = await supabase.from("plans").select("*").order("min_amount");
@@ -34,11 +36,16 @@ function AdminPlans() {
   async function create(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const fixedAmt = Number(fd.get("fixed_amount") || 0);
+    const minA = amountType === "fixed" ? fixedAmt : Number(fd.get("min_amount"));
+    const maxA = amountType === "fixed" ? fixedAmt : Number(fd.get("max_amount"));
     const { error } = await supabase.from("plans").insert({
       name: String(fd.get("name")),
       description: String(fd.get("description") || ""),
-      min_amount: Number(fd.get("min_amount")),
-      max_amount: Number(fd.get("max_amount")),
+      amount_type: amountType,
+      fixed_amount: amountType === "fixed" ? fixedAmt : 0,
+      min_amount: minA,
+      max_amount: maxA,
       duration_days: Number(fd.get("duration_days")),
       profit_type: profitType,
       daily_roi_percent: profitType === "percent" ? Number(fd.get("daily_roi_percent")) : 0,
@@ -50,6 +57,7 @@ function AdminPlans() {
     toast.success("Plan created");
     (e.target as HTMLFormElement).reset();
     setProfitType("percent");
+    setAmountType("range");
     load();
   }
 
@@ -75,8 +83,27 @@ function AdminPlans() {
       <form onSubmit={create} className="grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2 md:grid-cols-3">
         <div><Label>Name</Label><Input name="name" required /></div>
         <div className="md:col-span-2"><Label>Description</Label><Input name="description" /></div>
-        <div><Label>Min (XAF)</Label><Input name="min_amount" type="number" required min={0} /></div>
-        <div><Label>Max (XAF)</Label><Input name="max_amount" type="number" required min={0} /></div>
+        <div className="sm:col-span-2 md:col-span-3">
+          <Label>Investment amount</Label>
+          <div className="mt-2 inline-flex rounded-xl border border-border bg-background p-1">
+            <button type="button" onClick={() => setAmountType("range")}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium ${amountType === "range" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+              Range (min–max)
+            </button>
+            <button type="button" onClick={() => setAmountType("fixed")}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium ${amountType === "fixed" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+              Fixed amount
+            </button>
+          </div>
+        </div>
+        {amountType === "range" ? (
+          <>
+            <div><Label>Min (XAF)</Label><Input name="min_amount" type="number" required min={0} /></div>
+            <div><Label>Max (XAF)</Label><Input name="max_amount" type="number" required min={0} /></div>
+          </>
+        ) : (
+          <div className="sm:col-span-2"><Label>Fixed amount (XAF)</Label><Input name="fixed_amount" type="number" required min={0} /></div>
+        )}
         <div><Label>Duration (days)</Label><Input name="duration_days" type="number" required min={1} /></div>
 
         <div className="sm:col-span-2 md:col-span-3">
@@ -128,7 +155,7 @@ function AdminPlans() {
                   <div className="font-display text-xl text-primary">{p.name}</div>
                   <div className="text-xs text-muted-foreground">{p.description}</div>
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-                    <div><div className="text-xs text-muted-foreground">Range</div><div>{formatXAF(p.min_amount)} – {formatXAF(p.max_amount)}</div></div>
+                    <div><div className="text-xs text-muted-foreground">Amount</div><div>{p.amount_type === "fixed" ? formatXAF(p.fixed_amount) : `${formatXAF(p.min_amount)} – ${formatXAF(p.max_amount)}`}</div></div>
                     <div><div className="text-xs text-muted-foreground">Daily profit</div><div>{dailyLabel}</div></div>
                     <div><div className="text-xs text-muted-foreground">Payout</div><div className="capitalize">{(p.payout_frequency ?? "daily").replace("_", " ")}</div></div>
                     <div><div className="text-xs text-muted-foreground">Duration</div><div>{p.duration_days} days</div></div>
