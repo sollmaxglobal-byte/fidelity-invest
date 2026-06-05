@@ -20,6 +20,7 @@ type Plan = {
   min_amount: number; max_amount: number; daily_roi_percent: number; duration_days: number;
   profit_type: "percent" | "fixed"; fixed_daily_profit: number;
   payout_frequency: "daily" | "weekly" | "monthly" | "end_of_term";
+  amount_type: "range" | "fixed"; fixed_amount: number;
 };
 
 
