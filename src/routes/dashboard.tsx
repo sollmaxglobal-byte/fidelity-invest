@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Home, TrendingUp, Wallet, User, Leaf } from "lucide-react";
+import { Home, TrendingUp, Wallet, User, Leaf, Menu, Info, Phone, Layers, FileText, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
@@ -20,8 +21,15 @@ const NAV: NavItem[] = [
   { to: "/dashboard/profile", label: "nav.profile", icon: User },
 ];
 
+const SITE_MENU = [
+  { to: "/", label: "Home", icon: Home },
+  { to: "/plans", label: "Investment plans", icon: Layers },
+  { to: "/about", label: "About us", icon: Info },
+  { to: "/contact", label: "Contact", icon: Phone },
+];
+
 function DashboardLayout() {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, signOut } = useAuth();
   const { t } = useI18n();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
