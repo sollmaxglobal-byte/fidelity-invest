@@ -19,6 +19,7 @@ export type Database = {
           id: number
           referral_percent: number
           sendpulse_chat_id: string | null
+          sendpulse_embed_html: string | null
           site_name: string
           site_url: string | null
           smtp_from_email: string | null
@@ -35,6 +36,7 @@ export type Database = {
           id?: number
           referral_percent?: number
           sendpulse_chat_id?: string | null
+          sendpulse_embed_html?: string | null
           site_name?: string
           site_url?: string | null
           smtp_from_email?: string | null
@@ -51,6 +53,7 @@ export type Database = {
           id?: number
           referral_percent?: number
           sendpulse_chat_id?: string | null
+          sendpulse_embed_html?: string | null
           site_name?: string
           site_url?: string | null
           smtp_from_email?: string | null
@@ -261,10 +264,12 @@ export type Database = {
       plans: {
         Row: {
           active: boolean
+          amount_type: string
           created_at: string
           daily_roi_percent: number
           description: string | null
           duration_days: number
+          fixed_amount: number
           fixed_daily_profit: number
           id: string
           max_amount: number
@@ -275,10 +280,12 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          amount_type?: string
           created_at?: string
           daily_roi_percent: number
           description?: string | null
           duration_days: number
+          fixed_amount?: number
           fixed_daily_profit?: number
           id?: string
           max_amount: number
@@ -289,10 +296,12 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          amount_type?: string
           created_at?: string
           daily_roi_percent?: number
           description?: string | null
           duration_days?: number
+          fixed_amount?: number
           fixed_daily_profit?: number
           id?: string
           max_amount?: number
