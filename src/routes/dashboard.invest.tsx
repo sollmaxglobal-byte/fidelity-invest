@@ -154,17 +154,26 @@ function InvestPage() {
                 <TrendingUp className="h-5 w-5 text-accent" />
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-lg bg-secondary p-2">
-                  <div className="text-muted-foreground">Min</div>
-                  <div className="font-medium">{formatXAF(p.min_amount)}</div>
-                </div>
-                <div className="rounded-lg bg-secondary p-2">
-                  <div className="text-muted-foreground">Max</div>
-                  <div className="font-medium">{formatXAF(p.max_amount)}</div>
-                </div>
+                {p.amount_type === "fixed" ? (
+                  <div className="col-span-2 rounded-lg bg-secondary p-2">
+                    <div className="text-muted-foreground">Fixed amount</div>
+                    <div className="font-medium">{formatXAF(p.fixed_amount)}</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="rounded-lg bg-secondary p-2">
+                      <div className="text-muted-foreground">Min</div>
+                      <div className="font-medium">{formatXAF(p.min_amount)}</div>
+                    </div>
+                    <div className="rounded-lg bg-secondary p-2">
+                      <div className="text-muted-foreground">Max</div>
+                      <div className="font-medium">{formatXAF(p.max_amount)}</div>
+                    </div>
+                  </>
+                )}
               </div>
               <Button
-                onClick={() => { setPlanId(p.id); setAmount(p.min_amount); }}
+                onClick={() => { setPlanId(p.id); setAmount(p.amount_type === "fixed" ? p.fixed_amount : p.min_amount); }}
                 className="mt-4 w-full bg-primary text-primary-foreground hover:opacity-90"
               >
                 Activate
@@ -186,12 +195,17 @@ function InvestPage() {
             <Label htmlFor="amount">Amount (XAF)</Label>
             <Input
               id="amount" type="number" required
-              min={plan.min_amount} max={plan.max_amount} step={500}
+              min={plan.amount_type === "fixed" ? plan.fixed_amount : plan.min_amount}
+              max={plan.amount_type === "fixed" ? plan.fixed_amount : plan.max_amount}
+              step={plan.amount_type === "fixed" ? undefined : 500}
+              readOnly={plan.amount_type === "fixed"}
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
             />
             <div className="mt-1 text-xs text-muted-foreground">
-              Min {formatXAF(plan.min_amount)} · Max {formatXAF(plan.max_amount)}
+              {plan.amount_type === "fixed"
+                ? `Fixed at ${formatXAF(plan.fixed_amount)}`
+                : `Min ${formatXAF(plan.min_amount)} · Max ${formatXAF(plan.max_amount)}`}
             </div>
           </div>
 
