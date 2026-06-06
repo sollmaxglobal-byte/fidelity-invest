@@ -1,17 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Clock, CheckCircle2, XCircle, History, Home } from "lucide-react";
+import { motion } from "framer-motion";
+import { Clock, CheckCircle2, XCircle, History, Home, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { formatXAF } from "@/lib/format";
+import { Money } from "@/components/Money";
 
 export const Route = createFileRoute("/dashboard/deposit/pending/$id")({
   component: PendingDepositPage,
 });
 
-const WAIT_MS = 5 * 60 * 1000;
-const POLL_MS = 8 * 1000;
+const WAIT_MS = 10 * 60 * 1000; // up to 10 minutes
+const POLL_MS = 6 * 1000;
+const REDIRECT_AFTER_APPROVAL_MS = 4000;
 
 type Deposit = {
   id: string;
@@ -62,7 +64,7 @@ function PendingDepositPage() {
     return () => clearInterval(iv);
   }, []);
 
-  // Timeout → wallet history
+  // Timeout → wallet history (after full 10 min if still pending)
   useEffect(() => {
     if (!deposit) return;
     if (deposit.status !== "pending") return;
@@ -71,8 +73,21 @@ function PendingDepositPage() {
     }
   }, [elapsed, deposit, navigate]);
 
+  // Auto redirect to dashboard once approved
+  useEffect(() => {
+    if (deposit?.status !== "approved") return;
+    const t = setTimeout(() => {
+      navigate({ to: "/dashboard" });
+    }, REDIRECT_AFTER_APPROVAL_MS);
+    return () => clearTimeout(t);
+  }, [deposit?.status, navigate]);
+
   if (loading || !deposit) {
-    return <div className="grid min-h-[50vh] place-items-center text-muted-foreground">Loading…</div>;
+    return (
+      <div className="grid min-h-[50vh] place-items-center text-muted-foreground">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   const remaining = Math.max(0, WAIT_MS - elapsed);
@@ -82,18 +97,27 @@ function PendingDepositPage() {
 
   if (deposit.status === "approved") {
     return (
-      <div className="mx-auto max-w-md space-y-4 py-6 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success/15">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="mx-auto max-w-md space-y-4 py-6 text-center"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 220, damping: 14 }}
+          className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success/15"
+        >
           <CheckCircle2 className="h-12 w-12 text-success" />
-        </div>
+        </motion.div>
         <h1 className="font-display text-2xl text-primary">Payment successful</h1>
         <p className="text-sm text-muted-foreground">
-          Your deposit has been confirmed and added to your wallet balance.
+          Your deposit has been confirmed and credited to your wallet. Redirecting to your dashboard…
         </p>
         <div className="rounded-2xl border border-border bg-card p-4 text-left">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">Amount credited</span>
-            <span className="font-display text-xl text-success">{formatXAF(deposit.amount)}</span>
+            <Money value={deposit.amount} className="font-display text-xl text-success" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -104,7 +128,7 @@ function PendingDepositPage() {
             <Link to="/dashboard/invest">Invest now</Link>
           </Button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -133,25 +157,44 @@ function PendingDepositPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-5 py-6">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mx-auto max-w-md space-y-5 py-6"
+    >
       <div className="text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-warning/15">
-          <Clock className="h-12 w-12 animate-pulse text-warning" />
+        <div className="relative mx-auto flex h-24 w-24 items-center justify-center">
+          {/* Spinning preloader ring */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-full border-4 border-primary/15 border-t-primary"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 1.4 }}
+          />
+          <motion.div
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-warning/15"
+          >
+            <Clock className="h-8 w-8 text-warning" />
+          </motion.div>
         </div>
-        <h1 className="mt-3 font-display text-2xl text-primary">Awaiting payment confirmation</h1>
+        <h1 className="mt-4 font-display text-2xl text-primary">Deposit submitted successfully</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          We're verifying your transfer. This usually takes a few minutes.
+          Now waiting for approval — this might take up to 10 minutes.
         </p>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">Amount</span>
-          <span className="font-display text-xl text-primary">{formatXAF(deposit.amount)}</span>
+          <Money value={deposit.amount} className="font-display text-xl text-primary" />
         </div>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">Status</span>
-          <span className="rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">Pending</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">
+            <Loader2 className="h-3 w-3 animate-spin" /> Awaiting approval
+          </span>
         </div>
 
         <div className="mt-5">
@@ -160,14 +203,16 @@ function PendingDepositPage() {
             <span className="font-mono text-foreground">{mm}:{ss}</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${pct}%` }}
+            <motion.div
+              className="h-full bg-gradient-to-r from-primary to-success"
+              animate={{ width: `${pct}%` }}
+              transition={{ ease: "linear", duration: 0.6 }}
             />
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-            If your payment isn't confirmed within 5 minutes, you'll be taken to your deposit history.
-            Don't worry — pending deposits stay safe and will be credited as soon as our team approves them.
+            You'll be automatically redirected to your dashboard as soon as the payment is approved.
+            If it isn't approved within 10 minutes, you'll be taken to your deposit history — pending
+            deposits stay safe and will be credited once our team confirms them.
           </p>
         </div>
       </div>
@@ -182,6 +227,6 @@ function PendingDepositPage() {
           <Link to="/dashboard"><Home className="mr-2 h-4 w-4" />Dashboard</Link>
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
