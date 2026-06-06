@@ -87,11 +87,11 @@ function PlansPage() {
                 <ul className="mt-6 space-y-2 text-sm">
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 shrink-0 text-gold" />
-                    From {formatXAF(p.min_amount)}
+                    From <Money value={p.min_amount} />
                   </li>
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 shrink-0 text-gold" />
-                    Up to {formatXAF(p.max_amount)}
+                    Up to <Money value={p.max_amount} />
                   </li>
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 shrink-0 text-gold" />
