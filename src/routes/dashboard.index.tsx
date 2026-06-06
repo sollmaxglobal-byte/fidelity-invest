@@ -117,47 +117,79 @@ function DashboardHome() {
   const activeCount = investments.filter((i) => i.status === "active").length;
 
   return (
-    <div className="space-y-5">
+    <motion.div
+      className="space-y-5"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Greeting */}
-      <div>
+      <motion.div variants={itemVariants}>
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
         <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? t("home.investor")}</h1>
-      </div>
+      </motion.div>
 
-      <DateTimeWidget />
+      <motion.div variants={itemVariants}>
+        <DateTimeWidget />
+      </motion.div>
 
 
       {/* Hero balance card */}
-      <div className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+      <motion.div
+        variants={itemVariants}
+        whileHover={{ scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant"
+      >
+        <motion.div
+          aria-hidden
+          className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
+          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute -left-16 bottom-0 h-32 w-32 rounded-full bg-white/10 blur-3xl"
+          animate={{ scale: [1.1, 0.9, 1.1], opacity: [0.5, 0.9, 0.5] }}
+          transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+        />
         <div className="relative">
           <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
-          <div className="mt-2 font-display text-4xl"><Money value={profile?.balance ?? 0} /></div>
+          <div className="mt-2 font-display text-4xl">
+            <AnimatedNumber value={profile?.balance ?? 0} />
+          </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25">
+            <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25 active:scale-95">
               <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
             </Link>
-            <Link to="/dashboard/withdraw" className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-primary transition hover:bg-white/90">
+            <Link to="/dashboard/withdraw" className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-primary transition hover:bg-white/90 active:scale-95">
               <ArrowUpFromLine className="h-4 w-4" /> {t("common.withdraw")}
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3">
+      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <StatCard icon={Sparkles} label={t("home.totalProfit")} value={formatXAF(profile?.total_earned ?? 0)} accent="success" />
         <StatCard icon={TrendingUp} label={t("home.activePlans")} value={String(activeCount)} accent="primary" />
-      </div>
+      </motion.div>
 
       {/* Profit chart */}
-      <div className="rounded-2xl border border-border bg-card p-4">
+      <motion.div variants={itemVariants} className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">{t("home.profitGrowth")}</h2>
-          <span className="text-xs text-muted-foreground">XAF</span>
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+            </span>
+            Live · XAF
+          </span>
         </div>
         <div className="mt-3 h-44">
+
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
               <defs>
