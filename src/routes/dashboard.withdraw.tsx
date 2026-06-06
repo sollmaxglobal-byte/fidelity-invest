@@ -110,6 +110,14 @@ function WithdrawPage() {
         </div>
       </div>
 
+      <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">⏱</span>
+        <div>
+          <div className="font-medium text-primary">Estimated processing time: up to 10 minutes</div>
+          <div className="text-xs text-muted-foreground">Once approved, funds are sent to your account within 10 minutes maximum.</div>
+        </div>
+      </div>
+
       <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
         <div>
           <Label htmlFor="amount">{t("common.amount")}</Label>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles, Share2, Copy, Users,
 } from "lucide-react";
@@ -20,6 +21,39 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
 });
+
+// Animated count-up for the balance hero — feels like a live investing app.
+function AnimatedNumber({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const start = display;
+    const delta = value - start;
+    if (delta === 0) return;
+    const duration = 900;
+    const startTs = performance.now();
+    let raf = 0;
+    const step = (ts: number) => {
+      const p = Math.min(1, (ts - startTs) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(start + delta * eased);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+  return <Money value={Math.round(display)} />;
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 220, damping: 22 } },
+};
+
 
 type Profile = {
   full_name: string | null;
@@ -83,47 +117,79 @@ function DashboardHome() {
   const activeCount = investments.filter((i) => i.status === "active").length;
 
   return (
-    <div className="space-y-5">
+    <motion.div
+      className="space-y-5"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Greeting */}
-      <div>
+      <motion.div variants={itemVariants}>
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
         <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? t("home.investor")}</h1>
-      </div>
+      </motion.div>
 
-      <DateTimeWidget />
+      <motion.div variants={itemVariants}>
+        <DateTimeWidget />
+      </motion.div>
 
 
       {/* Hero balance card */}
-      <div className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+      <motion.div
+        variants={itemVariants}
+        whileHover={{ scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-elegant"
+      >
+        <motion.div
+          aria-hidden
+          className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
+          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute -left-16 bottom-0 h-32 w-32 rounded-full bg-white/10 blur-3xl"
+          animate={{ scale: [1.1, 0.9, 1.1], opacity: [0.5, 0.9, 0.5] }}
+          transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+        />
         <div className="relative">
           <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
-          <div className="mt-2 font-display text-4xl"><Money value={profile?.balance ?? 0} /></div>
+          <div className="mt-2 font-display text-4xl">
+            <AnimatedNumber value={profile?.balance ?? 0} />
+          </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25">
+            <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25 active:scale-95">
               <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
             </Link>
-            <Link to="/dashboard/withdraw" className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-primary transition hover:bg-white/90">
+            <Link to="/dashboard/withdraw" className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-primary transition hover:bg-white/90 active:scale-95">
               <ArrowUpFromLine className="h-4 w-4" /> {t("common.withdraw")}
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3">
+      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <StatCard icon={Sparkles} label={t("home.totalProfit")} value={formatXAF(profile?.total_earned ?? 0)} accent="success" />
         <StatCard icon={TrendingUp} label={t("home.activePlans")} value={String(activeCount)} accent="primary" />
-      </div>
+      </motion.div>
 
       {/* Profit chart */}
-      <div className="rounded-2xl border border-border bg-card p-4">
+      <motion.div variants={itemVariants} className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">{t("home.profitGrowth")}</h2>
-          <span className="text-xs text-muted-foreground">XAF</span>
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+            </span>
+            Live · XAF
+          </span>
         </div>
         <div className="mt-3 h-44">
+
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
               <defs>
@@ -147,10 +213,10 @@ function DashboardHome() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </motion.div>
 
       {/* Active plans list */}
-      <div>
+      <motion.div variants={itemVariants}>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">{t("home.yourPlans")}</h2>
           <Link to="/dashboard/invest" className="text-xs font-medium text-primary hover:underline">{t("home.newInvestment")}</Link>
@@ -161,7 +227,7 @@ function DashboardHome() {
           </div>
         ) : (
           <div className="space-y-3">
-            {investments.map((inv) => {
+            {investments.map((inv, idx) => {
               const freq = inv.plans?.payout_frequency ?? "daily";
               const cycleDays = freq === "daily" ? 1 : freq === "weekly" ? 7 : freq === "monthly" ? 30 : inv.duration_days;
               const last = inv.last_payout_at ? new Date(inv.last_payout_at) : new Date(inv.start_date);
@@ -170,7 +236,14 @@ function DashboardHome() {
               const nextPayout = new Date(Math.min(nextPayoutMs, endMs));
               const isActive = inv.status === "active" && !inv.is_paused;
               return (
-              <div key={inv.id} className="rounded-2xl border border-border bg-card p-4">
+              <motion.div
+                key={inv.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * idx }}
+                whileHover={{ y: -2 }}
+                className="rounded-2xl border border-border bg-card p-4"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="font-display text-base text-primary">{inv.plans?.name ?? "Plan"}</div>
@@ -202,21 +275,24 @@ function DashboardHome() {
                   <Mini label={t("home.roi")} v={`${inv.daily_roi_percent}%`} />
                   <Mini label={t("home.earned")} v={formatXAF(inv.total_earned)} accent />
                 </div>
-              </div>
+              </motion.div>
             );})}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Referral card */}
-      <ReferralCard
-        code={profile?.referral_code ?? null}
-        earnings={Number(profile?.referral_earnings ?? 0)}
-        count={referralCount}
-      />
-    </div>
+      <motion.div variants={itemVariants}>
+        <ReferralCard
+          code={profile?.referral_code ?? null}
+          earnings={Number(profile?.referral_earnings ?? 0)}
+          count={referralCount}
+        />
+      </motion.div>
+    </motion.div>
   );
 }
+
 
 function ReferralCard({ code, earnings, count }: { code: string | null; earnings: number; count: number }) {
   const link = useMemo(
