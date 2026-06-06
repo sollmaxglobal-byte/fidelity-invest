@@ -213,10 +213,10 @@ function DashboardHome() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </motion.div>
 
       {/* Active plans list */}
-      <div>
+      <motion.div variants={itemVariants}>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">{t("home.yourPlans")}</h2>
           <Link to="/dashboard/invest" className="text-xs font-medium text-primary hover:underline">{t("home.newInvestment")}</Link>
@@ -227,7 +227,7 @@ function DashboardHome() {
           </div>
         ) : (
           <div className="space-y-3">
-            {investments.map((inv) => {
+            {investments.map((inv, idx) => {
               const freq = inv.plans?.payout_frequency ?? "daily";
               const cycleDays = freq === "daily" ? 1 : freq === "weekly" ? 7 : freq === "monthly" ? 30 : inv.duration_days;
               const last = inv.last_payout_at ? new Date(inv.last_payout_at) : new Date(inv.start_date);
@@ -236,7 +236,14 @@ function DashboardHome() {
               const nextPayout = new Date(Math.min(nextPayoutMs, endMs));
               const isActive = inv.status === "active" && !inv.is_paused;
               return (
-              <div key={inv.id} className="rounded-2xl border border-border bg-card p-4">
+              <motion.div
+                key={inv.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * idx }}
+                whileHover={{ y: -2 }}
+                className="rounded-2xl border border-border bg-card p-4"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="font-display text-base text-primary">{inv.plans?.name ?? "Plan"}</div>
@@ -268,21 +275,24 @@ function DashboardHome() {
                   <Mini label={t("home.roi")} v={`${inv.daily_roi_percent}%`} />
                   <Mini label={t("home.earned")} v={formatXAF(inv.total_earned)} accent />
                 </div>
-              </div>
+              </motion.div>
             );})}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Referral card */}
-      <ReferralCard
-        code={profile?.referral_code ?? null}
-        earnings={Number(profile?.referral_earnings ?? 0)}
-        count={referralCount}
-      />
-    </div>
+      <motion.div variants={itemVariants}>
+        <ReferralCard
+          code={profile?.referral_code ?? null}
+          earnings={Number(profile?.referral_earnings ?? 0)}
+          count={referralCount}
+        />
+      </motion.div>
+    </motion.div>
   );
 }
+
 
 function ReferralCard({ code, earnings, count }: { code: string | null; earnings: number; count: number }) {
   const link = useMemo(
