@@ -7,7 +7,7 @@ import {
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
-import { formatXAF } from "@/lib/format";
+import { Money } from "@/components/Money";
 import { useI18n } from "@/hooks/useI18n";
 
 export const Route = createFileRoute("/")({
