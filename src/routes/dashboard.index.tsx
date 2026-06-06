@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles, Share2, Copy, Users,
 } from "lucide-react";
@@ -20,6 +21,39 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
 });
+
+// Animated count-up for the balance hero — feels like a live investing app.
+function AnimatedNumber({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const start = display;
+    const delta = value - start;
+    if (delta === 0) return;
+    const duration = 900;
+    const startTs = performance.now();
+    let raf = 0;
+    const step = (ts: number) => {
+      const p = Math.min(1, (ts - startTs) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(start + delta * eased);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+  return <Money value={Math.round(display)} />;
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 220, damping: 22 } },
+};
+
 
 type Profile = {
   full_name: string | null;
