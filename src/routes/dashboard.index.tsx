@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles, Share2, Copy, Users,
+  Activity, ArrowDownToLine, ArrowUpFromLine, Gauge, ShieldCheck, TrendingUp, Sparkles, Share2, Copy, Users,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, Tooltip, ResponsiveContainer,
@@ -125,12 +125,31 @@ function DashboardHome() {
     >
       {/* Greeting */}
       <motion.div variants={itemVariants}>
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
-        <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? t("home.investor")}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
+            <h1 className="font-display text-2xl text-primary md:text-3xl">{profile?.full_name ?? t("home.investor")}</h1>
+          </div>
+          <motion.span
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-success"
+            animate={{ opacity: [0.72, 1, 0.72] }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Live
+          </motion.span>
+        </div>
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <DateTimeWidget />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <LiveMarketStrip
+          balance={Number(profile?.balance ?? 0)}
+          earned={Number(profile?.total_earned ?? 0)}
+          activeCount={activeCount}
+        />
       </motion.div>
 
 
@@ -143,15 +162,13 @@ function DashboardHome() {
       >
         <motion.div
           aria-hidden
-          className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
-          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-        />
-        <motion.div
-          aria-hidden
-          className="absolute -left-16 bottom-0 h-32 w-32 rounded-full bg-white/10 blur-3xl"
-          animate={{ scale: [1.1, 0.9, 1.1], opacity: [0.5, 0.9, 0.5] }}
-          transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "linear-gradient(115deg, transparent 0 42%, color-mix(in oklab, var(--primary-foreground) 42%, transparent) 48%, transparent 54% 100%)",
+            backgroundSize: "240% 100%",
+          }}
+          animate={{ backgroundPosition: ["140% 0%", "-80% 0%"] }}
+          transition={{ repeat: Infinity, duration: 5.5, ease: "linear" }}
         />
         <div className="relative">
           <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
