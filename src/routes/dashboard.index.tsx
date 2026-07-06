@@ -76,6 +76,7 @@ function DashboardHome() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [referralCount, setReferralCount] = useState(0);
+  const [todayProfit, setTodayProfit] = useState(0);
   const [chartData, setChartData] = useState<{ d: string; v: number }[]>([]);
 
   useEffect(() => {
@@ -95,12 +96,16 @@ function DashboardHome() {
       const buckets = new Map<string, number>();
       let acc = 0;
       const txs = (tx ?? []) as { amount: number; created_at: string; type: string }[];
+      const todayKey = new Date().toISOString().slice(0, 10);
+      let todaySum = 0;
       for (const t of txs) {
         if (t.type !== "profit" && t.type !== "investment_return") continue;
         const day = t.created_at.slice(0, 10);
         acc += Number(t.amount);
         buckets.set(day, acc);
+        if (day === todayKey && t.type === "profit") todaySum += Number(t.amount);
       }
+      setTodayProfit(todaySum);
       // If no profits yet, generate flat zero-line over last 7 days
       let series = Array.from(buckets, ([d, v]) => ({ d, v }));
       if (series.length < 2) {
@@ -175,6 +180,18 @@ function DashboardHome() {
           <div className="mt-2 font-display text-4xl">
             <AnimatedNumber value={profile?.balance ?? 0} />
           </div>
+
+          <motion.div
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur"
+            animate={{ boxShadow: ["0 0 0 0 rgba(255,255,255,0.35)", "0 0 0 10px rgba(255,255,255,0)"] }}
+            transition={{ repeat: Infinity, duration: 1.8 }}
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span className="opacity-80">Profit earned today</span>
+            <span className="font-display text-sm">
+              +<AnimatedNumber value={todayProfit} />
+            </span>
+          </motion.div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25 active:scale-95">
