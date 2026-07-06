@@ -76,6 +76,7 @@ function DashboardHome() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [referralCount, setReferralCount] = useState(0);
+  const [todayProfit, setTodayProfit] = useState(0);
   const [chartData, setChartData] = useState<{ d: string; v: number }[]>([]);
 
   useEffect(() => {
