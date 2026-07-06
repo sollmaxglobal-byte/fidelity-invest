@@ -311,6 +311,44 @@ function DashboardHome() {
 }
 
 
+function LiveMarketStrip({ balance, earned, activeCount }: { balance: number; earned: number; activeCount: number }) {
+  const items = [
+    { icon: Activity, label: "Portfolio pulse", value: balance > 0 ? "Growing" : "Ready" },
+    { icon: Gauge, label: "Active cycles", value: String(activeCount) },
+    { icon: ShieldCheck, label: "Profit paid", value: formatXAF(earned) },
+  ];
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-3">
+      <motion.div
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-success/10 to-transparent"
+        animate={{ x: ["-110%", "520%"] }}
+        transition={{ repeat: Infinity, duration: 4.8, ease: "linear" }}
+      />
+      <div className="relative grid grid-cols-3 gap-2">
+        {items.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <motion.div
+              key={item.label}
+              className="rounded-xl bg-secondary/70 p-2.5"
+              animate={{ y: [0, -2, 0] }}
+              transition={{ repeat: Infinity, duration: 2.4, delay: index * 0.3, ease: "easeInOut" }}
+            >
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <Icon className="h-3 w-3 text-success" />
+                <span className="truncate">{item.label}</span>
+              </div>
+              <div className="mt-1 truncate text-sm font-bold text-primary">{item.value}</div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function ReferralCard({ code, earnings, count }: { code: string | null; earnings: number; count: number }) {
   const link = useMemo(
     () => (code && typeof window !== "undefined" ? `${window.location.origin}/auth?ref=${code}` : ""),
