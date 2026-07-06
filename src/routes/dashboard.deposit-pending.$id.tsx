@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/Money";
 
-export const Route = createFileRoute("/dashboard/deposit/pending/$id")({
+export const Route = createFileRoute("/dashboard/deposit-pending/$id")({
   component: PendingDepositPage,
 });
 
