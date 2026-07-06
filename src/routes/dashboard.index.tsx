@@ -96,12 +96,16 @@ function DashboardHome() {
       const buckets = new Map<string, number>();
       let acc = 0;
       const txs = (tx ?? []) as { amount: number; created_at: string; type: string }[];
+      const todayKey = new Date().toISOString().slice(0, 10);
+      let todaySum = 0;
       for (const t of txs) {
         if (t.type !== "profit" && t.type !== "investment_return") continue;
         const day = t.created_at.slice(0, 10);
         acc += Number(t.amount);
         buckets.set(day, acc);
+        if (day === todayKey && t.type === "profit") todaySum += Number(t.amount);
       }
+      setTodayProfit(todaySum);
       // If no profits yet, generate flat zero-line over last 7 days
       let series = Array.from(buckets, ([d, v]) => ({ d, v }));
       if (series.length < 2) {
