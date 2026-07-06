@@ -73,11 +73,11 @@ function PendingDepositPage() {
     }
   }, [elapsed, deposit, navigate]);
 
-  // Auto redirect to dashboard once approved
+  // Auto redirect to deposit history once approved
   useEffect(() => {
     if (deposit?.status !== "approved") return;
     const t = setTimeout(() => {
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/dashboard/wallet", search: { filter: "Deposits" } as never });
     }, REDIRECT_AFTER_APPROVAL_MS);
     return () => clearTimeout(t);
   }, [deposit?.status, navigate]);
@@ -110,9 +110,9 @@ function PendingDepositPage() {
         >
           <CheckCircle2 className="h-12 w-12 text-success" />
         </motion.div>
-        <h1 className="font-display text-2xl text-primary">Payment successful</h1>
+        <h1 className="font-display text-2xl text-primary">Deposit approved successfully</h1>
         <p className="text-sm text-muted-foreground">
-          Your deposit has been confirmed and credited to your wallet. Redirecting to your dashboard…
+          Your deposit has been confirmed and credited to your wallet. Redirecting to your deposit history…
         </p>
         <div className="rounded-2xl border border-border bg-card p-4 text-left">
           <div className="flex items-center justify-between">
@@ -122,10 +122,10 @@ function PendingDepositPage() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Button asChild className="bg-primary text-primary-foreground hover:opacity-90">
-            <Link to="/dashboard"><Home className="mr-2 h-4 w-4" />Dashboard</Link>
+            <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}><History className="mr-2 h-4 w-4" />History</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/dashboard/invest">Invest now</Link>
+            <Link to="/dashboard"><Home className="mr-2 h-4 w-4" />Dashboard</Link>
           </Button>
         </div>
       </motion.div>

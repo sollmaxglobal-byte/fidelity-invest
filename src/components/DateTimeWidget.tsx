@@ -9,10 +9,12 @@ function fmt(d: Date) {
   const date = String(d.getDate()).padStart(2, "0");
   const month = MONTHS[d.getMonth()];
   const year = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2, "0");
+  const hours24 = d.getHours();
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hh = String(hours24 % 12 || 12).padStart(2, "0");
   const mm = String(d.getMinutes()).padStart(2, "0");
   const ss = String(d.getSeconds()).padStart(2, "0");
-  return { date: `${day}, ${date} ${month} ${year}`, time: `${hh}:${mm}:${ss}` };
+  return { date: `${day}, ${date} ${month} ${year}`, time: `${hh}:${mm}:${ss} ${period}` };
 }
 
 export function DateTimeWidget() {
