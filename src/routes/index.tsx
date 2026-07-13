@@ -2,13 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ArrowRight, ShieldCheck, TrendingUp, Wallet, Clock,
-  CheckCircle2, ChevronDown, Leaf,
+  CheckCircle2, ChevronDown, Leaf, Lock, BadgeCheck, Users, LineChart, Headphones, Star,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/Money";
 import { useI18n } from "@/hooks/useI18n";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
