@@ -393,13 +393,14 @@ function ReferralCard({ code, earnings, count }: { code: string | null; earnings
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
             <Users className="h-3 w-3" /> Invitees
           </div>
-          <div className="mt-1 font-display text-xl text-primary">{count}</div>
+          <div className="mt-1 font-display text-xl font-bold uppercase tabular-nums text-primary">{count}</div>
         </div>
         <div className="rounded-xl bg-secondary p-3">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Commissions</div>
-          <div className="mt-1 font-display text-xl text-success">
+          <div className="mt-1 font-display text-xl font-bold uppercase tabular-nums text-success">
             <Money value={earnings} />
           </div>
+
         </div>
       </div>
       <div className="mt-3 rounded-xl border border-border bg-secondary/50 p-2.5">
