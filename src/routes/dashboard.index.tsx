@@ -443,7 +443,8 @@ function Mini({ label, v, accent }: { label: string; v: string; accent?: boolean
   return (
     <div>
       <div className="text-[10px] uppercase text-muted-foreground">{label}</div>
-      <div className={`text-sm font-medium ${accent ? "text-success" : ""}`}>{v}</div>
+      <div className={`text-sm font-bold uppercase tabular-nums ${accent ? "text-success" : ""}`}>{v}</div>
     </div>
   );
 }
+
