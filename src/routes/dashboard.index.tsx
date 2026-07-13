@@ -188,9 +188,10 @@ function DashboardHome() {
           >
             <TrendingUp className="h-3.5 w-3.5" />
             <span className="opacity-80">Profit earned today</span>
-            <span className="font-display text-sm">
+            <span className="font-display text-sm font-bold uppercase tabular-nums">
               +<AnimatedNumber value={todayProfit} />
             </span>
+
           </motion.div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
