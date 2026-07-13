@@ -358,7 +358,7 @@ function LiveMarketStrip({ balance, earned, activeCount }: { balance: number; ea
                 <Icon className="h-3 w-3 text-success" />
                 <span className="truncate">{item.label}</span>
               </div>
-              <div className="mt-1 truncate text-sm font-bold text-primary">{item.value}</div>
+              <div className="mt-1 truncate text-sm font-bold uppercase tabular-nums text-primary">{item.value}</div>
             </motion.div>
           );
         })}
