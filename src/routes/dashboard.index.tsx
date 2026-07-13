@@ -432,9 +432,10 @@ function StatCard({
         </span>
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</span>
       </div>
-      <div className="mt-2 font-display text-xl text-primary">
+      <div className="mt-2 font-display text-xl font-bold uppercase tabular-nums text-primary">
         {/XAF/.test(value) ? <Money value={Number(value.replace(/\D/g, "")) || 0} /> : value}
       </div>
+
 
     </div>
   );
