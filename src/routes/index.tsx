@@ -81,7 +81,7 @@ function Index() {
 
       {/* TRUST STRIP */}
       <section className="border-b border-border bg-card">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-8 sm:gap-6 md:grid-cols-4 md:py-10">
           {[
             { k: "12 400+", l: "Active investors" },
             { k: "1.2B XAF", l: "Payouts processed" },
@@ -89,8 +89,8 @@ function Index() {
             { k: "< 10 min", l: "Average withdrawal" },
           ].map((s) => (
             <div key={s.l} className="text-center">
-              <div className="font-display text-2xl font-bold uppercase tabular-nums text-primary md:text-3xl">{s.k}</div>
-              <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{s.l}</div>
+              <div className="font-display text-xl font-bold uppercase tabular-nums text-primary sm:text-2xl md:text-3xl">{s.k}</div>
+              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">{s.l}</div>
             </div>
           ))}
         </div>
