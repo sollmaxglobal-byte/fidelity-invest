@@ -69,9 +69,61 @@ function Index() {
                 <a href="#plans">{t("landing.viewPlans")}</a>
               </Button>
             </div>
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-white/80">
+              <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> 256-bit SSL encryption</span>
+              <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5" /> KYC-verified accounts</span>
+              <span className="inline-flex items-center gap-1.5"><Headphones className="h-3.5 w-3.5" /> 24/7 human support</span>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* TRUST STRIP */}
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4">
+          {[
+            { k: "12 400+", l: "Active investors" },
+            { k: "1.2B XAF", l: "Payouts processed" },
+            { k: "99.98%", l: "Platform uptime" },
+            { k: "< 10 min", l: "Average withdrawal" },
+          ].map((s) => (
+            <div key={s.l} className="text-center">
+              <div className="font-display text-2xl font-bold uppercase tabular-nums text-primary md:text-3xl">{s.k}</div>
+              <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WHY US */}
+      <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+        <div className="mb-10 text-center">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Why SafeGrow</div>
+          <h2 className="mt-3 font-display text-4xl text-primary md:text-5xl">Built on trust, engineered for growth</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
+            A transparent investment platform designed for Central Africa — segregated funds, verified operators, and payouts you can audit line by line.
+          </p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {[
+            { i: ShieldCheck, t: "Segregated capital", d: "Investor funds are held separately from operating accounts and reconciled daily." },
+            { i: LineChart, t: "Transparent returns", d: "Every profit payout is timestamped and appears in your wallet history in real time." },
+            { i: Lock, t: "Bank-grade security", d: "End-to-end encryption, mandatory 2FA on withdrawals, and continuous fraud monitoring." },
+            { i: Users, t: "Verified community", d: "Every account passes KYC before their first deposit — no anonymous participants." },
+            { i: Wallet, t: "Local mobile money", d: "Fund and withdraw directly with MTN and Orange Mobile Money in XAF." },
+            { i: Headphones, t: "Human support", d: "Chat, email, and phone support staffed by real analysts, not scripted bots." },
+          ].map(({ i: Icon, t: title, d }) => (
+            <div key={title} className="rounded-2xl border border-border bg-card p-6 transition hover:border-primary hover:shadow-elegant">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 font-display text-xl text-primary">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
 
       {/* PLANS */}
       <section id="plans" className="mx-auto max-w-6xl px-4 py-16 md:py-24">
