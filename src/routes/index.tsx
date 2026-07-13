@@ -195,18 +195,18 @@ function Index() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-        <div className="mb-10 text-center">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Investor stories</div>
-          <h2 className="mt-3 font-display text-4xl text-primary md:text-5xl">Real people, real payouts</h2>
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-24">
+        <div className="mb-8 text-center md:mb-10">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent sm:text-xs">Investor stories</div>
+          <h2 className="mt-3 font-display text-3xl leading-tight text-primary sm:text-4xl md:text-5xl">Real people, real payouts</h2>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
           {[
             { n: "Achille N.", r: "Douala, CM", q: "Withdrawals hit my MTN account in under 8 minutes. The transparency is what keeps me here.", a: "Growth Plan · 8 months" },
             { n: "Marie-Claire T.", r: "Yaoundé, CM", q: "I started with the Starter Plan to test the waters. Every payout landed on schedule — I've since upgraded twice.", a: "Premium Plan · 1 year+" },
             { n: "Jean-Paul K.", r: "Libreville, GA", q: "Support actually answered my questions with real numbers, not scripts. That's rare in this space.", a: "Growth Plan · 5 months" },
           ].map((tst) => (
-            <div key={tst.n} className="rounded-2xl border border-border bg-card p-6">
+            <div key={tst.n} className="rounded-2xl border border-border bg-card p-5 sm:p-6 sm:last:[&:nth-child(3)]:col-span-2 md:last:[&:nth-child(3)]:col-span-1">
               <div className="flex items-center gap-1 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
               </div>
