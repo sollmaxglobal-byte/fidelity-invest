@@ -177,20 +177,21 @@ function DashboardHome() {
         />
         <div className="relative">
           <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
-          <div className="mt-2 font-display text-4xl">
+          <div className="mt-2 font-display text-4xl font-bold uppercase tabular-nums">
             <AnimatedNumber value={profile?.balance ?? 0} />
           </div>
 
           <motion.div
-            className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur"
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold uppercase backdrop-blur"
             animate={{ boxShadow: ["0 0 0 0 rgba(255,255,255,0.35)", "0 0 0 10px rgba(255,255,255,0)"] }}
             transition={{ repeat: Infinity, duration: 1.8 }}
           >
             <TrendingUp className="h-3.5 w-3.5" />
             <span className="opacity-80">Profit earned today</span>
-            <span className="font-display text-sm">
+            <span className="font-display text-sm font-bold uppercase tabular-nums">
               +<AnimatedNumber value={todayProfit} />
             </span>
+
           </motion.div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -357,7 +358,7 @@ function LiveMarketStrip({ balance, earned, activeCount }: { balance: number; ea
                 <Icon className="h-3 w-3 text-success" />
                 <span className="truncate">{item.label}</span>
               </div>
-              <div className="mt-1 truncate text-sm font-bold text-primary">{item.value}</div>
+              <div className="mt-1 truncate text-sm font-bold uppercase tabular-nums text-primary">{item.value}</div>
             </motion.div>
           );
         })}
@@ -392,13 +393,14 @@ function ReferralCard({ code, earnings, count }: { code: string | null; earnings
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
             <Users className="h-3 w-3" /> Invitees
           </div>
-          <div className="mt-1 font-display text-xl text-primary">{count}</div>
+          <div className="mt-1 font-display text-xl font-bold uppercase tabular-nums text-primary">{count}</div>
         </div>
         <div className="rounded-xl bg-secondary p-3">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Commissions</div>
-          <div className="mt-1 font-display text-xl text-success">
+          <div className="mt-1 font-display text-xl font-bold uppercase tabular-nums text-success">
             <Money value={earnings} />
           </div>
+
         </div>
       </div>
       <div className="mt-3 rounded-xl border border-border bg-secondary/50 p-2.5">
@@ -430,9 +432,10 @@ function StatCard({
         </span>
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</span>
       </div>
-      <div className="mt-2 font-display text-xl text-primary">
+      <div className="mt-2 font-display text-xl font-bold uppercase tabular-nums text-primary">
         {/XAF/.test(value) ? <Money value={Number(value.replace(/\D/g, "")) || 0} /> : value}
       </div>
+
 
     </div>
   );
@@ -442,7 +445,8 @@ function Mini({ label, v, accent }: { label: string; v: string; accent?: boolean
   return (
     <div>
       <div className="text-[10px] uppercase text-muted-foreground">{label}</div>
-      <div className={`text-sm font-medium ${accent ? "text-success" : ""}`}>{v}</div>
+      <div className={`text-sm font-bold uppercase tabular-nums ${accent ? "text-success" : ""}`}>{v}</div>
     </div>
   );
 }
+
