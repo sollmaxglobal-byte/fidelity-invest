@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SocialProof } from "@/components/SocialProof";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/Money";
 import { useI18n } from "@/hooks/useI18n";
@@ -80,7 +81,7 @@ function Index() {
 
       {/* TRUST STRIP */}
       <section className="border-b border-border bg-card">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-8 sm:gap-6 md:grid-cols-4 md:py-10">
           {[
             { k: "12 400+", l: "Active investors" },
             { k: "1.2B XAF", l: "Payouts processed" },
@@ -88,23 +89,23 @@ function Index() {
             { k: "< 10 min", l: "Average withdrawal" },
           ].map((s) => (
             <div key={s.l} className="text-center">
-              <div className="font-display text-2xl font-bold uppercase tabular-nums text-primary md:text-3xl">{s.k}</div>
-              <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{s.l}</div>
+              <div className="font-display text-xl font-bold uppercase tabular-nums text-primary sm:text-2xl md:text-3xl">{s.k}</div>
+              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">{s.l}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* WHY US */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-        <div className="mb-10 text-center">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Why SafeGrow</div>
-          <h2 className="mt-3 font-display text-4xl text-primary md:text-5xl">Built on trust, engineered for growth</h2>
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-24">
+        <div className="mb-8 text-center md:mb-10">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent sm:text-xs">Why SafeGrow</div>
+          <h2 className="mt-3 font-display text-3xl leading-tight text-primary sm:text-4xl md:text-5xl">Built on trust, engineered for growth</h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
             A transparent investment platform designed for Central Africa — segregated funds, verified operators, and payouts you can audit line by line.
           </p>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
           {[
             { i: ShieldCheck, t: "Segregated capital", d: "Investor funds are held separately from operating accounts and reconciled daily." },
             { i: LineChart, t: "Transparent returns", d: "Every profit payout is timestamped and appears in your wallet history in real time." },
@@ -113,11 +114,11 @@ function Index() {
             { i: Wallet, t: "Local mobile money", d: "Fund and withdraw directly with MTN and Orange Mobile Money in XAF." },
             { i: Headphones, t: "Human support", d: "Chat, email, and phone support staffed by real analysts, not scripted bots." },
           ].map(({ i: Icon, t: title, d }) => (
-            <div key={title} className="rounded-2xl border border-border bg-card p-6 transition hover:border-primary hover:shadow-elegant">
+            <div key={title} className="rounded-2xl border border-border bg-card p-5 transition hover:border-primary hover:shadow-elegant sm:p-6">
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
               </span>
-              <h3 className="mt-4 font-display text-xl text-primary">{title}</h3>
+              <h3 className="mt-4 font-display text-lg text-primary sm:text-xl">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d}</p>
             </div>
           ))}
@@ -194,18 +195,18 @@ function Index() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-        <div className="mb-10 text-center">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Investor stories</div>
-          <h2 className="mt-3 font-display text-4xl text-primary md:text-5xl">Real people, real payouts</h2>
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-24">
+        <div className="mb-8 text-center md:mb-10">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent sm:text-xs">Investor stories</div>
+          <h2 className="mt-3 font-display text-3xl leading-tight text-primary sm:text-4xl md:text-5xl">Real people, real payouts</h2>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
           {[
             { n: "Achille N.", r: "Douala, CM", q: "Withdrawals hit my MTN account in under 8 minutes. The transparency is what keeps me here.", a: "Growth Plan · 8 months" },
             { n: "Marie-Claire T.", r: "Yaoundé, CM", q: "I started with the Starter Plan to test the waters. Every payout landed on schedule — I've since upgraded twice.", a: "Premium Plan · 1 year+" },
             { n: "Jean-Paul K.", r: "Libreville, GA", q: "Support actually answered my questions with real numbers, not scripts. That's rare in this space.", a: "Growth Plan · 5 months" },
           ].map((tst) => (
-            <div key={tst.n} className="rounded-2xl border border-border bg-card p-6">
+            <div key={tst.n} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
               <div className="flex items-center gap-1 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
               </div>
@@ -240,6 +241,7 @@ function Index() {
       </section>
 
       <SiteFooter />
+      <SocialProof />
     </div>
   );
 }
