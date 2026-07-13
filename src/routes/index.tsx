@@ -241,6 +241,7 @@ function Index() {
       </section>
 
       <SiteFooter />
+      <SocialProof />
     </div>
   );
 }
