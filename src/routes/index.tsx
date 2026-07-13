@@ -206,7 +206,7 @@ function Index() {
             { n: "Marie-Claire T.", r: "Yaoundé, CM", q: "I started with the Starter Plan to test the waters. Every payout landed on schedule — I've since upgraded twice.", a: "Premium Plan · 1 year+" },
             { n: "Jean-Paul K.", r: "Libreville, GA", q: "Support actually answered my questions with real numbers, not scripts. That's rare in this space.", a: "Growth Plan · 5 months" },
           ].map((tst) => (
-            <div key={tst.n} className="rounded-2xl border border-border bg-card p-5 sm:p-6 sm:last:[&:nth-child(3)]:col-span-2 md:last:[&:nth-child(3)]:col-span-1">
+            <div key={tst.n} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
               <div className="flex items-center gap-1 text-accent">
                 {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
               </div>
