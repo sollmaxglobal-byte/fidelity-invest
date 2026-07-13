@@ -37,7 +37,7 @@ export function DateTimeWidget() {
           <div className="text-sm font-medium text-foreground">{date}</div>
         </div>
       </div>
-      <div className="font-display text-xl font-semibold tabular-nums text-primary">{time}</div>
+      <div className="font-display text-xl font-bold uppercase tabular-nums text-primary">{time}</div>
     </div>
   );
 }
