@@ -97,15 +97,15 @@ function Index() {
       </section>
 
       {/* WHY US */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-        <div className="mb-10 text-center">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Why SafeGrow</div>
-          <h2 className="mt-3 font-display text-4xl text-primary md:text-5xl">Built on trust, engineered for growth</h2>
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-24">
+        <div className="mb-8 text-center md:mb-10">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent sm:text-xs">Why SafeGrow</div>
+          <h2 className="mt-3 font-display text-3xl leading-tight text-primary sm:text-4xl md:text-5xl">Built on trust, engineered for growth</h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
             A transparent investment platform designed for Central Africa — segregated funds, verified operators, and payouts you can audit line by line.
           </p>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
           {[
             { i: ShieldCheck, t: "Segregated capital", d: "Investor funds are held separately from operating accounts and reconciled daily." },
             { i: LineChart, t: "Transparent returns", d: "Every profit payout is timestamped and appears in your wallet history in real time." },
@@ -114,11 +114,11 @@ function Index() {
             { i: Wallet, t: "Local mobile money", d: "Fund and withdraw directly with MTN and Orange Mobile Money in XAF." },
             { i: Headphones, t: "Human support", d: "Chat, email, and phone support staffed by real analysts, not scripted bots." },
           ].map(({ i: Icon, t: title, d }) => (
-            <div key={title} className="rounded-2xl border border-border bg-card p-6 transition hover:border-primary hover:shadow-elegant">
+            <div key={title} className="rounded-2xl border border-border bg-card p-5 transition hover:border-primary hover:shadow-elegant sm:p-6">
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
               </span>
-              <h3 className="mt-4 font-display text-xl text-primary">{title}</h3>
+              <h3 className="mt-4 font-display text-lg text-primary sm:text-xl">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d}</p>
             </div>
           ))}
