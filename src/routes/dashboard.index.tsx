@@ -177,12 +177,12 @@ function DashboardHome() {
         />
         <div className="relative">
           <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
-          <div className="mt-2 font-display text-4xl">
+          <div className="mt-2 font-display text-4xl font-bold uppercase tabular-nums">
             <AnimatedNumber value={profile?.balance ?? 0} />
           </div>
 
           <motion.div
-            className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur"
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold uppercase backdrop-blur"
             animate={{ boxShadow: ["0 0 0 0 rgba(255,255,255,0.35)", "0 0 0 10px rgba(255,255,255,0)"] }}
             transition={{ repeat: Infinity, duration: 1.8 }}
           >
