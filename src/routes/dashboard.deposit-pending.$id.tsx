@@ -181,7 +181,7 @@ function PendingDepositPage() {
         </div>
         <h1 className="mt-4 font-display text-2xl text-primary">Deposit submitted successfully</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Now waiting for approval — this might take up to 10 minutes.
+          Now waiting for approval — this might take up to 15 minutes.
         </p>
       </div>
 
