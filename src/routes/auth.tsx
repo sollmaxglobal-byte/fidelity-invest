@@ -27,7 +27,7 @@ const signupSchema = z.object({
   full_name: z.string().min(2, "Enter your full name").max(80),
   phone: z.string().min(7).max(20),
   email: z.string().email(),
-  password: z.string().min(8, "Min 8 characters").max(72),
+  password: z.string().min(1, "Enter a password").max(72),
 });
 
 const loginSchema = z.object({
