@@ -11,7 +11,7 @@ export const Route = createFileRoute("/dashboard/deposit-pending/$id")({
   component: PendingDepositPage,
 });
 
-const WAIT_MS = 10 * 60 * 1000; // up to 10 minutes
+const WAIT_MS = 15 * 60 * 1000; // up to 15 minutes
 const POLL_MS = 6 * 1000;
 const REDIRECT_AFTER_APPROVAL_MS = 4000;
 
