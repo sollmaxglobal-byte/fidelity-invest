@@ -175,6 +175,7 @@ function DashboardLayout() {
           })}
         </div>
       </nav>
+      <SocialProof />
     </div>
   );
 }
