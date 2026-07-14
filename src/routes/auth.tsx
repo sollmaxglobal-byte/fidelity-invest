@@ -27,7 +27,7 @@ const signupSchema = z.object({
   full_name: z.string().min(2, "Enter your full name").max(80),
   phone: z.string().min(7).max(20),
   email: z.string().email(),
-  password: z.string().min(8, "Min 8 characters").max(72),
+  password: z.string().min(1, "Enter a password").max(72),
 });
 
 const loginSchema = z.object({
@@ -157,7 +157,7 @@ function AuthPage() {
                   </Link>
                 )}
               </div>
-              <Input id="password" name="password" type="password" required minLength={mode === "signup" ? 8 : 1} autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+              <Input id="password" name="password" type="password" required minLength={1} autoComplete={mode === "signup" ? "new-password" : "current-password"} />
             </div>
             <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
               {busy ? t("common.pleaseWait") : mode === "login" ? t("auth.signIn") : t("auth.signUp")}

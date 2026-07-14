@@ -29,6 +29,8 @@ export type Database = {
           smtp_port: number | null
           smtp_secure: boolean | null
           smtp_user: string | null
+          tawk_property_id: string | null
+          tawk_widget_id: string | null
           tidio_public_key: string | null
           updated_at: string
         }
@@ -46,6 +48,8 @@ export type Database = {
           smtp_port?: number | null
           smtp_secure?: boolean | null
           smtp_user?: string | null
+          tawk_property_id?: string | null
+          tawk_widget_id?: string | null
           tidio_public_key?: string | null
           updated_at?: string
         }
@@ -63,6 +67,8 @@ export type Database = {
           smtp_port?: number | null
           smtp_secure?: boolean | null
           smtp_user?: string | null
+          tawk_property_id?: string | null
+          tawk_widget_id?: string | null
           tidio_public_key?: string | null
           updated_at?: string
         }

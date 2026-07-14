@@ -163,26 +163,80 @@ function PendingDepositPage() {
       className="mx-auto max-w-md space-y-5 py-6"
     >
       <div className="text-center">
-        <div className="relative mx-auto flex h-24 w-24 items-center justify-center">
+        <div className="relative mx-auto flex h-32 w-32 items-center justify-center">
+          {/* Outer pulsing halo */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-primary/10"
+            animate={{ scale: [1, 1.35, 1], opacity: [0.55, 0, 0.55] }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: "easeOut" }}
+          />
+          <motion.span
+            aria-hidden
+            className="absolute inset-2 rounded-full bg-warning/15"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.1, 0.6] }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: "easeOut", delay: 0.4 }}
+          />
           {/* Spinning preloader ring */}
           <motion.span
             aria-hidden
-            className="absolute inset-0 rounded-full border-4 border-primary/15 border-t-primary"
+            className="absolute inset-3 rounded-full border-4 border-primary/15 border-t-primary border-r-primary/60"
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, ease: "linear", duration: 1.4 }}
           />
+          {/* Counter-rotating inner ring */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-6 rounded-full border-2 border-warning/20 border-b-warning"
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 2.2 }}
+          />
+          {/* Orbiting dots */}
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              aria-hidden
+              className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 3, delay: i * 0.3 }}
+              style={{ transformOrigin: `0px ${52}px` }}
+            />
+          ))}
           <motion.div
-            animate={{ scale: [1, 1.08, 1] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-warning/15"
+            animate={{ scale: [1, 1.08, 1], rotate: [0, 6, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2.4 }}
+            className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-warning/25 to-primary/20 shadow-inner"
           >
             <Clock className="h-8 w-8 text-warning" />
           </motion.div>
         </div>
-        <h1 className="mt-4 font-display text-2xl text-primary">Deposit submitted successfully</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-4 font-display text-2xl text-primary"
+        >
+          Deposit submitted successfully
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.35 }}
+          className="mt-1 text-sm text-muted-foreground"
+        >
           Now waiting for approval — this might take up to 15 minutes.
-        </p>
+        </motion.p>
+        {/* Animated three-dots */}
+        <div className="mt-2 flex items-center justify-center gap-1">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="h-1.5 w-1.5 rounded-full bg-primary"
+              animate={{ opacity: [0.2, 1, 0.2], y: [0, -3, 0] }}
+              transition={{ repeat: Infinity, duration: 1.1, delay: i * 0.15 }}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">

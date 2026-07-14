@@ -20,6 +20,8 @@ type Settings = {
   tidio_public_key: string | null;
   sendpulse_chat_id: string | null;
   sendpulse_embed_html: string | null;
+  tawk_property_id: string | null;
+  tawk_widget_id: string | null;
   referral_percent: number | null;
   smtp_host: string | null;
   smtp_port: number | null;
@@ -50,6 +52,8 @@ function AdminSettings() {
         tidio_public_key: s.tidio_public_key,
         sendpulse_chat_id: s.sendpulse_chat_id,
         sendpulse_embed_html: s.sendpulse_embed_html,
+        tawk_property_id: s.tawk_property_id,
+        tawk_widget_id: s.tawk_widget_id,
         referral_percent: s.referral_percent ?? 5,
         smtp_host: s.smtp_host,
         smtp_port: s.smtp_port,
@@ -107,6 +111,25 @@ function AdminSettings() {
           <MessageCircle className="h-5 w-5" /> Live chat widgets
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2 rounded-xl border border-primary/30 bg-primary/5 p-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
+              Tawk.to (recommended — supports file uploads)
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Tawk Property ID</Label>
+                <Input value={s.tawk_property_id ?? ""} onChange={(e) => set("tawk_property_id", e.target.value)}
+                  placeholder="e.g. 65abc123def456…" />
+                <p className="mt-1 text-xs text-muted-foreground">Tawk.to → Admin → Chat Widget → Property ID.</p>
+              </div>
+              <div>
+                <Label>Tawk Widget ID</Label>
+                <Input value={s.tawk_widget_id ?? ""} onChange={(e) => set("tawk_widget_id", e.target.value)}
+                  placeholder="default" />
+                <p className="mt-1 text-xs text-muted-foreground">Leave as "default" unless you have multiple widgets.</p>
+              </div>
+            </div>
+          </div>
           <div>
             <Label>SendPulse Chat ID</Label>
             <Input value={s.sendpulse_chat_id ?? ""} onChange={(e) => set("sendpulse_chat_id", e.target.value)}
