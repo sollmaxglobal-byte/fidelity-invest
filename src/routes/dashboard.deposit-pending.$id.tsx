@@ -211,7 +211,7 @@ function PendingDepositPage() {
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
             You'll be automatically redirected to your dashboard as soon as the payment is approved.
-            If it isn't approved within 10 minutes, you'll be taken to your deposit history — pending
+            If it isn't approved within 15 minutes, you'll be taken to your deposit history — pending
             deposits stay safe and will be credited once our team confirms them.
           </p>
         </div>
