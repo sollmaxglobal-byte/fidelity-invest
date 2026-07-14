@@ -20,6 +20,8 @@ type Settings = {
   tidio_public_key: string | null;
   sendpulse_chat_id: string | null;
   sendpulse_embed_html: string | null;
+  tawk_property_id: string | null;
+  tawk_widget_id: string | null;
   referral_percent: number | null;
   smtp_host: string | null;
   smtp_port: number | null;
