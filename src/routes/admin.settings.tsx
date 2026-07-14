@@ -52,6 +52,8 @@ function AdminSettings() {
         tidio_public_key: s.tidio_public_key,
         sendpulse_chat_id: s.sendpulse_chat_id,
         sendpulse_embed_html: s.sendpulse_embed_html,
+        tawk_property_id: s.tawk_property_id,
+        tawk_widget_id: s.tawk_widget_id,
         referral_percent: s.referral_percent ?? 5,
         smtp_host: s.smtp_host,
         smtp_port: s.smtp_port,
