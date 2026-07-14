@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { SocialProof } from "@/components/SocialProof";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
@@ -174,6 +175,7 @@ function DashboardLayout() {
           })}
         </div>
       </nav>
+      <SocialProof />
     </div>
   );
 }

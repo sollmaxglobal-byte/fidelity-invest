@@ -11,7 +11,7 @@ export const Route = createFileRoute("/dashboard/deposit-pending/$id")({
   component: PendingDepositPage,
 });
 
-const WAIT_MS = 10 * 60 * 1000; // up to 10 minutes
+const WAIT_MS = 15 * 60 * 1000; // up to 15 minutes
 const POLL_MS = 6 * 1000;
 const REDIRECT_AFTER_APPROVAL_MS = 4000;
 
@@ -181,7 +181,7 @@ function PendingDepositPage() {
         </div>
         <h1 className="mt-4 font-display text-2xl text-primary">Deposit submitted successfully</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Now waiting for approval — this might take up to 10 minutes.
+          Now waiting for approval — this might take up to 15 minutes.
         </p>
       </div>
 
@@ -211,7 +211,7 @@ function PendingDepositPage() {
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
             You'll be automatically redirected to your dashboard as soon as the payment is approved.
-            If it isn't approved within 10 minutes, you'll be taken to your deposit history — pending
+            If it isn't approved within 15 minutes, you'll be taken to your deposit history — pending
             deposits stay safe and will be credited once our team confirms them.
           </p>
         </div>
