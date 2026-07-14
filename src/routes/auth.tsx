@@ -179,6 +179,7 @@ function AuthPage() {
           </p>
         </div>
       </div>
+      <SocialProof />
     </div>
   );
 }
