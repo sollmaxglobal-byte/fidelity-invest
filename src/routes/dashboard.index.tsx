@@ -177,7 +177,7 @@ function DashboardHome() {
         />
         <div className="relative">
           <div className="text-xs font-semibold uppercase tracking-widest opacity-90">{t("home.availableBalance")}</div>
-          <div className="mt-2 font-display text-4xl font-bold uppercase tabular-nums">
+          <div className="mt-2 font-display text-3xl font-bold uppercase tabular-nums leading-tight sm:text-4xl">
             <AnimatedNumber value={profile?.balance ?? 0} />
           </div>
 
