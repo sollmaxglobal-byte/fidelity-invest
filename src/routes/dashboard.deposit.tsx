@@ -67,6 +67,36 @@ function DepositPage() {
   }
   function back() { setStep((s) => (Math.max(1, (s - 1)) as 1 | 2 | 3 | 4)); }
 
+  async function compressImage(f: File): Promise<File> {
+    // Photos from mobile cameras can be 5–10 MB, which frequently fails to
+    // upload on flaky mobile networks. Downscale to max 1600px on the long
+    // edge and re-encode as JPEG ~0.8 quality (usually <400 KB).
+    if (!f.type.startsWith("image/") || f.size < 700_000) return f;
+    try {
+      const bmp = await createImageBitmap(f);
+      const maxSide = 1600;
+      const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+      const w = Math.round(bmp.width * scale);
+      const h = Math.round(bmp.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return f;
+      ctx.drawImage(bmp, 0, 0, w, h);
+      const blob: Blob | null = await new Promise((res) =>
+        canvas.toBlob((b) => res(b), "image/jpeg", 0.82),
+      );
+      if (!blob) return f;
+      return new File([blob], f.name.replace(/\.[^.]+$/, "") + ".jpg", {
+        type: "image/jpeg",
+        lastModified: Date.now(),
+      });
+    } catch {
+      return f;
+    }
+  }
+
   async function onSubmit() {
     if (!user) return;
     if (!file) { toast.error(t("deposit.errNoFile")); return; }
@@ -79,8 +109,8 @@ function DepositPage() {
         catch (e) {
           lastErr = e;
           const msg = (e as Error)?.message ?? "";
-          if (!/fetch|network|load failed/i.test(msg)) throw e;
-          await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+          if (!/fetch|network|load failed|timeout/i.test(msg)) throw e;
+          await new Promise((r) => setTimeout(r, 800 * (i + 1)));
         }
       }
       throw lastErr;
@@ -88,12 +118,20 @@ function DepositPage() {
 
     try {
       const v = schema.parse({ amount: amountNum, payment_method_id: selected });
-      const path = `${user.id}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+      const upload = await compressImage(file);
+      const safeName = upload.name.replace(/[^\w.-]+/g, "_");
+      const path = `${user.id}/${Date.now()}-${safeName}`;
+
       await retry(async () => {
-        const { error: upErr } = await supabase.storage.from("payment-proofs")
-          .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
+        // Pass the File as-is: supabase-js v2 will set the correct
+        // Content-Type from the File and avoid the FormData path that was
+        // showing "Failed to fetch" on mobile.
+        const { error: upErr } = await supabase.storage
+          .from("payment-proofs")
+          .upload(path, upload, { upsert: false, cacheControl: "3600" });
         if (upErr) throw upErr;
       });
+
       const method = methods.find((m) => m.id === v.payment_method_id);
       let depositId = "";
       await retry(async () => {
@@ -123,8 +161,8 @@ function DepositPage() {
       return;
     } catch (err) {
       const raw = (err as Error).message ?? "Error";
-      const friendly = /fetch|network|load failed/i.test(raw)
-        ? "Network problem. Please check your connection and try again."
+      const friendly = /failed to fetch|network|load failed|timeout/i.test(raw)
+        ? "Upload failed. Please check your internet connection and try again."
         : raw;
       toast.error(friendly);
     } finally {
