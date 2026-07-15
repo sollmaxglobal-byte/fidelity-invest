@@ -37,8 +37,11 @@ function AdminSettings() {
   const [busy, setBusy] = useState(false);
 
   async function load() {
-    const { data } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
-    setS((data as Settings) ?? { id: 1 } as Settings);
+    // Full row (including SMTP credentials) is admin-only via SECURITY DEFINER RPC.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any).rpc("get_app_settings_admin");
+    const row = Array.isArray(data) ? data[0] : data;
+    setS((row as Settings) ?? ({ id: 1 } as Settings));
   }
   useEffect(() => { load(); }, []);
 
