@@ -71,25 +71,15 @@ function InvestPage() {
       schema.parse({ amount });
       if (amount > balance) throw new Error("Insufficient wallet balance — make a deposit first");
 
-      const end = new Date(Date.now() + plan.duration_days * 86400000).toISOString();
-      const { data: inv, error } = await supabase.from("investments").insert({
-        user_id: user.id, plan_id: plan.id, amount,
-        daily_roi_percent: plan.daily_roi_percent,
-        duration_days: plan.duration_days,
-        end_date: end,
-        status: "active",
-      }).select().single();
-      if (error) throw error;
-
-      const { data: prof } = await supabase.from("profiles").select("balance,total_invested").eq("id", user.id).single();
-      await supabase.from("profiles").update({
-        balance: Number(prof?.balance ?? 0) - amount,
-        total_invested: Number(prof?.total_invested ?? 0) + amount,
-      }).eq("id", user.id);
-      await supabase.from("transactions").insert({
-        user_id: user.id, type: "investment", amount: -amount,
-        description: `Activated ${plan.name}`, ref_id: inv?.id,
+      // Atomic activation on the server: locks the profile row, verifies balance,
+      // inserts the investment + transaction, and deducts the balance in one transaction.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: newInvId, error } = await (supabase as any).rpc("activate_investment", {
+        _plan_id: plan.id,
+        _amount: amount,
       });
+      if (error) throw error;
+      const inv = { id: newInvId as string };
       if (user.email) {
         sendEmail({
           to: user.email, template_key: "investment_started",
