@@ -119,7 +119,7 @@ function DepositPage() {
         });
       }
       toast.success(t("deposit.submitted"));
-      navigate({ to: "/dashboard/deposit-pending/$id", params: { id: depositId } });
+      navigate({ to: "/deposit-pending/$id", params: { id: depositId } });
       return;
     } catch (err) {
       const raw = (err as Error).message ?? "Error";
