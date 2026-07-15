@@ -119,7 +119,7 @@ function DepositPage() {
         });
       }
       toast.success(t("deposit.submitted"));
-      navigate({ to: "/dashboard/deposit-pending/$id", params: { id: depositId } });
+      navigate({ to: "/deposit-pending/$id", params: { id: depositId } });
       return;
     } catch (err) {
       const raw = (err as Error).message ?? "Error";
@@ -298,25 +298,25 @@ function DepositPage() {
       </div>
 
       {/* Navigation */}
-      <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-3 pb-[env(safe-area-inset-bottom)] backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
+      <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <div className="mx-auto flex max-w-xl gap-2">
           {step > 1 ? (
-            <Button type="button" variant="outline" onClick={back} className="flex-1">
-              <ArrowLeft className="mr-1 h-4 w-4" /> {t("common.back")}
+            <Button type="button" size="sm" variant="outline" onClick={back} className="h-9 flex-1 text-xs md:h-10 md:text-sm">
+              <ArrowLeft className="mr-1 h-3.5 w-3.5" /> {t("common.back")}
             </Button>
           ) : (
-            <Button type="button" variant="outline" onClick={() => navigate({ to: "/dashboard" })} className="flex-1">
-              <Wallet className="mr-1 h-4 w-4" /> {t("nav.home")}
+            <Button type="button" size="sm" variant="outline" onClick={() => navigate({ to: "/dashboard" })} className="h-9 flex-1 text-xs md:h-10 md:text-sm">
+              <Wallet className="mr-1 h-3.5 w-3.5" /> {t("nav.home")}
             </Button>
           )}
           {step < 4 ? (
-            <Button type="button" onClick={next} disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
-              className="flex-1 bg-primary text-primary-foreground hover:opacity-90">
-              {step === 3 ? t("deposit.iHavePaid") : t("common.continue")} <ArrowRight className="ml-1 h-4 w-4" />
+            <Button type="button" size="sm" onClick={next} disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
+              className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm">
+              {step === 3 ? t("deposit.iHavePaid") : t("common.continue")} <ArrowRight className="ml-1 h-3.5 w-3.5" />
             </Button>
           ) : (
-            <Button type="button" onClick={onSubmit} disabled={busy || !file}
-              className="flex-1 bg-primary text-primary-foreground hover:opacity-90">
+            <Button type="button" size="sm" onClick={onSubmit} disabled={busy || !file}
+              className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm">
               {busy ? t("deposit.submitting") : t("deposit.submit")}
             </Button>
           )}

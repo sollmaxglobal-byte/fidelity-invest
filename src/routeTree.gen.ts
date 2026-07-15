@@ -20,6 +20,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as DepositPendingIdRouteImport } from './routes/deposit-pending.$id'
 import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdraw'
 import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
@@ -33,7 +34,6 @@ import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
 import { Route as AdminInvestmentsRouteImport } from './routes/admin.investments'
 import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
-import { Route as DashboardDepositPendingIdRouteImport } from './routes/dashboard.deposit-pending.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -89,6 +89,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const DepositPendingIdRoute = DepositPendingIdRouteImport.update({
+  id: '/deposit-pending/$id',
+  path: '/deposit-pending/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardWithdrawRoute = DashboardWithdrawRouteImport.update({
   id: '/withdraw',
@@ -155,12 +160,6 @@ const AdminDepositsRoute = AdminDepositsRouteImport.update({
   path: '/deposits',
   getParentRoute: () => AdminRoute,
 } as any)
-const DashboardDepositPendingIdRoute =
-  DashboardDepositPendingIdRouteImport.update({
-    id: '/deposit-pending/$id',
-    path: '/deposit-pending/$id',
-    getParentRoute: () => DashboardRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -185,9 +184,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/dashboard/withdraw': typeof DashboardWithdrawRoute
+  '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/deposit-pending/$id': typeof DashboardDepositPendingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -210,9 +209,9 @@ export interface FileRoutesByTo {
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/dashboard/withdraw': typeof DashboardWithdrawRoute
+  '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/dashboard/deposit-pending/$id': typeof DashboardDepositPendingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -238,9 +237,9 @@ export interface FileRoutesById {
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/dashboard/withdraw': typeof DashboardWithdrawRoute
+  '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/deposit-pending/$id': typeof DashboardDepositPendingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -267,9 +266,9 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/wallet'
     | '/dashboard/withdraw'
+    | '/deposit-pending/$id'
     | '/admin/'
     | '/dashboard/'
-    | '/dashboard/deposit-pending/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -292,9 +291,9 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/wallet'
     | '/dashboard/withdraw'
+    | '/deposit-pending/$id'
     | '/admin'
     | '/dashboard'
-    | '/dashboard/deposit-pending/$id'
   id:
     | '__root__'
     | '/'
@@ -319,9 +318,9 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/wallet'
     | '/dashboard/withdraw'
+    | '/deposit-pending/$id'
     | '/admin/'
     | '/dashboard/'
-    | '/dashboard/deposit-pending/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -334,6 +333,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   PlansRoute: typeof PlansRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  DepositPendingIdRoute: typeof DepositPendingIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -414,6 +414,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/deposit-pending/$id': {
+      id: '/deposit-pending/$id'
+      path: '/deposit-pending/$id'
+      fullPath: '/deposit-pending/$id'
+      preLoaderRoute: typeof DepositPendingIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/withdraw': {
       id: '/dashboard/withdraw'
@@ -506,13 +513,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDepositsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/dashboard/deposit-pending/$id': {
-      id: '/dashboard/deposit-pending/$id'
-      path: '/deposit-pending/$id'
-      fullPath: '/dashboard/deposit-pending/$id'
-      preLoaderRoute: typeof DashboardDepositPendingIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
   }
 }
 
@@ -549,7 +549,6 @@ interface DashboardRouteChildren {
   DashboardWalletRoute: typeof DashboardWalletRoute
   DashboardWithdrawRoute: typeof DashboardWithdrawRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardDepositPendingIdRoute: typeof DashboardDepositPendingIdRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -559,7 +558,6 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardWalletRoute: DashboardWalletRoute,
   DashboardWithdrawRoute: DashboardWithdrawRoute,
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardDepositPendingIdRoute: DashboardDepositPendingIdRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -576,6 +574,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   PlansRoute: PlansRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  DepositPendingIdRoute: DepositPendingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
