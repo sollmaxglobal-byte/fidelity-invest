@@ -1,15 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowDownCircle, ArrowUpCircle, X } from "lucide-react";
 import { formatXAF } from "@/lib/format";
+import { supabase } from "@/integrations/supabase/client";
 
-const NAMES = [
-  "Achille N.", "Marie-Claire T.", "Jean-Paul K.", "Estelle M.", "Boris E.",
-  "Chantal O.", "Serge B.", "Nadine F.", "Patrick L.", "Sylvie A.",
-  "Emmanuel D.", "Grace W.", "Yannick S.", "Aline P.", "Guy R.",
-  "Rachelle H.", "Christian I.", "Larissa V.", "Franck U.", "Aïcha Z.",
+// Broad pool of Cameroonian first-name + last-initial combos.
+// Names may repeat across cycles — that's intended (feels natural, not curated).
+const FIRSTS = [
+  "Achille","Marie-Claire","Jean-Paul","Estelle","Boris","Chantal","Serge","Nadine",
+  "Patrick","Sylvie","Emmanuel","Grace","Yannick","Aline","Guy","Rachelle","Christian",
+  "Larissa","Franck","Aïcha","Bertrand","Solange","Cédric","Mireille","Léon","Josiane",
+  "Armand","Brigitte","Dieudonné","Carine","Éric","Florence","Gaston","Hortense","Ismaël",
+  "Judith","Kévin","Liliane","Maxime","Noëlle","Olivier","Pauline","Quentin","Rebecca",
+  "Stéphane","Thérèse","Ulric","Valérie","William","Xavier","Yolande","Zacharie","Abdou",
+  "Blaise","Clarisse","Damien","Edwige","Fabrice","Georgette","Hervé","Irène","Jules",
+  "Ketsia","Landry","Manuela","Nestor","Odette","Paul","Rita","Samuel","Tatiana",
+  "Ursule","Vincent","Wilfrid","Yves","Zita","Alain","Beatrice","Charline","Doris",
+  "Elvis","Fanny","Gilbert","Henriette","Ivan","Joëlle","Konrad","Léa","Mathieu",
 ];
+const LAST_INITIALS = "ABCDEFGHIJKLMNOPRSTUV".split("");
 
-const CITIES = ["Douala", "Yaoundé", "Bafoussam", "Kribi", "Garoua", "Bamenda", "Libreville", "Limbe"];
+const CITIES = [
+  "Douala","Yaoundé","Bafoussam","Kribi","Garoua","Bamenda","Limbe","Buea","Ngaoundéré",
+  "Bertoua","Ebolowa","Maroua","Dschang","Edéa","Nkongsamba","Kumba",
+];
 
 type Notice = {
   id: number;
@@ -20,14 +33,23 @@ type Notice = {
   minsAgo: number;
 };
 
-function makeNotice(id: number): Notice {
-  const kind: "deposit" | "withdraw" = Math.random() < 0.55 ? "deposit" : "withdraw";
-  const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+const AMOUNT_BUCKETS = [
+  5000,10000,15000,20000,25000,35000,50000,75000,100000,150000,200000,275000,350000,500000,750000,
+];
+
+function makeFakeNotice(id: number): Notice {
+  const kind: "deposit" | "withdraw" = Math.random() < 0.58 ? "deposit" : "withdraw";
+  const first = FIRSTS[Math.floor(Math.random() * FIRSTS.length)];
+  const initial = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
   const city = CITIES[Math.floor(Math.random() * CITIES.length)];
-  const buckets = [5000, 10000, 15000, 25000, 40000, 60000, 85000, 120000, 175000, 240000, 300000];
-  const amount = buckets[Math.floor(Math.random() * buckets.length)];
-  const minsAgo = 1 + Math.floor(Math.random() * 12);
-  return { id, kind, name, city, amount, minsAgo };
+  const amount = AMOUNT_BUCKETS[Math.floor(Math.random() * AMOUNT_BUCKETS.length)];
+  const minsAgo = 1 + Math.floor(Math.random() * 14);
+  return { id, kind, name: `${first} ${initial}.`, city, amount, minsAgo };
+}
+
+function minutesAgo(ts: string): number {
+  const diff = Date.now() - new Date(ts).getTime();
+  return Math.max(1, Math.round(diff / 60000));
 }
 
 function playChime() {
@@ -38,7 +60,7 @@ function playChime() {
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
     const now = ctx.currentTime;
-    const notes = [880, 1320]; // A5, E6 — soft two-tone chime
+    const notes = [880, 1320];
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -53,25 +75,62 @@ function playChime() {
       osc.stop(start + 0.34);
     });
     setTimeout(() => ctx.close().catch(() => {}), 900);
-  } catch {
-    /* audio not available — silently ignore */
-  }
+  } catch { /* audio not available */ }
 }
+
+type Row = { kind: string; first_name: string; amount: number; created_at: string };
 
 export function SocialProof() {
   const [notice, setNotice] = useState<Notice | null>(null);
+  const realQueue = useRef<Notice[]>([]);
+  const seen = useRef<Set<string>>(new Set());
+  const counter = useRef(0);
 
+  // Fetch real recent activity every 45s
   useEffect(() => {
-    let counter = 0;
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase.rpc("recent_activity", { _limit: 15 });
+      if (cancelled || !data) return;
+      const rows = data as Row[];
+      for (const r of rows) {
+        const key = `${r.kind}|${r.created_at}|${r.amount}`;
+        if (seen.current.has(key)) continue;
+        seen.current.add(key);
+        counter.current += 1;
+        const initial = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
+        realQueue.current.push({
+          id: counter.current,
+          kind: r.kind === "withdraw" ? "withdraw" : "deposit",
+          name: `${r.first_name || "Investor"} ${initial}.`,
+          city: CITIES[Math.floor(Math.random() * CITIES.length)],
+          amount: Number(r.amount),
+          minsAgo: minutesAgo(r.created_at),
+        });
+      }
+    };
+    load();
+    const iv = setInterval(load, 45000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, []);
+
+  // Notification cycle
+  useEffect(() => {
     let hideTimer: ReturnType<typeof setTimeout>;
     let nextTimer: ReturnType<typeof setTimeout>;
 
     const cycle = () => {
-      counter += 1;
-      setNotice(makeNotice(counter));
+      // Prefer a real event; fall back to fabricated
+      const next = realQueue.current.shift();
+      if (next) {
+        setNotice(next);
+      } else {
+        counter.current += 1;
+        setNotice(makeFakeNotice(counter.current));
+      }
       playChime();
       hideTimer = setTimeout(() => setNotice(null), 5000);
-      nextTimer = setTimeout(cycle, 12000);
+      nextTimer = setTimeout(cycle, 11000);
     };
 
     const initial = setTimeout(cycle, 3500);

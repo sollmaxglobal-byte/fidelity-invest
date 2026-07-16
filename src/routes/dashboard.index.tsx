@@ -14,7 +14,6 @@ import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 import { Money } from "@/components/Money";
 import { Countdown } from "@/components/Countdown";
-import { DateTimeWidget } from "@/components/DateTimeWidget";
 import { Button } from "@/components/ui/button";
 
 
@@ -143,10 +142,6 @@ function DashboardHome() {
             <span className="h-1.5 w-1.5 rounded-full bg-success" /> Live
           </motion.span>
         </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <DateTimeWidget />
       </motion.div>
 
       <motion.div variants={itemVariants}>
