@@ -14,7 +14,6 @@ import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 import { Money } from "@/components/Money";
 import { Countdown } from "@/components/Countdown";
-import { DateTimeWidget } from "@/components/DateTimeWidget";
 import { Button } from "@/components/ui/button";
 
 
@@ -146,10 +145,6 @@ function DashboardHome() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <DateTimeWidget />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
         <LiveMarketStrip
           balance={Number(profile?.balance ?? 0)}
           earned={Number(profile?.total_earned ?? 0)}
@@ -276,10 +271,32 @@ function DashboardHome() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.05 * idx }}
-                whileHover={{ y: -2 }}
-                className="rounded-2xl border border-border bg-card p-4"
+                whileHover={{ y: -2, scale: 1.005 }}
+                className={`relative overflow-hidden rounded-2xl border bg-card p-4 ${
+                  isActive ? "border-success/40" : "border-border"
+                }`}
               >
-                <div className="flex items-start justify-between gap-2">
+                {isActive && (
+                  <>
+                    <motion.div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 opacity-40"
+                      style={{
+                        backgroundImage: "linear-gradient(115deg, transparent 0 42%, color-mix(in oklab, oklch(0.7 0.15 160) 30%, transparent) 48%, transparent 54% 100%)",
+                        backgroundSize: "240% 100%",
+                      }}
+                      animate={{ backgroundPosition: ["140% 0%", "-80% 0%"] }}
+                      transition={{ repeat: Infinity, duration: 4.8, ease: "linear" }}
+                    />
+                    <motion.span
+                      aria-hidden
+                      className="absolute right-3 top-3 h-2 w-2 rounded-full bg-success"
+                      animate={{ boxShadow: ["0 0 0 0 rgba(16,185,129,0.55)", "0 0 0 8px rgba(16,185,129,0)"] }}
+                      transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut" }}
+                    />
+                  </>
+                )}
+                <div className="relative flex items-start justify-between gap-2">
                   <div>
                     <div className="font-display text-base text-primary">{inv.plans?.name ?? "Plan"}</div>
                     <div className="text-xs text-muted-foreground">{t("home.ends")} {formatDate(inv.end_date)}</div>
@@ -294,7 +311,7 @@ function DashboardHome() {
                   </span>
                 </div>
                 {isActive && (
-                  <div className="mt-3 space-y-2 rounded-xl bg-secondary/50 p-3">
+                  <div className="relative mt-3 space-y-2 rounded-xl bg-secondary/50 p-3">
                     <div>
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Next profit payout ({freq})</div>
                       <div className="mt-1"><Countdown to={nextPayout} /></div>
@@ -305,7 +322,7 @@ function DashboardHome() {
                     </div>
                   </div>
                 )}
-                <div className="mt-3 grid grid-cols-3 gap-3 border-t border-border pt-3 text-sm">
+                <div className="relative mt-3 grid grid-cols-3 gap-3 border-t border-border pt-3 text-sm">
                   <Mini label={t("home.invested")} v={formatXAF(inv.amount)} />
                   <Mini label={t("home.roi")} v={`${inv.daily_roi_percent}%`} />
                   <Mini label={t("home.earned")} v={formatXAF(inv.total_earned)} accent />

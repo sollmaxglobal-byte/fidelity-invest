@@ -1,18 +1,13 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { z } from "zod";
 import { toast } from "sonner";
-import {
-  Smartphone, Building2, Bitcoin, Upload, Copy, Check, ArrowLeft, ArrowRight, Wallet, CheckCircle2, Home, History,
-} from "lucide-react";
+import { Smartphone, Building2, Bitcoin, ArrowLeft, ArrowRight, Wallet, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatXAF } from "@/lib/format";
 
 export const Route = createFileRoute("/dashboard/deposit")({
@@ -27,22 +22,14 @@ type PaymentMethod = {
 const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitcoin };
 const QUICK_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 250000, 500000];
 
-const schema = z.object({
-  amount: z.number().min(1000),
-  payment_method_id: z.string().uuid(),
-});
-
 function DepositPage() {
   const { user } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [selected, setSelected] = useState<string>("");
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [busy, setBusy] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [step, setStep] = useState<1 | 2>(1);
   const [amount, setAmount] = useState<string>("");
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -55,122 +42,25 @@ function DepositPage() {
     })();
   }, [user]);
 
-  const sel = methods.find((m) => m.id === selected);
   const amountNum = Number(amount);
   const canStep1 = amountNum >= 1000;
   const canStep2 = !!selected;
 
-  function next() {
-    if (step === 1 && !canStep1) { toast.error(t("deposit.errMin")); return; }
-    if (step === 2 && !canStep2) return;
-    setStep((s) => (Math.min(4, (s + 1)) as 1 | 2 | 3 | 4));
-  }
-  function back() { setStep((s) => (Math.max(1, (s - 1)) as 1 | 2 | 3 | 4)); }
-
-  async function compressImage(f: File): Promise<File> {
-    // Photos from mobile cameras can be 5–10 MB, which frequently fails to
-    // upload on flaky mobile networks. Downscale to max 1600px on the long
-    // edge and re-encode as JPEG ~0.8 quality (usually <400 KB).
-    if (!f.type.startsWith("image/") || f.size < 700_000) return f;
-    try {
-      const bmp = await createImageBitmap(f);
-      const maxSide = 1600;
-      const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
-      const w = Math.round(bmp.width * scale);
-      const h = Math.round(bmp.height * scale);
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return f;
-      ctx.drawImage(bmp, 0, 0, w, h);
-      const blob: Blob | null = await new Promise((res) =>
-        canvas.toBlob((b) => res(b), "image/jpeg", 0.82),
-      );
-      if (!blob) return f;
-      return new File([blob], f.name.replace(/\.[^.]+$/, "") + ".jpg", {
-        type: "image/jpeg",
-        lastModified: Date.now(),
-      });
-    } catch {
-      return f;
-    }
-  }
-
-  async function onSubmit() {
-    if (!user) return;
-    if (!file) { toast.error(t("deposit.errNoFile")); return; }
-    setBusy(true);
-
-    const retry = async <T,>(fn: () => Promise<T>, attempts = 3): Promise<T> => {
-      let lastErr: unknown;
-      for (let i = 0; i < attempts; i++) {
-        try { return await fn(); }
-        catch (e) {
-          lastErr = e;
-          const msg = (e as Error)?.message ?? "";
-          if (!/fetch|network|load failed|timeout/i.test(msg)) throw e;
-          await new Promise((r) => setTimeout(r, 800 * (i + 1)));
-        }
-      }
-      throw lastErr;
-    };
-
-    try {
-      const v = schema.parse({ amount: amountNum, payment_method_id: selected });
-      const upload = await compressImage(file);
-      const safeName = upload.name.replace(/[^\w.-]+/g, "_");
-      const path = `${user.id}/${Date.now()}-${safeName}`;
-
-      await retry(async () => {
-        // Pass the File as-is: supabase-js v2 will set the correct
-        // Content-Type from the File and avoid the FormData path that was
-        // showing "Failed to fetch" on mobile.
-        const { error: upErr } = await supabase.storage
-          .from("payment-proofs")
-          .upload(path, upload, { upsert: false, cacheControl: "3600" });
-        if (upErr) throw upErr;
-      });
-
-      const method = methods.find((m) => m.id === v.payment_method_id);
-      let depositId = "";
-      await retry(async () => {
-        const { data: inserted, error } = await supabase.from("deposits").insert({
-          user_id: user.id,
-          amount: v.amount,
-          payment_method_id: v.payment_method_id,
-          proof_url: path,
-          status: "pending",
-        }).select("id").single();
-        if (error) throw error;
-        depositId = inserted!.id as string;
-      });
-      if (user.email) {
-        sendEmail({
-          to: user.email,
-          template_key: "deposit_submitted",
-          variables: {
-            name: user.user_metadata?.full_name ?? "Investor",
-            amount: String(v.amount),
-            method: method?.label ?? "—",
-          },
-        });
-      }
-      toast.success(t("deposit.submitted"));
-      navigate({ to: "/deposit-pending/$id", params: { id: depositId } });
+  function goContinue() {
+    if (step === 1) {
+      if (!canStep1) { toast.error(t("deposit.errMin")); return; }
+      setStep(2);
       return;
-    } catch (err) {
-      const raw = (err as Error).message ?? "Error";
-      const friendly = /failed to fetch|network|load failed|timeout/i.test(raw)
-        ? "Upload failed. Please check your internet connection and try again."
-        : raw;
-      toast.error(friendly);
-    } finally {
-      setBusy(false);
     }
+    if (!canStep2) return;
+    // Navigate to a dedicated payment page for the actual transfer + proof upload
+    navigate({
+      to: "/dashboard/deposit-payment",
+      search: { amount: amountNum, method: selected } as never,
+    });
   }
 
-  const stepLabels = [t("deposit.step1"), t("deposit.step2"), t("deposit.step3"), t("deposit.step4")];
+  const stepLabels = [t("deposit.step1"), t("deposit.step2")];
 
   return (
     <div className="mx-auto max-w-xl space-y-5 pb-28 md:pb-6">
@@ -183,7 +73,7 @@ function DepositPage() {
       <div className="rounded-2xl border border-border bg-card p-3">
         <div className="flex items-center justify-between gap-1.5">
           {stepLabels.map((label, i) => {
-            const n = (i + 1) as 1 | 2 | 3 | 4;
+            const n = (i + 1) as 1 | 2;
             const done = step > n;
             const active = step === n;
             return (
@@ -196,17 +86,13 @@ function DepositPage() {
                 <span className={`hidden truncate text-[11px] font-medium sm:inline ${active ? "text-primary" : "text-muted-foreground"}`}>
                   {label}
                 </span>
-                {i < 3 && <div className={`h-0.5 flex-1 rounded-full ${step > n ? "bg-success" : "bg-muted"}`} />}
+                {i < stepLabels.length - 1 && <div className={`h-0.5 flex-1 rounded-full ${step > n ? "bg-success" : "bg-muted"}`} />}
               </div>
             );
           })}
         </div>
-        <div className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground sm:hidden">
-          {t("deposit.step")} {step} {t("deposit.of")} 4 — {stepLabels[step - 1]}
-        </div>
       </div>
 
-      {/* Step content */}
       <div className="rounded-2xl border border-border bg-card p-5">
         {step === 1 && (
           <div className="space-y-4">
@@ -240,7 +126,6 @@ function DepositPage() {
                     {q.toLocaleString("en-US").replace(/,/g, " ")}
                   </button>
                 ))}
-
               </div>
             </div>
           </div>
@@ -275,71 +160,13 @@ function DepositPage() {
             </div>
           </div>
         )}
-
-        {step === 3 && sel && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="font-display text-lg text-primary">{t("deposit.payTitle")}</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t("deposit.paySub")}</p>
-            </div>
-            <div className="rounded-xl bg-primary/5 p-4">
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("deposit.amountToSend")}</div>
-              <div className="mt-1 font-display text-3xl text-primary">{formatXAF(amountNum)}</div>
-            </div>
-            <div className="space-y-2">
-              <CopyRow label={t("deposit.sendTo")} value={sel.label} />
-              <CopyRow label={t("deposit.accountName")} value={sel.account_name ?? ""} />
-              <CopyRow label={t("deposit.accountNumber")} value={sel.account_number ?? ""} />
-            </div>
-            {sel.instructions && (
-              <div className="rounded-lg bg-secondary p-3 text-sm leading-relaxed">
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-accent">{t("deposit.instructions")}</div>
-                {sel.instructions}
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="font-display text-lg text-primary">{t("deposit.proofTitle")}</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t("deposit.proofSub")}</p>
-            </div>
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-background p-8 text-center hover:border-primary">
-              {file ? (
-                <>
-                  <Check className="h-10 w-10 text-success" />
-                  <div className="text-sm font-medium text-foreground">{file.name}</div>
-                  <div className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</div>
-                </>
-              ) : (
-                <>
-                  <Upload className="h-10 w-10 text-muted-foreground" />
-                  <div className="text-sm font-medium text-foreground">{t("deposit.proofPlaceholder")}</div>
-                </>
-              )}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-            </label>
-            <div className="rounded-lg bg-muted/50 p-3 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("common.amount")}</span>
-                <span className="font-semibold text-primary">{formatXAF(amountNum)}</span>
-              </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span className="text-muted-foreground">{t("common.method")}</span>
-                <span className="font-medium">{sel?.label ?? "—"}</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Navigation */}
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <div className="mx-auto flex max-w-xl gap-2">
           {step > 1 ? (
-            <Button type="button" size="sm" variant="outline" onClick={back} className="h-9 flex-1 text-xs md:h-10 md:text-sm">
+            <Button type="button" size="sm" variant="outline" onClick={() => setStep(1)} className="h-9 flex-1 text-xs md:h-10 md:text-sm">
               <ArrowLeft className="mr-1 h-3.5 w-3.5" /> {t("common.back")}
             </Button>
           ) : (
@@ -347,81 +174,12 @@ function DepositPage() {
               <Wallet className="mr-1 h-3.5 w-3.5" /> {t("nav.home")}
             </Button>
           )}
-          {step < 4 ? (
-            <Button type="button" size="sm" onClick={next} disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
-              className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm">
-              {step === 3 ? t("deposit.iHavePaid") : t("common.continue")} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-            </Button>
-          ) : (
-            <Button type="button" size="sm" onClick={onSubmit} disabled={busy || !file}
-              className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm">
-              {busy ? t("deposit.submitting") : t("deposit.submit")}
-            </Button>
-          )}
+          <Button type="button" size="sm" onClick={goContinue} disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
+            className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm">
+            {t("common.continue")} <ArrowRight className="ml-1 h-3.5 w-3.5" />
+          </Button>
         </div>
       </div>
-
-      <Dialog open={success} onOpenChange={(o) => { if (!o) navigate({ to: "/dashboard" }); }}>
-        <DialogContent className="max-w-sm rounded-2xl">
-          <DialogHeader className="items-center text-center">
-            <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-success/15">
-              <CheckCircle2 className="h-10 w-10 text-success" />
-            </div>
-            <DialogTitle className="font-display text-xl text-primary">
-              {t("deposit.successTitle") ?? "Deposit submitted successfully"}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              {t("deposit.successDesc") ?? "Your deposit is awaiting admin approval. You'll be notified once it's confirmed."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 rounded-xl bg-muted/40 p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.amount")}</span>
-              <span className="font-display text-lg text-primary">{formatXAF(amountNum)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.status") ?? "Status"}</span>
-              <span className="rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">
-                {t("status.pending") ?? "Pending"}
-              </span>
-            </div>
-            {sel && (
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.method")}</span>
-                <span className="text-sm font-medium">{sel.label}</span>
-              </div>
-            )}
-          </div>
-          <div className="mt-2 flex flex-col gap-2">
-            <Button asChild className="w-full bg-primary text-primary-foreground hover:opacity-90">
-              <Link to="/dashboard"><Home className="mr-2 h-4 w-4" /> {t("deposit.returnHome") ?? "Return to dashboard"}</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
-                <History className="mr-2 h-4 w-4" /> {t("deposit.viewHistory") ?? "View deposit history"}
-              </Link>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-function CopyRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-2 rounded-md bg-background p-2.5">
-      <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="truncate font-mono text-sm font-medium">{value}</div>
-      </div>
-      <button
-        type="button"
-        onClick={() => { navigator.clipboard.writeText(value); toast.success("Copied"); }}
-        className="rounded-md p-2 text-muted-foreground hover:bg-muted"
-      >
-        <Copy className="h-4 w-4" />
-      </button>
     </div>
   );
 }

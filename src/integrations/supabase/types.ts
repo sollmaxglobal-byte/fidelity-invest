@@ -557,6 +557,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      recent_activity: {
+        Args: { _limit?: number }
+        Returns: {
+          amount: number
+          created_at: string
+          first_name: string
+          kind: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
