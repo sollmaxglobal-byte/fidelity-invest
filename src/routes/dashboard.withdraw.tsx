@@ -60,15 +60,16 @@ function WithdrawPage() {
         account_number: String(fd.get("account_number") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
-      const { error } = await supabase.from("withdrawals").insert({
+      const { data: inserted, error } = await supabase.from("withdrawals").insert({
         user_id: user.id,
         amount: v.amount,
         method: v.method,
         account_name: v.account_name,
         account_number: v.account_number,
         status: "pending",
-      });
+      }).select("id").single();
       if (error) throw error;
+      const withdrawalId = inserted?.id as string;
       // Hold funds immediately — balance leaves the account on submit.
       // Refunded automatically if the admin rejects the request.
       await supabase.from("profiles").update({
@@ -83,6 +84,7 @@ function WithdrawPage() {
             amount: String(v.amount),
             method: v.method.replace("_", " "),
             account: `${v.account_name} (${v.account_number})`,
+            transaction_id: withdrawalId,
           },
         });
       }
