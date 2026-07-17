@@ -14,6 +14,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 import { Money } from "@/components/Money";
 import { Countdown } from "@/components/Countdown";
+import { ProfitRobot } from "@/components/ProfitRobot";
 import { Button } from "@/components/ui/button";
 
 
@@ -311,7 +312,8 @@ function DashboardHome() {
                   </span>
                 </div>
                 {isActive && (
-                  <div className="relative mt-3 space-y-2 rounded-xl bg-secondary/50 p-3">
+                  <div className="relative mt-3 space-y-3 rounded-xl bg-secondary/50 p-3">
+                    <ProfitRobot />
                     <div>
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Next profit payout ({freq})</div>
                       <div className="mt-1"><Countdown to={nextPayout} /></div>

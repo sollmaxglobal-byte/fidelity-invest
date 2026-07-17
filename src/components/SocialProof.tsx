@@ -3,8 +3,7 @@ import { ArrowDownCircle, ArrowUpCircle, X } from "lucide-react";
 import { formatXAF } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 
-// Broad pool of Cameroonian first-name + last-initial combos.
-// Names may repeat across cycles — that's intended (feels natural, not curated).
+// More than 500 distinct Cameroonian name combinations. Names can repeat naturally.
 const FIRSTS = [
   "Achille","Marie-Claire","Jean-Paul","Estelle","Boris","Chantal","Serge","Nadine",
   "Patrick","Sylvie","Emmanuel","Grace","Yannick","Aline","Guy","Rachelle","Christian",
@@ -17,7 +16,14 @@ const FIRSTS = [
   "Ursule","Vincent","Wilfrid","Yves","Zita","Alain","Beatrice","Charline","Doris",
   "Elvis","Fanny","Gilbert","Henriette","Ivan","Joëlle","Konrad","Léa","Mathieu",
 ];
-const LAST_INITIALS = "ABCDEFGHIJKLMNOPRSTUV".split("");
+const LASTS = [
+  "Abanda","Abega","Abessolo","Aboubakar","Achu","Akoa","Amougou","Atangana","Ayissi","Babangida",
+  "Balla","Banda","Belinga","Biya","Bongben","Bouba","Che","Dikoumé","Djoumessi","Ekambi",
+  "Ekotto","Elanga","Essomba","Eto'o","Fai","Fokou","Kameni","Kamga","Kana","Kengne",
+  "Kome","Kouam","Mabouka","Manga","Mbarga","Mbida","Milla","Moukandjo","Ndam","Ndip",
+  "Ndom","Ngadeu","Ngannou","Ngo'o","Ngono","Njie","Njoya","Nkoulou","Nsame","Ntcham",
+  "Ntep","Nyom","Ondoa","Onana","Oyongo","Salli","Song","Tchami","Tchatchoua","Toko",
+];
 
 const CITIES = [
   "Douala","Yaoundé","Bafoussam","Kribi","Garoua","Bamenda","Limbe","Buea","Ngaoundéré",
@@ -40,11 +46,11 @@ const AMOUNT_BUCKETS = [
 function makeFakeNotice(id: number): Notice {
   const kind: "deposit" | "withdraw" = Math.random() < 0.58 ? "deposit" : "withdraw";
   const first = FIRSTS[Math.floor(Math.random() * FIRSTS.length)];
-  const initial = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
+  const last = LASTS[Math.floor(Math.random() * LASTS.length)];
   const city = CITIES[Math.floor(Math.random() * CITIES.length)];
   const amount = AMOUNT_BUCKETS[Math.floor(Math.random() * AMOUNT_BUCKETS.length)];
-  const minsAgo = 1 + Math.floor(Math.random() * 14);
-  return { id, kind, name: `${first} ${initial}.`, city, amount, minsAgo };
+  const minsAgo = 1 + Math.floor(Math.random() * 29);
+  return { id, kind, name: `${first} ${last}`, city, amount, minsAgo };
 }
 
 function minutesAgo(ts: string): number {
@@ -86,23 +92,23 @@ export function SocialProof() {
   const seen = useRef<Set<string>>(new Set());
   const counter = useRef(0);
 
-  // Fetch real recent activity every 45s
+  // Fetch real activity frequently; both server and client enforce the 30-minute window.
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       const { data } = await supabase.rpc("recent_activity", { _limit: 15 });
       if (cancelled || !data) return;
-      const rows = data as Row[];
+      const cutoff = Date.now() - 30 * 60 * 1000;
+      const rows = (data as Row[]).filter((row) => new Date(row.created_at).getTime() >= cutoff);
       for (const r of rows) {
         const key = `${r.kind}|${r.created_at}|${r.amount}`;
         if (seen.current.has(key)) continue;
         seen.current.add(key);
         counter.current += 1;
-        const initial = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
         realQueue.current.push({
           id: counter.current,
           kind: r.kind === "withdraw" ? "withdraw" : "deposit",
-          name: `${r.first_name || "Investor"} ${initial}.`,
+          name: r.first_name || "Investor",
           city: CITIES[Math.floor(Math.random() * CITIES.length)],
           amount: Number(r.amount),
           minsAgo: minutesAgo(r.created_at),
@@ -110,7 +116,7 @@ export function SocialProof() {
       }
     };
     load();
-    const iv = setInterval(load, 45000);
+    const iv = setInterval(load, 20000);
     return () => { cancelled = true; clearInterval(iv); };
   }, []);
 
