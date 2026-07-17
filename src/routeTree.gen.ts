@@ -25,6 +25,7 @@ import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdr
 import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
+import { Route as DashboardDepositProofRouteImport } from './routes/dashboard.deposit-proof'
 import { Route as DashboardDepositPaymentRouteImport } from './routes/dashboard.deposit-payment'
 import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
@@ -116,6 +117,11 @@ const DashboardInvestRoute = DashboardInvestRouteImport.update({
   path: '/invest',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardDepositProofRoute = DashboardDepositProofRouteImport.update({
+  id: '/deposit-proof',
+  path: '/deposit-proof',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardDepositPaymentRoute = DashboardDepositPaymentRouteImport.update({
   id: '/deposit-payment',
   path: '/deposit-payment',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
   '/dashboard/deposit-payment': typeof DashboardDepositPaymentRoute
+  '/dashboard/deposit-proof': typeof DashboardDepositProofRoute
   '/dashboard/invest': typeof DashboardInvestRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
   '/dashboard/deposit-payment': typeof DashboardDepositPaymentRoute
+  '/dashboard/deposit-proof': typeof DashboardDepositProofRoute
   '/dashboard/invest': typeof DashboardInvestRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/dashboard/deposit': typeof DashboardDepositRoute
   '/dashboard/deposit-payment': typeof DashboardDepositPaymentRoute
+  '/dashboard/deposit-proof': typeof DashboardDepositProofRoute
   '/dashboard/invest': typeof DashboardInvestRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/admin/withdrawals'
     | '/dashboard/deposit'
     | '/dashboard/deposit-payment'
+    | '/dashboard/deposit-proof'
     | '/dashboard/invest'
     | '/dashboard/profile'
     | '/dashboard/wallet'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/admin/withdrawals'
     | '/dashboard/deposit'
     | '/dashboard/deposit-payment'
+    | '/dashboard/deposit-proof'
     | '/dashboard/invest'
     | '/dashboard/profile'
     | '/dashboard/wallet'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/admin/withdrawals'
     | '/dashboard/deposit'
     | '/dashboard/deposit-payment'
+    | '/dashboard/deposit-proof'
     | '/dashboard/invest'
     | '/dashboard/profile'
     | '/dashboard/wallet'
@@ -462,6 +474,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardInvestRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/deposit-proof': {
+      id: '/dashboard/deposit-proof'
+      path: '/deposit-proof'
+      fullPath: '/dashboard/deposit-proof'
+      preLoaderRoute: typeof DashboardDepositProofRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/deposit-payment': {
       id: '/dashboard/deposit-payment'
       path: '/deposit-payment'
@@ -564,6 +583,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface DashboardRouteChildren {
   DashboardDepositRoute: typeof DashboardDepositRoute
   DashboardDepositPaymentRoute: typeof DashboardDepositPaymentRoute
+  DashboardDepositProofRoute: typeof DashboardDepositProofRoute
   DashboardInvestRoute: typeof DashboardInvestRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardWalletRoute: typeof DashboardWalletRoute
@@ -574,6 +594,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDepositRoute: DashboardDepositRoute,
   DashboardDepositPaymentRoute: DashboardDepositPaymentRoute,
+  DashboardDepositProofRoute: DashboardDepositProofRoute,
   DashboardInvestRoute: DashboardInvestRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardWalletRoute: DashboardWalletRoute,
