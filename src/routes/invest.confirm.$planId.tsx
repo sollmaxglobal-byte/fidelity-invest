@@ -56,10 +56,22 @@ function ConfirmInvestment() {
     })();
   }, [user, loading, planId, navigate]);
 
+  const [amountInput, setAmountInput] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (plan && amountInput === null) {
+      setAmountInput(
+        plan.amount_type === "fixed"
+          ? Number(plan.fixed_amount)
+          : Number(amountParam ?? plan.min_amount),
+      );
+    }
+  }, [plan, amountParam, amountInput]);
+
   const amount = plan
     ? plan.amount_type === "fixed"
       ? Number(plan.fixed_amount)
-      : Number(amountParam ?? plan.min_amount)
+      : Number(amountInput ?? plan.min_amount)
     : 0;
 
   const dailyProfit = plan
