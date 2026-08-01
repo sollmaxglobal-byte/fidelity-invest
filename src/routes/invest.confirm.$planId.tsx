@@ -174,7 +174,7 @@ function ConfirmInvestment() {
 
           <Button
             onClick={confirm}
-            disabled={busy || insufficient}
+            disabled={busy || insufficient || outOfRange}
             className="mt-5 w-full bg-primary text-primary-foreground hover:opacity-90"
           >
             {busy ? "Processing…" : "Confirm investment"}
