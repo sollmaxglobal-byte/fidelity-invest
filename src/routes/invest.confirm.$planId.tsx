@@ -6,6 +6,8 @@ import { ShieldCheck, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatXAF } from "@/lib/format";
 
 const searchSchema = z.object({ amount: z.coerce.number().optional() });
