@@ -58,42 +58,24 @@ function InvestPage() {
   }, [plan, amount]);
 
 
-  async function activate(e: React.FormEvent<HTMLFormElement>) {
+  function activate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user || !plan) return;
     setBusy(true);
     try {
+      const min = plan.amount_type === "fixed" ? plan.fixed_amount : plan.min_amount;
+      const max = plan.amount_type === "fixed" ? plan.fixed_amount : plan.max_amount;
       const schema = z.object({
         amount: z.number()
-          .min(plan.min_amount, `Min ${formatXAF(plan.min_amount)}`)
-          .max(plan.max_amount, `Max ${formatXAF(plan.max_amount)}`),
+          .min(min, `Min ${formatXAF(min)}`)
+          .max(max, `Max ${formatXAF(max)}`),
       });
       schema.parse({ amount });
       if (amount > balance) throw new Error("Insufficient wallet balance — make a deposit first");
 
-      // Atomic activation on the server: locks the profile row, verifies balance,
-      // inserts the investment + transaction, and deducts the balance in one transaction.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: newInvId, error } = await (supabase as any).rpc("activate_investment", {
-        _plan_id: plan.id,
-        _amount: amount,
-      });
-      if (error) throw error;
-      const inv = { id: newInvId as string };
-      if (user.email) {
-        sendEmail({
-          to: user.email, template_key: "investment_started",
-          variables: {
-            name: user.user_metadata?.full_name ?? "Investor",
-            amount: amount.toLocaleString("fr-CM"),
-            plan: plan.name,
-            roi: plan.daily_roi_percent,
-            days: plan.duration_days,
-          },
-        });
-      }
-      toast.success(`${plan.name} activated`);
-      setBalance((b) => b - amount);
+      const url = `/invest/confirm/${plan.id}?amount=${amount}`;
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win) window.location.href = url;
       setPlanId("");
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
