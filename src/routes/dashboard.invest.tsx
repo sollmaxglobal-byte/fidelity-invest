@@ -107,7 +107,7 @@ function InvestPage() {
                 )}
               </div>
               <Button
-                onClick={() => { setPlanId(p.id); setAmount(p.amount_type === "fixed" ? p.fixed_amount : p.min_amount); }}
+                onClick={() => openPlan(p)}
                 className="mt-4 w-full bg-primary text-primary-foreground hover:opacity-90"
               >
                 Activate
@@ -119,54 +119,6 @@ function InvestPage() {
           );
         })}
       </div>
-
-      {plan && (
-        <form onSubmit={activate} className="rounded-2xl border border-primary bg-card p-5 shadow-elegant">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">Activate</div>
-          <div className="font-display text-xl text-primary">{plan.name}</div>
-
-          <div className="mt-4">
-            <Label htmlFor="amount">Amount (XAF)</Label>
-            <Input
-              id="amount" type="number" required
-              min={plan.amount_type === "fixed" ? plan.fixed_amount : plan.min_amount}
-              max={plan.amount_type === "fixed" ? plan.fixed_amount : plan.max_amount}
-              step={plan.amount_type === "fixed" ? undefined : 500}
-              readOnly={plan.amount_type === "fixed"}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-            <div className="mt-1 text-xs text-muted-foreground">
-              {plan.amount_type === "fixed"
-                ? `Fixed at ${formatXAF(plan.fixed_amount)}`
-                : `Min ${formatXAF(plan.min_amount)} · Max ${formatXAF(plan.max_amount)}`}
-            </div>
-          </div>
-
-          {projection && (
-            <div className="mt-4 space-y-1 rounded-xl bg-secondary p-3 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Daily profit</span><span className="font-medium text-success">{formatXAF(projection.dailyProfit)}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Total profit ({plan.duration_days} days)</span><span className="font-medium text-success">{formatXAF(projection.profit)}</span></div>
-              <div className="mt-1 flex justify-between border-t border-border pt-1"><span className="text-muted-foreground">Payout at end</span><span className="font-display text-base text-primary">{formatXAF(projection.payout)}</span></div>
-            </div>
-          )}
-
-
-          {balance < amount && (
-            <div className="mt-3 rounded-lg border border-warning/40 bg-warning/10 p-2.5 text-xs">
-              Wallet too low. <Link to="/dashboard/deposit" className="font-medium underline">Top up →</Link>
-            </div>
-          )}
-
-          <div className="mt-4 flex gap-2">
-            <Button type="button" variant="outline" onClick={() => setPlanId("")} className="flex-1">Cancel</Button>
-            <Button type="submit" disabled={busy} className="flex-1 bg-primary text-primary-foreground hover:opacity-90">
-              <CheckCircle2 className="mr-1 h-4 w-4" />
-              {busy ? "Opening…" : "Continue"}
-            </Button>
-          </div>
-        </form>
-      )}
     </div>
   );
 }
