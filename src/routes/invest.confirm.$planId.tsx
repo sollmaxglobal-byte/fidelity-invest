@@ -135,6 +135,21 @@ function ConfirmInvestment() {
           <div className="font-display text-xl text-primary">{plan.name}</div>
           {plan.description && <div className="text-xs text-muted-foreground">{plan.description}</div>}
 
+          {plan.amount_type !== "fixed" && (
+            <div className="mt-4">
+              <Label htmlFor="amount">Amount to invest (XAF)</Label>
+              <Input
+                id="amount" type="number" step={500}
+                min={plan.min_amount} max={plan.max_amount}
+                value={amountInput ?? plan.min_amount}
+                onChange={(e) => setAmountInput(Number(e.target.value))}
+              />
+              <div className="mt-1 text-xs text-muted-foreground">
+                Min {formatXAF(plan.min_amount)} · Max {formatXAF(plan.max_amount)}
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 space-y-2 text-sm">
             <Row label="Amount" value={formatXAF(amount)} />
             <Row label="Daily profit" value={formatXAF(dailyProfit)} accent />
