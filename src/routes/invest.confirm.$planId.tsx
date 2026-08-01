@@ -6,6 +6,8 @@ import { ShieldCheck, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatXAF } from "@/lib/format";
 
 const searchSchema = z.object({ amount: z.coerce.number().optional() });
@@ -56,10 +58,22 @@ function ConfirmInvestment() {
     })();
   }, [user, loading, planId, navigate]);
 
+  const [amountInput, setAmountInput] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (plan && amountInput === null) {
+      setAmountInput(
+        plan.amount_type === "fixed"
+          ? Number(plan.fixed_amount)
+          : Number(amountParam ?? plan.min_amount),
+      );
+    }
+  }, [plan, amountParam, amountInput]);
+
   const amount = plan
     ? plan.amount_type === "fixed"
       ? Number(plan.fixed_amount)
-      : Number(amountParam ?? plan.min_amount)
+      : Number(amountInput ?? plan.min_amount)
     : 0;
 
   const dailyProfit = plan
@@ -106,6 +120,8 @@ function ConfirmInvestment() {
     );
   }
 
+  const outOfRange =
+    plan.amount_type !== "fixed" && (amount < plan.min_amount || amount > plan.max_amount);
   const insufficient = amount > balance;
 
   return (
@@ -122,6 +138,21 @@ function ConfirmInvestment() {
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <div className="font-display text-xl text-primary">{plan.name}</div>
           {plan.description && <div className="text-xs text-muted-foreground">{plan.description}</div>}
+
+          {plan.amount_type !== "fixed" && (
+            <div className="mt-4">
+              <Label htmlFor="amount">Amount to invest (XAF)</Label>
+              <Input
+                id="amount" type="number" step={500}
+                min={plan.min_amount} max={plan.max_amount}
+                value={amountInput ?? plan.min_amount}
+                onChange={(e) => setAmountInput(Number(e.target.value))}
+              />
+              <div className="mt-1 text-xs text-muted-foreground">
+                Min {formatXAF(plan.min_amount)} · Max {formatXAF(plan.max_amount)}
+              </div>
+            </div>
+          )}
 
           <div className="mt-4 space-y-2 text-sm">
             <Row label="Amount" value={formatXAF(amount)} />
@@ -143,7 +174,7 @@ function ConfirmInvestment() {
 
           <Button
             onClick={confirm}
-            disabled={busy || insufficient}
+            disabled={busy || insufficient || outOfRange}
             className="mt-5 w-full bg-primary text-primary-foreground hover:opacity-90"
           >
             {busy ? "Processing…" : "Confirm investment"}
