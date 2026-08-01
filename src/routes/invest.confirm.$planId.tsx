@@ -120,6 +120,8 @@ function ConfirmInvestment() {
     );
   }
 
+  const outOfRange =
+    plan.amount_type !== "fixed" && (amount < plan.min_amount || amount > plan.max_amount);
   const insufficient = amount > balance;
 
   return (
