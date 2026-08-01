@@ -26,9 +26,6 @@ function InvestPage() {
   const { user } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [balance, setBalance] = useState(0);
-  const [planId, setPlanId] = useState<string>("");
-  const [amount, setAmount] = useState<number>(0);
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -37,49 +34,18 @@ function InvestPage() {
         supabase.from("plans").select("*").eq("active", true).order("min_amount"),
         supabase.from("profiles").select("balance").eq("id", user.id).maybeSingle(),
       ]);
-      const ps = (p as Plan[]) ?? [];
-      setPlans(ps);
+      setPlans((p as Plan[]) ?? []);
       setBalance(Number(prof?.balance ?? 0));
     })();
   }, [user]);
 
-  const plan = plans.find((p) => p.id === planId);
-  const projection = useMemo(() => {
-    if (!plan) return null;
-    const dailyProfit = plan.profit_type === "fixed"
-      ? Number(plan.fixed_daily_profit)
-      : (amount * Number(plan.daily_roi_percent)) / 100;
-    const profit = dailyProfit * plan.duration_days;
-    return { dailyProfit, profit, payout: amount + profit };
-  }, [plan, amount]);
-
-
-  function activate(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!user || !plan) return;
-    setBusy(true);
-    try {
-      const min = plan.amount_type === "fixed" ? plan.fixed_amount : plan.min_amount;
-      const max = plan.amount_type === "fixed" ? plan.fixed_amount : plan.max_amount;
-      const schema = z.object({
-        amount: z.number()
-          .min(min, `Min ${formatXAF(min)}`)
-          .max(max, `Max ${formatXAF(max)}`),
-      });
-      schema.parse({ amount });
-      if (amount > balance) throw new Error("Insufficient wallet balance — make a deposit first");
-
-      const url = `/invest/confirm/${plan.id}?amount=${amount}`;
-      const win = window.open(url, "_blank", "noopener,noreferrer");
-      if (!win) window.location.href = url;
-      setPlanId("");
-    } catch (err) {
-      const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
-      toast.error(msg);
-    } finally {
-      setBusy(false);
-    }
+  function openPlan(p: Plan) {
+    const amount = p.amount_type === "fixed" ? p.fixed_amount : p.min_amount;
+    const url = `/invest/confirm/${p.id}?amount=${amount}`;
+    const win = window.open(url, "_blank", "noopener,noreferrer");
+    if (!win) window.location.href = url;
   }
+
 
   return (
     <div className="space-y-5">
