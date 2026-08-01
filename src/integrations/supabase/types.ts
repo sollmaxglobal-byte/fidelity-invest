@@ -521,6 +521,10 @@ export type Database = {
         Args: { _amount: number; _plan_id: string }
         Returns: string
       }
+      activate_investment_v2: {
+        Args: { _amount: number; _plan_id: string }
+        Returns: Json
+      }
       distribute_profits: { Args: never; Returns: undefined }
       get_app_settings_admin: {
         Args: never
