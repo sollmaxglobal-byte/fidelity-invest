@@ -18,7 +18,7 @@ export const Route = createFileRoute("/invest/success/$id")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: InvestSuccess;
+  component: InvestSuccess,
 });
 
 type Details = {
