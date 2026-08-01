@@ -200,7 +200,7 @@ function InvestPage() {
             <Button type="button" variant="outline" onClick={() => setPlanId("")} className="flex-1">Cancel</Button>
             <Button type="submit" disabled={busy} className="flex-1 bg-primary text-primary-foreground hover:opacity-90">
               <CheckCircle2 className="mr-1 h-4 w-4" />
-              {busy ? "Activating…" : "Confirm"}
+              {busy ? "Opening…" : "Continue"}
             </Button>
           </div>
         </form>
