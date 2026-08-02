@@ -9,7 +9,7 @@ import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatXAF, formatDate } from "@/lib/format";
+import { formatXAF, formatDate, txRef } from "@/lib/format";
 import { StatusBadge } from "./dashboard.deposit";
 
 export const Route = createFileRoute("/dashboard/withdraw")({
@@ -84,7 +84,7 @@ function WithdrawPage() {
             amount: String(v.amount),
             method: v.method.replace("_", " "),
             account: `${v.account_name} (${v.account_number})`,
-            transaction_id: withdrawalId,
+            transaction_id: txRef(withdrawalId),
           },
         });
       }

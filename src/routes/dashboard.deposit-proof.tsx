@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
+import { txRef } from "@/lib/format";
 import { formatXAF } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 
@@ -94,7 +95,7 @@ function DepositProofPage() {
             name: user.user_metadata?.full_name ?? "Investor",
             amount: String(amount),
             method: paymentMethod.label,
-            transaction_id: data.id,
+            transaction_id: txRef(data.id),
           },
         });
       }
