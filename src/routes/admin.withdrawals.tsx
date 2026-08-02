@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { formatXAF, formatDate } from "@/lib/format";
+import { sendEmail } from "@/lib/email-client";
+import { formatXAF, formatDate, txRef } from "@/lib/format";
 
 export const Route = createFileRoute("/admin/withdrawals")({
   component: AdminWithdrawals,
@@ -60,6 +61,24 @@ function AdminWithdrawals() {
           balance: Number(prof?.balance ?? 0) + Number(w.amount),
         }).eq("id", w.user_id);
       }
+      const key =
+        status === "rejected" ? "withdrawal_rejected"
+        : status === "paid" ? "withdrawal_paid"
+        : "withdrawal_approved";
+      sendEmail({
+        to: `user_id:${w.user_id}`,
+        template_key: key,
+        variables: {
+          name: w.profiles?.full_name ?? "Investor",
+          amount: Number(w.amount).toLocaleString("fr-CM"),
+          transaction_id: txRef(w.id),
+          method: w.method.replace("_", " "),
+          account: `${w.account_name} (${w.account_number})`,
+          status,
+          date: new Date().toLocaleString(),
+          note: status === "rejected" ? "Request could not be processed. Funds returned to your wallet." : "",
+        },
+      });
       toast.success(`Withdrawal ${status}`);
       load();
     } catch (err) {
