@@ -47,17 +47,33 @@ Deno.serve(async (req) => {
     .eq("user_id", userData.user.id)
     .eq("role", "admin")
     .maybeSingle();
-  if (!roleRow) {
-    return new Response(JSON.stringify({ error: "Forbidden" }), {
-      status: 403,
-      headers: { ...cors, "Content-Type": "application/json" },
-    });
-  }
+  const isAdmin = !!roleRow;
 
   try {
     const body = await req.json();
     let { to } = body ?? {};
     const { template_key, variables = {}, subject: customSubject, html: customHtml } = body ?? {};
+
+    // Non-admin users may only trigger their own self-notification templates.
+    const SELF_TEMPLATES = [
+      "welcome",
+      "deposit_submitted",
+      "withdrawal_submitted",
+      "investment_started",
+      "password_reset",
+    ];
+    if (!isAdmin) {
+      const selfEmail = (userData.user.email ?? "").toLowerCase();
+      const selfOk =
+        typeof to === "string" &&
+        (to.toLowerCase() === selfEmail || to === `user_id:${userData.user.id}`);
+      if (customHtml || !template_key || !SELF_TEMPLATES.includes(template_key) || !selfOk) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+    }
     if (!to || (!template_key && !customHtml)) {
       return new Response(
         JSON.stringify({ error: "to and template_key (or html) required" }),
