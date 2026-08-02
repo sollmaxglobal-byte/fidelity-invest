@@ -243,6 +243,7 @@ export type Database = {
           id: string
           instructions: string | null
           label: string
+          scope: string
           type: Database["public"]["Enums"]["payment_method_type"]
         }
         Insert: {
@@ -253,6 +254,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           label: string
+          scope?: string
           type: Database["public"]["Enums"]["payment_method_type"]
         }
         Update: {
@@ -263,6 +265,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           label?: string
+          scope?: string
           type?: Database["public"]["Enums"]["payment_method_type"]
         }
         Relationships: []
