@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ const POPULAR = "Growth Plan";
 
 function InvestPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [balance, setBalance] = useState(0);
 
@@ -40,10 +41,12 @@ function InvestPage() {
   }, [user]);
 
   function openPlan(p: Plan) {
-    const amount = p.amount_type === "fixed" ? p.fixed_amount : p.min_amount;
-    const url = `/invest/confirm/${p.id}?amount=${amount}`;
-    const win = window.open(url, "_blank", "noopener,noreferrer");
-    if (!win) window.location.href = url;
+    const amount = Number(p.amount_type === "fixed" ? p.fixed_amount : p.min_amount);
+    navigate({
+      to: "/invest/confirm/$planId",
+      params: { planId: p.id },
+      search: { amount },
+    });
   }
 
 

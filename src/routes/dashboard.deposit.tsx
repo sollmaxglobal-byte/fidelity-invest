@@ -35,7 +35,8 @@ function DepositPage() {
     if (!user) return;
     (async () => {
       const { data: m } = await supabase
-        .from("payment_methods").select("*").eq("active", true).order("type");
+        .from("payment_methods").select("*").eq("active", true)
+        .in("scope", ["deposit", "both"]).order("type");
       const ms = (m as PaymentMethod[]) ?? [];
       setMethods(ms);
       if (ms[0]) setSelected(ms[0].id);

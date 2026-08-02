@@ -5,7 +5,7 @@ import { Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sendEmail } from "@/lib/email-client";
 import { Button } from "@/components/ui/button";
-import { formatXAF, formatDate } from "@/lib/format";
+import { formatXAF, formatDate, txRef } from "@/lib/format";
 
 export const Route = createFileRoute("/admin/deposits")({
   component: AdminDeposits,
@@ -63,6 +63,9 @@ function AdminDeposits() {
         variables: {
           name: d.profiles?.full_name ?? "Investor",
           amount: Number(d.amount).toLocaleString("fr-CM"),
+          transaction_id: txRef(d.id),
+          method: d.payment_methods?.label ?? "",
+          date: new Date().toLocaleString(),
           note: status === "rejected" ? "Could not verify payment" : "",
         },
       });
