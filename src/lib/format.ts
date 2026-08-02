@@ -19,3 +19,9 @@ export function formatDate(d: string | Date | null | undefined): string {
   const year = dt.getUTCFullYear();
   return `${day} ${month} ${year}`;
 }
+
+/** Short, human-friendly transaction reference derived from a UUID. */
+export function txRef(id: string | null | undefined): string {
+  if (!id) return "—";
+  return id.replace(/-/g, "").slice(0, 12).toUpperCase();
+}
