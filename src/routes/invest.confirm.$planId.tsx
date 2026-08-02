@@ -179,7 +179,7 @@ function ConfirmInvestment() {
           >
             {busy ? "Processing…" : "Confirm investment"}
           </Button>
-          <Button variant="outline" className="mt-2 w-full" onClick={() => window.close()}>
+          <Button variant="outline" className="mt-2 w-full" onClick={() => navigate({ to: "/dashboard/invest" })}>
             Cancel
           </Button>
         </div>
