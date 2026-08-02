@@ -16,6 +16,8 @@ export const Route = createFileRoute("/dashboard/withdraw")({
   component: WithdrawPage,
 });
 
+type WMethod = { id: string; type: "mobile_money" | "bank_transfer" | "crypto"; label: string; instructions: string | null };
+
 type Withdrawal = {
   id: string; amount: number; method: string; account_name: string;
   account_number: string; status: string; created_at: string;
@@ -34,6 +36,7 @@ function WithdrawPage() {
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [list, setList] = useState<Withdrawal[]>([]);
+  const [methods, setMethods] = useState<WMethod[]>([]);
   const [busy, setBusy] = useState(false);
 
   async function refresh() {
@@ -46,6 +49,18 @@ function WithdrawPage() {
     setList((w as Withdrawal[]) ?? []);
   }
   useEffect(() => { refresh(); }, [user]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("payment_methods")
+        .select("id,type,label,instructions")
+        .eq("active", true)
+        .in("scope", ["withdrawal", "both"])
+        .order("type");
+      setMethods((data as WMethod[]) ?? []);
+    })();
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -128,9 +143,17 @@ function WithdrawPage() {
         <div>
           <Label htmlFor="method">{t("common.method")}</Label>
           <select id="method" name="method" required className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-            <option value="mobile_money">{t("withdraw.method.mobile")}</option>
-            <option value="bank_transfer">{t("withdraw.method.bank")}</option>
-            <option value="crypto">{t("withdraw.method.crypto")}</option>
+            {methods.length > 0 ? (
+              methods.map((m) => (
+                <option key={m.id} value={m.type}>{m.label}</option>
+              ))
+            ) : (
+              <>
+                <option value="mobile_money">{t("withdraw.method.mobile")}</option>
+                <option value="bank_transfer">{t("withdraw.method.bank")}</option>
+                <option value="crypto">{t("withdraw.method.crypto")}</option>
+              </>
+            )}
           </select>
         </div>
         <div>
