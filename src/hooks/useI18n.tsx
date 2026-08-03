@@ -108,6 +108,22 @@ const DICT = {
     "auth.heroSub": "Capital + profit paid at the end of every plan. Manual verification. Real Cameroonian support.",
     "auth.welcomeToast": "Welcome back",
     "auth.created": "Account created — welcome to SafeGrow!",
+    "auth.loginTitle": "Sign in to your account",
+    "auth.registerTitle": "Create your account",
+    "auth.forgotTitle": "Reset your password",
+    "auth.forgotSub": "Enter the email you signed up with and we'll send you a reset link.",
+    "auth.sendReset": "Send reset link",
+    "auth.sending": "Sending…",
+    "auth.resetSent": "Reset link sent — check your inbox",
+    "auth.resetSentBody": "We've sent a reset link. Click it from your inbox to set a new password.",
+    "auth.backToSignIn": "Back to sign in",
+    "auth.invitedBy": "You were invited by",
+    "auth.invitedSub": "Create your account to join their team.",
+    "auth.referralCode": "Referral code",
+    "auth.noAccount": "Don't have an account?",
+    "auth.registerLink": "Register",
+    "auth.loginLink": "Sign in",
+
 
     // Dashboard home
     "home.welcomeBack": "Welcome back",
