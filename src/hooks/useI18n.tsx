@@ -309,6 +309,22 @@ const DICT = {
     "auth.heroSub": "Capital + profit versés à la fin de chaque plan. Vérification manuelle. Support camerounais réel.",
     "auth.welcomeToast": "Bon retour",
     "auth.created": "Compte créé — bienvenue sur SafeGrow !",
+    "auth.loginTitle": "Connexion à votre compte",
+    "auth.registerTitle": "Créer votre compte",
+    "auth.forgotTitle": "Réinitialiser votre mot de passe",
+    "auth.forgotSub": "Entrez l'email utilisé lors de l'inscription et nous vous enverrons un lien de réinitialisation.",
+    "auth.sendReset": "Envoyer le lien",
+    "auth.sending": "Envoi…",
+    "auth.resetSent": "Lien envoyé — vérifiez votre boîte mail",
+    "auth.resetSentBody": "Nous avons envoyé un lien de réinitialisation. Cliquez dessus depuis votre boîte mail pour définir un nouveau mot de passe.",
+    "auth.backToSignIn": "Retour à la connexion",
+    "auth.invitedBy": "Vous avez été invité par",
+    "auth.invitedSub": "Créez votre compte pour rejoindre son équipe.",
+    "auth.referralCode": "Code de parrainage",
+    "auth.noAccount": "Pas encore de compte ?",
+    "auth.registerLink": "S'inscrire",
+    "auth.loginLink": "Se connecter",
+
 
     // Dashboard home
     "home.welcomeBack": "Bon retour",
