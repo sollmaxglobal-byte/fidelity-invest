@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -43,6 +44,11 @@ import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlansRoute = PlansRouteImport.update({
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/plans': typeof PlansRoute
+  '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/emails': typeof AdminEmailsRoute
@@ -231,6 +238,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/plans': typeof PlansRoute
+  '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/emails': typeof AdminEmailsRoute
@@ -264,6 +272,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/plans': typeof PlansRoute
+  '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/emails': typeof AdminEmailsRoute
@@ -298,6 +307,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/plans'
+    | '/register'
     | '/reset-password'
     | '/admin/deposits'
     | '/admin/emails'
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/plans'
+    | '/register'
     | '/reset-password'
     | '/admin/deposits'
     | '/admin/emails'
@@ -360,6 +371,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/plans'
+    | '/register'
     | '/reset-password'
     | '/admin/deposits'
     | '/admin/emails'
@@ -393,6 +405,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PlansRoute: typeof PlansRoute
+  RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   DepositPendingIdRoute: typeof DepositPendingIdRoute
   InvestConfirmPlanIdRoute: typeof InvestConfirmPlanIdRoute
@@ -406,6 +419,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plans': {
@@ -676,6 +696,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PlansRoute: PlansRoute,
+  RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   DepositPendingIdRoute: DepositPendingIdRoute,
   InvestConfirmPlanIdRoute: InvestConfirmPlanIdRoute,
