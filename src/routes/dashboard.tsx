@@ -36,7 +36,7 @@ function DashboardLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    if (!loading && !user) nav({ to: "/auth" });
+    if (!loading && !user) nav({ to: "/login" });
   }, [user, loading, nav]);
 
   if (loading || !user) {

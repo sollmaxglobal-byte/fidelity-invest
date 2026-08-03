@@ -46,7 +46,7 @@ function ConfirmInvestment() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) { navigate({ to: "/auth" }); return; }
+    if (!user) { navigate({ to: "/login" }); return; }
     (async () => {
       const [{ data: p }, { data: prof }] = await Promise.all([
         supabase.from("plans").select("*").eq("id", planId).maybeSingle(),
