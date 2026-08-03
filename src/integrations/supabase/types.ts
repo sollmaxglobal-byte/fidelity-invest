@@ -573,6 +573,7 @@ export type Database = {
           kind: string
         }[]
       }
+      referrer_name: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
