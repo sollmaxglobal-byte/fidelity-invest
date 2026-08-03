@@ -65,12 +65,12 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              <Button variant="ghost" onClick={() => nav({ to: "/auth" })}>
+              <Button variant="ghost" onClick={() => nav({ to: "/login" })}>
                 {t("nav.signin")}
               </Button>
               <Button
                 className="bg-primary text-primary-foreground hover:opacity-90"
-                onClick={() => nav({ to: "/auth" })}
+                onClick={() => nav({ to: "/login" })}
               >
                 {t("nav.getStarted")}
               </Button>
@@ -116,10 +116,10 @@ export function SiteHeader() {
                 </>
               ) : (
                 <>
-                  <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
+                  <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/login" }); }}>
                     {t("nav.signin")}
                   </Button>
-                  <Button className="bg-primary text-primary-foreground hover:opacity-90" onClick={() => { setOpen(false); nav({ to: "/auth" }); }}>
+                  <Button className="bg-primary text-primary-foreground hover:opacity-90" onClick={() => { setOpen(false); nav({ to: "/login" }); }}>
                     {t("nav.getStarted")}
                   </Button>
                 </>

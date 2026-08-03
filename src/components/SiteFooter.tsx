@@ -25,7 +25,7 @@ export function SiteFooter() {
           <div>
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">{t("footer.account")}</h4>
             <ul className="space-y-2 text-sm opacity-80">
-              <li><Link to="/auth">{t("nav.signin")}</Link></li>
+              <li><Link to="/login">{t("nav.signin")}</Link></li>
               <li><Link to="/dashboard">{t("nav.dashboard")}</Link></li>
             </ul>
           </div>

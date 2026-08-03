@@ -32,7 +32,7 @@ function AdminLayout() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) nav({ to: "/auth" });
+    if (!loading && !user) nav({ to: "/login" });
     else if (!loading && user && !isAdmin) nav({ to: "/dashboard" });
   }, [user, loading, isAdmin, nav]);
 

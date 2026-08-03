@@ -388,7 +388,7 @@ function LiveMarketStrip({ balance, earned, activeCount }: { balance: number; ea
 
 function ReferralCard({ code, earnings, count }: { code: string | null; earnings: number; count: number }) {
   const link = useMemo(
-    () => (code && typeof window !== "undefined" ? `${window.location.origin}/auth?ref=${code}` : ""),
+    () => (code && typeof window !== "undefined" ? `${window.location.origin}/register?ref=${code}` : ""),
     [code],
   );
   const share = async () => {

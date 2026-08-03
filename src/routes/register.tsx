@@ -1,0 +1,140 @@
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
+import { UserPlus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
+import { sendEmail } from "@/lib/email-client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AuthShell } from "@/components/AuthShell";
+
+export const Route = createFileRoute("/register")({
+  head: () => ({
+    meta: [
+      { title: "Create your account — SafeGrow Invest" },
+      { name: "description", content: "Register a free SafeGrow Invest account in under a minute and start investing in XAF." },
+      { property: "og:title", content: "Create your account — SafeGrow Invest" },
+      { property: "og:description", content: "Register a free SafeGrow Invest account in under a minute." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: RegisterPage,
+});
+
+const signupSchema = z.object({
+  full_name: z.string().min(2, "Enter your full name").max(80),
+  phone: z.string().min(7).max(20),
+  email: z.string().email(),
+  password: z.string().min(1, "Enter a password").max(72),
+});
+
+function RegisterPage() {
+  const { user, loading } = useAuth();
+  const { t } = useI18n();
+  const nav = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [refCode, setRefCode] = useState("");
+  const [refName, setRefName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && user) nav({ to: "/dashboard" });
+  }, [user, loading, nav]);
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("ref")?.trim() ?? "";
+    if (!code) return;
+    setRefCode(code);
+    supabase
+      .rpc("referrer_name", { _code: code })
+      .then(({ data }) => setRefName((data as string | null) ?? null));
+  }, []);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setBusy(true);
+    const fd = new FormData(e.currentTarget);
+    try {
+      const v = signupSchema.parse({
+        full_name: fd.get("full_name"),
+        phone: fd.get("phone"),
+        email: fd.get("email"),
+        password: fd.get("password"),
+      });
+      const { error } = await supabase.auth.signUp({
+        email: v.email,
+        password: v.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          data: { full_name: v.full_name, phone: v.phone, referral_code: refCode },
+        },
+      });
+      if (error) throw error;
+      sendEmail({ to: v.email, template_key: "welcome", variables: { name: v.full_name } });
+      toast.success(t("auth.created"));
+    } catch (err) {
+      const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
+      toast.error(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <AuthShell>
+      {refName && (
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-success/30 bg-success/10 p-3">
+          <UserPlus className="mt-0.5 h-4 w-4 text-success" />
+          <div className="text-sm">
+            <p>
+              {t("auth.invitedBy")} <strong className="font-semibold uppercase">{refName}</strong>
+            </p>
+            <p className="text-xs text-muted-foreground">{t("auth.invitedSub")}</p>
+          </div>
+        </div>
+      )}
+
+      <h1 className="font-display text-3xl text-primary">{t("auth.registerTitle")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t("auth.signUpSub")}</p>
+
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+        <div>
+          <Label htmlFor="full_name">{t("auth.fullName")}</Label>
+          <Input id="full_name" name="full_name" required maxLength={80} />
+        </div>
+        <div>
+          <Label htmlFor="phone">{t("auth.phone")}</Label>
+          <Input id="phone" name="phone" type="tel" required placeholder="+237 6XX XXX XXX" />
+        </div>
+        <div>
+          <Label htmlFor="email">{t("auth.email")}</Label>
+          <Input id="email" name="email" type="email" required autoComplete="email" />
+        </div>
+        <div>
+          <Label htmlFor="password">{t("auth.password")}</Label>
+          <Input id="password" name="password" type="password" required autoComplete="new-password" />
+        </div>
+        {refCode && (
+          <div>
+            <Label htmlFor="ref">{t("auth.referralCode")}</Label>
+            <Input id="ref" value={refCode} readOnly className="uppercase" />
+          </div>
+        )}
+        <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
+          {busy ? t("common.pleaseWait") : t("auth.signUp")}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        {t("auth.haveAccount")}{" "}
+        <Link to="/login" className="font-medium text-primary underline underline-offset-4">
+          {t("auth.loginLink")}
+        </Link>
+      </div>
+    </AuthShell>
+  );
+}

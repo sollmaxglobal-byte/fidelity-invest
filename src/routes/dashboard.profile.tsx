@@ -37,7 +37,7 @@ function ProfilePage() {
   }, [user]);
 
   const referralLink = profile?.referral_code
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/auth?ref=${profile.referral_code}`
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${profile.referral_code}`
     : "";
 
   async function changePassword(e: React.FormEvent<HTMLFormElement>) {
