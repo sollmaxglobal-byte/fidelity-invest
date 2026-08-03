@@ -74,6 +74,9 @@ function AdminWithdrawals() {
           transaction_id: txRef(w.id),
           method: w.method.replace("_", " "),
           account: `${w.account_name} (${w.account_number})`,
+          account_name: w.account_name,
+          account_number: w.account_number,
+
           status,
           date: new Date().toLocaleString(),
           note: status === "rejected" ? "Request could not be processed. Funds returned to your wallet." : "",
