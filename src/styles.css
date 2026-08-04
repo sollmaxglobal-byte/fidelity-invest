@@ -146,3 +146,14 @@
   .shadow-elegant { box-shadow: var(--shadow-elegant); }
   .shadow-gold { box-shadow: var(--shadow-gold); }
 }
+
+@media print {
+  body * { visibility: hidden !important; }
+  #receipt, #receipt * { visibility: visible !important; }
+  #receipt {
+    position: absolute !important;
+    inset: 0 auto auto 0;
+    width: 100%;
+    box-shadow: none !important;
+  }
+}
