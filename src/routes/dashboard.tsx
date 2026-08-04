@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Home, TrendingUp, Wallet, User, Leaf, Menu, Info, Phone, Layers, FileText, LogOut } from "lucide-react";
+import { Home, TrendingUp, Wallet, User, ShieldCheck, Menu, Info, Phone, Layers, FileText, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
@@ -53,9 +53,9 @@ function DashboardLayout() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Leaf className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4" />
             </div>
-            <span className="font-display text-lg font-semibold text-primary">SafeGrow</span>
+            <span className="font-display text-lg font-semibold text-primary">Fidelity</span>
           </Link>
           <div className="flex items-center gap-1.5">
             <LanguageToggle />

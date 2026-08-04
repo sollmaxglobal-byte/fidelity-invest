@@ -40,6 +40,8 @@ import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 import { Route as InvestSuccessIdRouteImport } from './routes/invest.success.$id'
 import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm.$planId'
+import { Route as ApiPublicProcessReceiptEmailsRouteImport } from './routes/api/public/process-receipt-emails'
+import { Route as DashboardReceiptKindIdRouteImport } from './routes/dashboard.receipt.$kind.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -196,6 +198,17 @@ const InvestConfirmPlanIdRoute = InvestConfirmPlanIdRouteImport.update({
   path: '/invest/confirm/$planId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProcessReceiptEmailsRoute =
+  ApiPublicProcessReceiptEmailsRouteImport.update({
+    id: '/api/public/process-receipt-emails',
+    path: '/api/public/process-receipt-emails',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardReceiptKindIdRoute = DashboardReceiptKindIdRouteImport.update({
+  id: '/receipt/$kind/$id',
+  path: '/receipt/$kind/$id',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -227,8 +240,10 @@ export interface FileRoutesByFullPath {
   '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
+  '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -258,8 +273,10 @@ export interface FileRoutesByTo {
   '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
+  '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -292,8 +309,10 @@ export interface FileRoutesById {
   '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
+  '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -327,8 +346,10 @@ export interface FileRouteTypes {
     | '/deposit-pending/$id'
     | '/admin/'
     | '/dashboard/'
+    | '/api/public/process-receipt-emails'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
+    | '/dashboard/receipt/$kind/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -358,8 +379,10 @@ export interface FileRouteTypes {
     | '/deposit-pending/$id'
     | '/admin'
     | '/dashboard'
+    | '/api/public/process-receipt-emails'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
+    | '/dashboard/receipt/$kind/$id'
   id:
     | '__root__'
     | '/'
@@ -391,8 +414,10 @@ export interface FileRouteTypes {
     | '/deposit-pending/$id'
     | '/admin/'
     | '/dashboard/'
+    | '/api/public/process-receipt-emails'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
+    | '/dashboard/receipt/$kind/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -408,6 +433,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   DepositPendingIdRoute: typeof DepositPendingIdRoute
+  ApiPublicProcessReceiptEmailsRoute: typeof ApiPublicProcessReceiptEmailsRoute
   InvestConfirmPlanIdRoute: typeof InvestConfirmPlanIdRoute
   InvestSuccessIdRoute: typeof InvestSuccessIdRoute
 }
@@ -631,6 +657,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestConfirmPlanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/process-receipt-emails': {
+      id: '/api/public/process-receipt-emails'
+      path: '/api/public/process-receipt-emails'
+      fullPath: '/api/public/process-receipt-emails'
+      preLoaderRoute: typeof ApiPublicProcessReceiptEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/receipt/$kind/$id': {
+      id: '/dashboard/receipt/$kind/$id'
+      path: '/receipt/$kind/$id'
+      fullPath: '/dashboard/receipt/$kind/$id'
+      preLoaderRoute: typeof DashboardReceiptKindIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
@@ -669,6 +709,7 @@ interface DashboardRouteChildren {
   DashboardWalletRoute: typeof DashboardWalletRoute
   DashboardWithdrawRoute: typeof DashboardWithdrawRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardReceiptKindIdRoute: typeof DashboardReceiptKindIdRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -680,6 +721,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardWalletRoute: DashboardWalletRoute,
   DashboardWithdrawRoute: DashboardWithdrawRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardReceiptKindIdRoute: DashboardReceiptKindIdRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -699,6 +741,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   DepositPendingIdRoute: DepositPendingIdRoute,
+  ApiPublicProcessReceiptEmailsRoute: ApiPublicProcessReceiptEmailsRoute,
   InvestConfirmPlanIdRoute: InvestConfirmPlanIdRoute,
   InvestSuccessIdRoute: InvestSuccessIdRoute,
 }

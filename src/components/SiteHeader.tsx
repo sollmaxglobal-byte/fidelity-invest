@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, Leaf } from "lucide-react";
+import { Menu, X, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
@@ -24,10 +24,10 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Leaf className="h-5 w-5" />
+            <ShieldCheck className="h-5 w-5" />
           </div>
           <span className="font-display text-xl font-semibold tracking-tight text-primary">
-            SafeGrow <span className="text-accent">Invest</span>
+            Fidelity <span className="text-accent">Invest</span>
           </span>
         </Link>
 

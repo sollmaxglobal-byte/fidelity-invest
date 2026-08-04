@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Set new password — SafeGrow Invest" },
+      { title: "Set new password — Fidelity" },
     ],
   }),
   component: ResetPasswordPage,
@@ -57,7 +57,7 @@ function ResetPasswordPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-xl text-primary">SafeGrow Invest</span>
+          <span className="font-display text-xl text-primary">Fidelity</span>
         </div>
         <h1 className="font-display text-3xl text-primary">Set a new password</h1>
         <p className="mt-1 text-sm text-muted-foreground">Choose a strong password you haven't used before.</p>

@@ -58,28 +58,27 @@ function WalletPage() {
     })();
   }, [user]);
 
-  // Merge confirmed transactions + pending deposits/withdrawals into one feed
+  // Merge deposits/withdrawals (all statuses, receipt-linked) + profit/investment transactions
   const rows = useMemo(() => {
-    type Row = { id: string; kind: "deposit" | "withdrawal" | "profit" | "investment"; amount: number; date: string; status: "approved" | "pending" | "rejected" | "paid" | "completed"; label: string };
+    type Row = { id: string; kind: "deposit" | "withdrawal" | "profit" | "investment"; amount: number; date: string; status: string; label: string; receipt?: { kind: "deposit" | "withdrawal"; id: string } };
     const out: Row[] = [];
 
     for (const t of tx) {
+      if (t.type === "deposit" || t.type === "withdrawal") continue; // sourced from their own tables
       let kind: Row["kind"] = "profit";
       let label = t.description ?? "";
-      if (t.type === "deposit") { kind = "deposit"; label = label || "Deposit approved"; }
-      else if (t.type === "withdrawal") { kind = "withdrawal"; label = label || "Withdrawal paid"; }
-      else if (t.type === "investment") { kind = "investment"; label = label || "Investment"; }
+      if (t.type === "investment") { kind = "investment"; label = label || "Investment"; }
       else if (t.type === "profit" || t.type === "investment_return") { kind = "profit"; label = label || "Profit"; }
       else continue;
       out.push({ id: t.id, kind, amount: Number(t.amount), date: t.created_at, status: "approved", label });
     }
     for (const d of pendingDeposits) {
-      if (d.status === "pending") out.push({ id: `pd-${d.id}`, kind: "deposit", amount: Number(d.amount), date: d.created_at, status: "pending", label: "Deposit submitted" });
-      else if (d.status === "rejected") out.push({ id: `pd-${d.id}`, kind: "deposit", amount: Number(d.amount), date: d.created_at, status: "rejected", label: "Deposit rejected" });
+      const label = d.status === "pending" ? "Deposit submitted" : d.status === "rejected" ? "Deposit rejected" : "Deposit approved";
+      out.push({ id: `pd-${d.id}`, kind: "deposit", amount: Number(d.amount), date: d.created_at, status: d.status, label, receipt: { kind: "deposit", id: d.id } });
     }
     for (const w of pendingWithdrawals) {
-      if (w.status === "pending") out.push({ id: `pw-${w.id}`, kind: "withdrawal", amount: -Number(w.amount), date: w.created_at, status: "pending", label: "Withdrawal requested" });
-      else if (w.status === "rejected") out.push({ id: `pw-${w.id}`, kind: "withdrawal", amount: -Number(w.amount), date: w.created_at, status: "rejected", label: "Withdrawal rejected" });
+      const label = w.status === "pending" ? "Withdrawal requested" : w.status === "rejected" ? "Withdrawal rejected" : "Withdrawal paid";
+      out.push({ id: `pw-${w.id}`, kind: "withdrawal", amount: -Number(w.amount), date: w.created_at, status: w.status, label, receipt: { kind: "withdrawal", id: w.id } });
     }
 
     out.sort((a, b) => +new Date(b.date) - +new Date(a.date));
@@ -88,6 +87,7 @@ function WalletPage() {
     if (filter === "Profits") return out.filter((r) => r.kind === "profit");
     return out;
   }, [tx, pendingDeposits, pendingWithdrawals, filter]);
+
 
   return (
     <div className="space-y-5">
@@ -140,34 +140,51 @@ function WalletPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {rows.map((r) => (
-            <div key={r.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                  r.kind === "profit" ? "bg-success/15 text-success" :
-                  r.kind === "deposit" ? "bg-primary/10 text-primary" :
-                  r.kind === "withdrawal" ? "bg-warning/15 text-warning" :
-                  "bg-accent/15 text-accent"
-                }`}>
-                  {r.kind === "profit" ? <Sparkles className="h-4 w-4" /> :
-                   r.kind === "deposit" ? <ArrowDownToLine className="h-4 w-4" /> :
-                   r.kind === "withdrawal" ? <ArrowUpFromLine className="h-4 w-4" /> :
-                   <TrendingUp className="h-4 w-4" />}
-                </span>
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium">{r.label}</div>
-                  <div className="text-[11px] text-muted-foreground">{formatDate(r.date)}</div>
+          {rows.map((r) => {
+            const inner = (
+              <>
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                    r.kind === "profit" ? "bg-success/15 text-success" :
+                    r.kind === "deposit" ? "bg-primary/10 text-primary" :
+                    r.kind === "withdrawal" ? "bg-warning/15 text-warning" :
+                    "bg-accent/15 text-accent"
+                  }`}>
+                    {r.kind === "profit" ? <Sparkles className="h-4 w-4" /> :
+                     r.kind === "deposit" ? <ArrowDownToLine className="h-4 w-4" /> :
+                     r.kind === "withdrawal" ? <ArrowUpFromLine className="h-4 w-4" /> :
+                     <TrendingUp className="h-4 w-4" />}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium">{r.label}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {formatDate(r.date)}{r.receipt ? " · View receipt" : ""}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-end gap-0.5">
-                <span className={`text-sm font-medium ${r.amount >= 0 ? "text-success" : "text-destructive"}`}>
-                  {r.amount >= 0 ? "+" : "-"}<Money value={Math.abs(r.amount)} />
-                </span>
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className={`text-sm font-medium ${r.amount >= 0 ? "text-success" : "text-destructive"}`}>
+                    {r.amount >= 0 ? "+" : "-"}<Money value={Math.abs(r.amount)} />
+                  </span>
+                  <StatusPill status={r.status} />
+                </div>
+              </>
+            );
+            const cls = "flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3";
+            return r.receipt ? (
+              <Link
+                key={r.id}
+                to="/dashboard/receipt/$kind/$id"
+                params={{ kind: r.receipt.kind, id: r.receipt.id }}
+                className={`${cls} transition hover:border-primary/40 hover:bg-muted/40`}
+              >
+                {inner}
+              </Link>
+            ) : (
+              <div key={r.id} className={cls}>{inner}</div>
+            );
+          })}
 
-                <StatusPill status={r.status} />
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>

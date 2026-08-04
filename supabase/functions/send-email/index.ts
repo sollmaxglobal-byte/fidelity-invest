@@ -24,30 +24,40 @@ Deno.serve(async (req) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const admin = createClient(url, serviceKey);
 
+  // Trusted internal caller (server-side queue processor) presents the service key.
+  const internalSecret = req.headers.get("x-internal-secret") ?? "";
+  const isInternal = !!serviceKey && internalSecret === serviceKey;
+
   // Require an authenticated caller. Only admins are permitted to trigger
   // arbitrary email sends (prevents open-relay abuse of SMTP credentials).
-  const authHeader = req.headers.get("Authorization") ?? "";
-  if (!authHeader.toLowerCase().startsWith("bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...cors, "Content-Type": "application/json" },
-    });
+  let isAdmin = isInternal;
+  let userData: { user: { id: string; email?: string | null } | null } | null = null;
+  if (!isInternal) {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.toLowerCase().startsWith("bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+    const token = authHeader.slice(7).trim();
+    const { data: ud, error: userErr } = await admin.auth.getUser(token);
+    if (userErr || !ud?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+    userData = ud as any;
+    const { data: roleRow } = await admin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", ud.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    isAdmin = !!roleRow;
   }
-  const token = authHeader.slice(7).trim();
-  const { data: userData, error: userErr } = await admin.auth.getUser(token);
-  if (userErr || !userData?.user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...cors, "Content-Type": "application/json" },
-    });
-  }
-  const { data: roleRow } = await admin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userData.user.id)
-    .eq("role", "admin")
-    .maybeSingle();
-  const isAdmin = !!roleRow;
+
 
   try {
     const body = await req.json();

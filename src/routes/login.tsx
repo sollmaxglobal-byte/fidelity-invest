@@ -13,10 +13,10 @@ import { AuthShell } from "@/components/AuthShell";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in — SafeGrow Invest" },
-      { name: "description", content: "Sign in to your SafeGrow Invest dashboard to track deposits, plans and payouts." },
-      { property: "og:title", content: "Sign in — SafeGrow Invest" },
-      { property: "og:description", content: "Access your SafeGrow Invest account." },
+      { title: "Sign in — Fidelity" },
+      { name: "description", content: "Sign in to your Fidelity dashboard to track deposits, plans and payouts." },
+      { property: "og:title", content: "Sign in — Fidelity" },
+      { property: "og:description", content: "Access your Fidelity account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
