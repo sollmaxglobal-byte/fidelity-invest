@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Leaf } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -13,7 +13,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
       <div className="relative hidden bg-hero p-12 text-primary-foreground md:flex md:flex-col md:justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-            <Leaf className="h-5 w-5" />
+            <ShieldCheck className="h-5 w-5" />
           </div>
           <span className="font-display text-2xl">Fidelity</span>
         </div>
@@ -32,7 +32,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <div className="mb-6 flex items-center justify-between">
             <Link to="/login" className="inline-flex items-center gap-2 md:invisible">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <Leaf className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4" />
               </div>
               <span className="font-display text-xl text-primary">Fidelity</span>
             </Link>
