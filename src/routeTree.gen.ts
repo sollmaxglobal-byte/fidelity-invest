@@ -40,6 +40,7 @@ import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 import { Route as InvestSuccessIdRouteImport } from './routes/invest.success.$id'
 import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm.$planId'
+import { Route as DashboardReceiptKindIdRouteImport } from './routes/dashboard.receipt.$kind.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -196,6 +197,11 @@ const InvestConfirmPlanIdRoute = InvestConfirmPlanIdRouteImport.update({
   path: '/invest/confirm/$planId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardReceiptKindIdRoute = DashboardReceiptKindIdRouteImport.update({
+  id: '/receipt/$kind/$id',
+  path: '/receipt/$kind/$id',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
+  '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
+  '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
+  '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
+    | '/dashboard/receipt/$kind/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
+    | '/dashboard/receipt/$kind/$id'
   id:
     | '__root__'
     | '/'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
+    | '/dashboard/receipt/$kind/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -631,6 +643,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestConfirmPlanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/receipt/$kind/$id': {
+      id: '/dashboard/receipt/$kind/$id'
+      path: '/receipt/$kind/$id'
+      fullPath: '/dashboard/receipt/$kind/$id'
+      preLoaderRoute: typeof DashboardReceiptKindIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
@@ -669,6 +688,7 @@ interface DashboardRouteChildren {
   DashboardWalletRoute: typeof DashboardWalletRoute
   DashboardWithdrawRoute: typeof DashboardWithdrawRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardReceiptKindIdRoute: typeof DashboardReceiptKindIdRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -680,6 +700,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardWalletRoute: DashboardWalletRoute,
   DashboardWithdrawRoute: DashboardWithdrawRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardReceiptKindIdRoute: DashboardReceiptKindIdRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
