@@ -369,6 +369,45 @@ export type Database = {
         }
         Relationships: []
       }
+      receipt_email_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          final_status: string
+          id: string
+          kind: string
+          last_error: string | null
+          ref_id: string
+          send_after: string
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          final_status: string
+          id?: string
+          kind: string
+          last_error?: string | null
+          ref_id: string
+          send_after?: string
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          final_status?: string
+          id?: string
+          kind?: string
+          last_error?: string | null
+          ref_id?: string
+          send_after?: string
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
