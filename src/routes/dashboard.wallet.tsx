@@ -140,34 +140,51 @@ function WalletPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {rows.map((r) => (
-            <div key={r.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                  r.kind === "profit" ? "bg-success/15 text-success" :
-                  r.kind === "deposit" ? "bg-primary/10 text-primary" :
-                  r.kind === "withdrawal" ? "bg-warning/15 text-warning" :
-                  "bg-accent/15 text-accent"
-                }`}>
-                  {r.kind === "profit" ? <Sparkles className="h-4 w-4" /> :
-                   r.kind === "deposit" ? <ArrowDownToLine className="h-4 w-4" /> :
-                   r.kind === "withdrawal" ? <ArrowUpFromLine className="h-4 w-4" /> :
-                   <TrendingUp className="h-4 w-4" />}
-                </span>
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium">{r.label}</div>
-                  <div className="text-[11px] text-muted-foreground">{formatDate(r.date)}</div>
+          {rows.map((r) => {
+            const inner = (
+              <>
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                    r.kind === "profit" ? "bg-success/15 text-success" :
+                    r.kind === "deposit" ? "bg-primary/10 text-primary" :
+                    r.kind === "withdrawal" ? "bg-warning/15 text-warning" :
+                    "bg-accent/15 text-accent"
+                  }`}>
+                    {r.kind === "profit" ? <Sparkles className="h-4 w-4" /> :
+                     r.kind === "deposit" ? <ArrowDownToLine className="h-4 w-4" /> :
+                     r.kind === "withdrawal" ? <ArrowUpFromLine className="h-4 w-4" /> :
+                     <TrendingUp className="h-4 w-4" />}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium">{r.label}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {formatDate(r.date)}{r.receipt ? " · View receipt" : ""}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-end gap-0.5">
-                <span className={`text-sm font-medium ${r.amount >= 0 ? "text-success" : "text-destructive"}`}>
-                  {r.amount >= 0 ? "+" : "-"}<Money value={Math.abs(r.amount)} />
-                </span>
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className={`text-sm font-medium ${r.amount >= 0 ? "text-success" : "text-destructive"}`}>
+                    {r.amount >= 0 ? "+" : "-"}<Money value={Math.abs(r.amount)} />
+                  </span>
+                  <StatusPill status={r.status} />
+                </div>
+              </>
+            );
+            const cls = "flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3";
+            return r.receipt ? (
+              <Link
+                key={r.id}
+                to="/dashboard/receipt/$kind/$id"
+                params={{ kind: r.receipt.kind, id: r.receipt.id }}
+                className={`${cls} transition hover:border-primary/40 hover:bg-muted/40`}
+              >
+                {inner}
+              </Link>
+            ) : (
+              <div key={r.id} className={cls}>{inner}</div>
+            );
+          })}
 
-                <StatusPill status={r.status} />
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>
