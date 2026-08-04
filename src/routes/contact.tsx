@@ -6,8 +6,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Camvcc" },
-      { name: "description", content: "Reach the Camvcc team by phone, WhatsApp or email." },
+      { title: "Contact — Fidelity" },
+      { name: "description", content: "Reach the Fidelity team by phone, WhatsApp or email." },
     ],
   }),
   component: ContactPage,

@@ -99,7 +99,7 @@ function AdminLayout() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <div className="font-display text-xl text-gold leading-none">Camvcc</div>
+                <div className="font-display text-xl text-gold leading-none">Fidelity</div>
                 <div className="text-[10px] uppercase tracking-wider opacity-70">Admin Console</div>
               </div>
             </Link>

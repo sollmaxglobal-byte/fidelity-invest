@@ -13,9 +13,9 @@ import { AuthShell } from "@/components/AuthShell";
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Forgot password — SafeGrow Invest" },
-      { name: "description", content: "Request a secure reset link to regain access to your SafeGrow Invest account." },
-      { property: "og:title", content: "Forgot password — SafeGrow Invest" },
+      { title: "Forgot password — Fidelity" },
+      { name: "description", content: "Request a secure reset link to regain access to your Fidelity account." },
+      { property: "og:title", content: "Forgot password — Fidelity" },
       { property: "og:description", content: "Request a secure password reset link." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

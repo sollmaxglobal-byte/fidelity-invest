@@ -394,7 +394,7 @@ function ReferralCard({ code, earnings, count }: { code: string | null; earnings
   const share = async () => {
     if (!link) return;
     if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share({ title: "Join me on SafeGrow", url: link }); return; } catch { /* fall through */ }
+      try { await navigator.share({ title: "Join me on Fidelity", url: link }); return; } catch { /* fall through */ }
     }
     navigator.clipboard.writeText(link);
     toast.success("Referral link copied");

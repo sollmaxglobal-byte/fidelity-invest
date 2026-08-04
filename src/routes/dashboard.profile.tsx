@@ -65,7 +65,7 @@ function ProfilePage() {
   }
   async function shareReferral() {
     if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share({ title: "SafeGrow Invest", text: "Join me on SafeGrow Invest", url: referralLink }); } catch { /* ignore */ }
+      try { await navigator.share({ title: "Fidelity", text: "Join me on Fidelity", url: referralLink }); } catch { /* ignore */ }
     } else {
       copyReferral();
     }

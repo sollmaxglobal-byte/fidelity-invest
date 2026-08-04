@@ -16,9 +16,9 @@ export const Route = createFileRoute("/invest/confirm/$planId")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Confirm your investment — Camvcc" },
+      { title: "Confirm your investment — Fidelity" },
       { name: "description", content: "Review and confirm your investment plan activation." },
-      { property: "og:title", content: "Confirm your investment — Camvcc" },
+      { property: "og:title", content: "Confirm your investment — Fidelity" },
       { property: "og:description", content: "Review and confirm your investment plan activation." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

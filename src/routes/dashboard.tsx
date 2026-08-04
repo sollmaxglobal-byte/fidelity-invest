@@ -55,7 +55,7 @@ function DashboardLayout() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Leaf className="h-4 w-4" />
             </div>
-            <span className="font-display text-lg font-semibold text-primary">SafeGrow</span>
+            <span className="font-display text-lg font-semibold text-primary">Fidelity</span>
           </Link>
           <div className="flex items-center gap-1.5">
             <LanguageToggle />
