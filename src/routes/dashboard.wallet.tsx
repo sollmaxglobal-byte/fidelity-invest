@@ -58,28 +58,27 @@ function WalletPage() {
     })();
   }, [user]);
 
-  // Merge confirmed transactions + pending deposits/withdrawals into one feed
+  // Merge deposits/withdrawals (all statuses, receipt-linked) + profit/investment transactions
   const rows = useMemo(() => {
-    type Row = { id: string; kind: "deposit" | "withdrawal" | "profit" | "investment"; amount: number; date: string; status: "approved" | "pending" | "rejected" | "paid" | "completed"; label: string };
+    type Row = { id: string; kind: "deposit" | "withdrawal" | "profit" | "investment"; amount: number; date: string; status: string; label: string; receipt?: { kind: "deposit" | "withdrawal"; id: string } };
     const out: Row[] = [];
 
     for (const t of tx) {
+      if (t.type === "deposit" || t.type === "withdrawal") continue; // sourced from their own tables
       let kind: Row["kind"] = "profit";
       let label = t.description ?? "";
-      if (t.type === "deposit") { kind = "deposit"; label = label || "Deposit approved"; }
-      else if (t.type === "withdrawal") { kind = "withdrawal"; label = label || "Withdrawal paid"; }
-      else if (t.type === "investment") { kind = "investment"; label = label || "Investment"; }
+      if (t.type === "investment") { kind = "investment"; label = label || "Investment"; }
       else if (t.type === "profit" || t.type === "investment_return") { kind = "profit"; label = label || "Profit"; }
       else continue;
       out.push({ id: t.id, kind, amount: Number(t.amount), date: t.created_at, status: "approved", label });
     }
     for (const d of pendingDeposits) {
-      if (d.status === "pending") out.push({ id: `pd-${d.id}`, kind: "deposit", amount: Number(d.amount), date: d.created_at, status: "pending", label: "Deposit submitted" });
-      else if (d.status === "rejected") out.push({ id: `pd-${d.id}`, kind: "deposit", amount: Number(d.amount), date: d.created_at, status: "rejected", label: "Deposit rejected" });
+      const label = d.status === "pending" ? "Deposit submitted" : d.status === "rejected" ? "Deposit rejected" : "Deposit approved";
+      out.push({ id: `pd-${d.id}`, kind: "deposit", amount: Number(d.amount), date: d.created_at, status: d.status, label, receipt: { kind: "deposit", id: d.id } });
     }
     for (const w of pendingWithdrawals) {
-      if (w.status === "pending") out.push({ id: `pw-${w.id}`, kind: "withdrawal", amount: -Number(w.amount), date: w.created_at, status: "pending", label: "Withdrawal requested" });
-      else if (w.status === "rejected") out.push({ id: `pw-${w.id}`, kind: "withdrawal", amount: -Number(w.amount), date: w.created_at, status: "rejected", label: "Withdrawal rejected" });
+      const label = w.status === "pending" ? "Withdrawal requested" : w.status === "rejected" ? "Withdrawal rejected" : "Withdrawal paid";
+      out.push({ id: `pw-${w.id}`, kind: "withdrawal", amount: -Number(w.amount), date: w.created_at, status: w.status, label, receipt: { kind: "withdrawal", id: w.id } });
     }
 
     out.sort((a, b) => +new Date(b.date) - +new Date(a.date));
@@ -88,6 +87,7 @@ function WalletPage() {
     if (filter === "Profits") return out.filter((r) => r.kind === "profit");
     return out;
   }, [tx, pendingDeposits, pendingWithdrawals, filter]);
+
 
   return (
     <div className="space-y-5">
