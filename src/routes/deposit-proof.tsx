@@ -16,7 +16,7 @@ const searchSchema = z.object({
   method: z.string().uuid(),
 });
 
-export const Route = createFileRoute("/dashboard/deposit-proof")({
+export const Route = createFileRoute("/deposit-proof")({
   validateSearch: (search) => searchSchema.parse(search),
   component: DepositProofPage,
 });
