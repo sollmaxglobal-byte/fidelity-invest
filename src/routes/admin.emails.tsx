@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, Mail, Send } from "lucide-react";
+import { Save, Mail, Send, Languages } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
+import { translateTemplateToFrench } from "@/lib/email-translate.functions";
 
 export const Route = createFileRoute("/admin/emails")({
   component: AdminEmails,
@@ -19,6 +20,8 @@ type Template = {
   name: string;
   subject: string;
   html_body: string;
+  subject_fr: string | null;
+  html_body_fr: string | null;
   enabled: boolean;
 };
 
@@ -28,11 +31,12 @@ function AdminEmails() {
   const [active, setActive] = useState<Template | null>(null);
   const [busy, setBusy] = useState(false);
   const [testTo, setTestTo] = useState("");
+  const [tab, setTab] = useState<"en" | "fr">("en");
 
   async function load() {
     const { data } = await supabase
       .from("email_templates")
-      .select("key,name,subject,html_body,enabled")
+      .select("key,name,subject,html_body,subject_fr,html_body_fr,enabled")
       .order("name");
     setList((data as Template[]) ?? []);
   }
@@ -53,6 +57,8 @@ function AdminEmails() {
           name: active.name,
           subject: active.subject,
           html_body: active.html_body,
+          subject_fr: active.subject_fr,
+          html_body_fr: active.html_body_fr,
           enabled: active.enabled,
         })
         .eq("key", active.key);
@@ -70,6 +76,23 @@ function AdminEmails() {
     await supabase.from("email_templates").update({ enabled: v }).eq("key", tpl.key);
     load();
     if (active?.key === tpl.key) setActive({ ...active, enabled: v });
+  }
+
+  async function translateToFrench() {
+    if (!active) return;
+    setBusy(true);
+    try {
+      const out = await translateTemplateToFrench({
+        data: { subject: active.subject, html: active.html_body },
+      });
+      setActive({ ...active, subject_fr: out.subject, html_body_fr: out.html });
+      setTab("fr");
+      toast.success("French version generated — review and save");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function sendTest() {
@@ -156,18 +179,61 @@ function AdminEmails() {
                 <Label>Display name</Label>
                 <Input value={active.name} onChange={(e) => setActive({ ...active, name: e.target.value })} />
               </div>
-              <div>
-                <Label>Subject</Label>
-                <Input value={active.subject} onChange={(e) => setActive({ ...active, subject: e.target.value })} />
+              <div className="inline-flex rounded-xl border border-border bg-background p-1">
+                {(["en", "fr"] as const).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setTab(l)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium ${tab === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  >
+                    {l === "en" ? "English" : "Français"}
+                  </button>
+                ))}
               </div>
-              <div>
-                <Label>HTML body</Label>
-                <Textarea
-                  className="min-h-[280px] font-mono text-xs"
-                  value={active.html_body}
-                  onChange={(e) => setActive({ ...active, html_body: e.target.value })}
-                />
-              </div>
+
+              {tab === "en" ? (
+                <>
+                  <div>
+                    <Label>Subject</Label>
+                    <Input value={active.subject} onChange={(e) => setActive({ ...active, subject: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>HTML body</Label>
+                    <Textarea
+                      className="min-h-[280px] font-mono text-xs"
+                      value={active.html_body}
+                      onChange={(e) => setActive({ ...active, html_body: e.target.value })}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs text-muted-foreground">
+                      Sent automatically to users whose language is French. Falls back to English when empty.
+                    </p>
+                    <Button size="sm" variant="outline" onClick={translateToFrench} disabled={busy}>
+                      <Languages className="mr-2 h-4 w-4" /> Translate from English
+                    </Button>
+                  </div>
+                  <div>
+                    <Label>Sujet (FR)</Label>
+                    <Input
+                      value={active.subject_fr ?? ""}
+                      onChange={(e) => setActive({ ...active, subject_fr: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Corps HTML (FR)</Label>
+                    <Textarea
+                      className="min-h-[280px] font-mono text-xs"
+                      value={active.html_body_fr ?? ""}
+                      onChange={(e) => setActive({ ...active, html_body_fr: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="flex flex-wrap items-center gap-2">
                 <Button onClick={save} disabled={busy} className="bg-primary text-primary-foreground hover:opacity-90">

@@ -95,24 +95,29 @@ function ReceiptPage() {
     : meta.tone === "destructive" ? "bg-destructive/15 text-destructive border-destructive/30"
     : "bg-warning/15 text-warning border-warning/30";
 
-  const rows: Array<[string, React.ReactNode]> = [
-    ["Transaction ID", <span className="font-mono font-bold uppercase">#{txRef(row.id)}</span>],
-    ["Transaction type", isDeposit ? "Deposit (Credit)" : "Withdrawal (Debit)"],
-    ["Amount", <Money value={Number(row.amount)} />],
-    ["Status", meta.label],
-    ["Date submitted", formatDate(row.created_at)],
-    ["Date processed", row.reviewed_at ? formatDate(row.reviewed_at) : "—"],
-    ["Account holder", holder],
-    ["Payment method", methodLabel || "—"],
+  const raw: Array<[string, React.ReactNode, string | null | undefined]> = [
+    ["Transaction ID", <span className="font-mono font-bold uppercase">#{txRef(row.id)}</span>, row.id],
+    ["Transaction type", isDeposit ? "Deposit (Credit)" : "Withdrawal (Debit)", "y"],
+    ["Amount", <Money value={Number(row.amount)} />, "y"],
+    ["Status", meta.label, "y"],
+    ["Date submitted", formatDate(row.created_at), row.created_at],
+    ["Date processed", row.reviewed_at ? formatDate(row.reviewed_at) : "", row.reviewed_at],
+    ["Account holder", holder, holder === "—" ? null : holder],
+    ["Payment method", methodLabel, methodLabel === "—" ? null : methodLabel],
   ];
   if (isDeposit) {
-    rows.push(["Payer phone", row.payer_phone || "—"]);
-    rows.push(["Payment reference", row.reference || "—"]);
+    raw.push(["Payment reference", row.reference ?? "", row.reference]);
   } else {
-    rows.push(["Payout account name", row.account_name || "—"]);
-    rows.push(["Payout account number", row.account_number || "—"]);
+    raw.push(["Payout account name", row.account_name ?? "", row.account_name]);
+    raw.push(["Payout account number", row.account_number ?? "", row.account_number]);
   }
-  if (row.admin_note) rows.push(["Note from Fidelity", row.admin_note]);
+  if (row.admin_note) raw.push(["Note from Fidelity", row.admin_note, row.admin_note]);
+
+  // Only render fields that actually have a value (no empty / placeholder rows).
+  const rows: Array<[string, React.ReactNode]> = raw
+    .filter(([, , present]) => !!present && String(present).trim() !== "" && String(present).trim() !== "—")
+    .map(([k, v]) => [k, v]);
+
 
   return (
     <div className="space-y-4">
@@ -124,7 +129,7 @@ function ReceiptPage() {
 
       <div id="receipt" className="overflow-hidden rounded-2xl border border-border bg-card shadow-elegant">
         {/* Big status notification */}
-        <div className={`flex items-center gap-3 border-b px-5 py-4 ${toneBg}`}>
+        <div className={`print-banner flex items-center gap-3 border-b px-5 py-4 ${toneBg}`}>
           <Icon className="h-8 w-8 shrink-0" />
           <div>
             <div className="font-display text-lg font-bold uppercase tracking-wide">
@@ -175,11 +180,17 @@ function ReceiptPage() {
 
         {/* Stamp + footer */}
         <div className="relative flex items-end justify-between gap-4 px-5 py-6">
-          <div className="max-w-[55%] text-[10px] leading-relaxed text-muted-foreground">
-            This receipt is computer generated and constitutes an official record of the transaction
-            listed above. Keep the transaction ID for any support enquiry.
+          <div className="max-w-[55%] space-y-3 text-[10px] leading-relaxed text-muted-foreground">
+            <p>
+              This receipt is computer generated and constitutes an official record of the transaction
+              listed above. Keep the transaction ID for any support enquiry.
+            </p>
+            <div>
+              <div className="mb-1 h-6 w-36 border-b border-foreground/40" />
+              <span className="text-[9px] uppercase tracking-widest">Authorised signature · Fidelity</span>
+            </div>
           </div>
-          <div className="relative h-28 w-28 shrink-0">
+          <div className="print-stamp relative h-28 w-28 shrink-0">
             <div className="absolute inset-0 -rotate-12 rounded-full border-4 border-success/60 text-success">
               <div className="flex h-full w-full flex-col items-center justify-center rounded-full border border-success/40 text-center">
                 <span className="text-[9px] font-bold uppercase tracking-widest">Fidelity</span>
@@ -190,7 +201,12 @@ function ReceiptPage() {
             </div>
           </div>
         </div>
+
+        <div className="border-t border-border px-5 py-3 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
+          Fidelity · Douala, Cameroon · This document is valid without a handwritten signature
+        </div>
       </div>
+
 
       <Button
         className="w-full print:hidden"

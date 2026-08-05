@@ -92,8 +92,14 @@ Deno.serve(async (req) => {
     }
 
     // Resolve "user_id:<uuid>" recipients to the user's email
+    let recipientUserId: string | null = null;
+    if (userData?.user?.id && typeof to === "string" && to.toLowerCase() === (userData.user.email ?? "").toLowerCase()) {
+      recipientUserId = userData.user.id;
+    }
     if (typeof to === "string" && to.startsWith("user_id:")) {
       const uid = to.slice(8).trim();
+      recipientUserId = uid;
+
       try {
         const { data } = await admin.auth.admin.getUserById(uid);
         if (data?.user?.email) to = data.user.email;
@@ -127,6 +133,22 @@ Deno.serve(async (req) => {
     let subject = customSubject as string | undefined;
     let html = customHtml as string | undefined;
 
+    // Resolve the recipient's preferred language (profile setting wins, then body.lang)
+    let lang = (body?.lang === "fr" ? "fr" : body?.lang === "en" ? "en" : null) as
+      | "en"
+      | "fr"
+      | null;
+    if (recipientUserId) {
+      const { data: prof } = await admin
+        .from("profiles")
+        .select("preferred_language")
+        .eq("id", recipientUserId)
+        .maybeSingle();
+      if (prof?.preferred_language === "fr" || prof?.preferred_language === "en") {
+        lang = prof.preferred_language;
+      }
+    }
+
     if (template_key) {
       const { data: tpl } = await admin
         .from("email_templates")
@@ -143,13 +165,15 @@ Deno.serve(async (req) => {
           headers: { ...cors, "Content-Type": "application/json" },
         });
       const fullVars = {
-        site_name: settings.site_name ?? "Camvcc",
+        site_name: settings.site_name ?? "Fidelity",
         site_url: settings.site_url ?? "",
         ...variables,
       };
-      subject = render(tpl.subject, fullVars);
-      html = render(tpl.html_body, fullVars);
+      const useFr = lang === "fr" && !!tpl.html_body_fr;
+      subject = render(useFr ? (tpl.subject_fr || tpl.subject) : tpl.subject, fullVars);
+      html = render(useFr ? tpl.html_body_fr : tpl.html_body, fullVars);
     }
+
 
     const port = Number(settings.smtp_port ?? 465);
     // Auto-derive secure: 465 = SSL, others = STARTTLS
