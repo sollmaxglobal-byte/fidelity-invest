@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 
 export function SiteFooter() {
@@ -37,12 +36,8 @@ export function SiteFooter() {
             </ul>
           </div>
         </div>
-
-        <div className="mt-10 flex items-start gap-3 rounded-xl border border-white/15 bg-white/5 p-4 text-xs leading-relaxed opacity-90">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-          <p>{t("footer.disclaimer")}</p>
-        </div>
       </div>
+
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-6xl px-4 py-4 text-xs opacity-60">
           © {year} Fidelity. {t("footer.rights")}

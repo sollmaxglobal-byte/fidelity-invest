@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/Money";
 import { formatDate, txRef } from "@/lib/format";
+import { useI18n } from "@/hooks/useI18n";
 
 export const Route = createFileRoute("/dashboard/receipt/$kind/$id")({
   head: () => ({
@@ -48,6 +49,8 @@ function statusMeta(status: string) {
 function ReceiptPage() {
   const { kind, id } = useParams({ from: "/dashboard/receipt/$kind/$id" });
   const { user } = useAuth();
+  const { lang } = useI18n();
+  const fr = lang === "fr";
   const isDeposit = kind === "deposit";
   const [row, setRow] = useState<Row | null>(null);
   const [methodLabel, setMethodLabel] = useState<string>("—");
@@ -95,36 +98,41 @@ function ReceiptPage() {
     : meta.tone === "destructive" ? "bg-destructive/15 text-destructive border-destructive/30"
     : "bg-warning/15 text-warning border-warning/30";
 
-  const rows: Array<[string, React.ReactNode]> = [
-    ["Transaction ID", <span className="font-mono font-bold uppercase">#{txRef(row.id)}</span>],
-    ["Transaction type", isDeposit ? "Deposit (Credit)" : "Withdrawal (Debit)"],
-    ["Amount", <Money value={Number(row.amount)} />],
-    ["Status", meta.label],
-    ["Date submitted", formatDate(row.created_at)],
-    ["Date processed", row.reviewed_at ? formatDate(row.reviewed_at) : "—"],
-    ["Account holder", holder],
-    ["Payment method", methodLabel || "—"],
+  const raw: Array<[string, React.ReactNode, string | null | undefined]> = [
+    [(fr ? "Identifiant de transaction" : "Transaction ID"), <span className="font-mono font-bold uppercase">#{txRef(row.id)}</span>, row.id],
+    [(fr ? "Type de transaction" : "Transaction type"), isDeposit ? (fr ? "Dépôt (Crédit)" : "Deposit (Credit)") : (fr ? "Retrait (Débit)" : "Withdrawal (Debit)"), "y"],
+    [(fr ? "Montant" : "Amount"), <Money value={Number(row.amount)} />, "y"],
+    [(fr ? "Statut" : "Status"), meta.label, "y"],
+    [(fr ? "Date de soumission" : "Date submitted"), formatDate(row.created_at), row.created_at],
+    [(fr ? "Date de traitement" : "Date processed"), row.reviewed_at ? formatDate(row.reviewed_at) : "", row.reviewed_at],
+    [(fr ? "Titulaire du compte" : "Account holder"), holder, holder === "—" ? null : holder],
+    [(fr ? "Moyen de paiement" : "Payment method"), methodLabel, methodLabel === "—" ? null : methodLabel],
   ];
   if (isDeposit) {
-    rows.push(["Payer phone", row.payer_phone || "—"]);
-    rows.push(["Payment reference", row.reference || "—"]);
+    raw.push([(fr ? "Référence du paiement" : "Payment reference"), row.reference ?? "", row.reference]);
   } else {
-    rows.push(["Payout account name", row.account_name || "—"]);
-    rows.push(["Payout account number", row.account_number || "—"]);
+    raw.push([(fr ? "Nom du compte de paiement" : "Payout account name"), row.account_name ?? "", row.account_name]);
+    raw.push([(fr ? "Numéro du compte de paiement" : "Payout account number"), row.account_number ?? "", row.account_number]);
   }
-  if (row.admin_note) rows.push(["Note from Fidelity", row.admin_note]);
+  if (row.admin_note) raw.push([(fr ? "Note de Fidelity" : "Note from Fidelity"), row.admin_note, row.admin_note]);
+
+  // Only render fields that actually have a value (no empty / placeholder rows).
+  const rows: Array<[string, React.ReactNode]> = raw
+    .filter(([, , present]) => !!present && String(present).trim() !== "" && String(present).trim() !== "—")
+    .map(([k, v]) => [k, v]);
+
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between print:hidden">
         <Link to="/dashboard/wallet" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary">
-          <ArrowLeft className="h-4 w-4" /> Back to history
+          <ArrowLeft className="h-4 w-4" /> {fr ? "Retour à l\u2019historique" : "Back to history"}
         </Link>
       </div>
 
       <div id="receipt" className="overflow-hidden rounded-2xl border border-border bg-card shadow-elegant">
         {/* Big status notification */}
-        <div className={`flex items-center gap-3 border-b px-5 py-4 ${toneBg}`}>
+        <div className={`print-banner flex items-center gap-3 border-b px-5 py-4 ${toneBg}`}>
           <Icon className="h-8 w-8 shrink-0" />
           <div>
             <div className="font-display text-lg font-bold uppercase tracking-wide">
@@ -148,18 +156,18 @@ function ReceiptPage() {
             </div>
             <div>
               <div className="font-display text-lg font-semibold text-primary">Fidelity</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Official transaction receipt</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{fr ? "Reçu officiel de transaction" : "Official transaction receipt"}</div>
             </div>
           </div>
           <div className="text-right text-[11px] text-muted-foreground">
-            <div>Issued</div>
+            <div>{fr ? "Émis le" : "Issued"}</div>
             <div className="font-bold uppercase tabular-nums text-foreground">{formatDate(row.reviewed_at ?? row.created_at)}</div>
           </div>
         </div>
 
         {/* Amount hero */}
         <div className="border-b border-border px-5 py-5 text-center">
-          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Amount</div>
+          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{fr ? "Montant" : "Amount"}</div>
           <div className="mt-1 font-display text-3xl"><Money value={Number(row.amount)} /></div>
         </div>
 
@@ -175,11 +183,17 @@ function ReceiptPage() {
 
         {/* Stamp + footer */}
         <div className="relative flex items-end justify-between gap-4 px-5 py-6">
-          <div className="max-w-[55%] text-[10px] leading-relaxed text-muted-foreground">
-            This receipt is computer generated and constitutes an official record of the transaction
-            listed above. Keep the transaction ID for any support enquiry.
+          <div className="max-w-[55%] space-y-3 text-[10px] leading-relaxed text-muted-foreground">
+            <p>
+              This receipt is computer generated and constitutes an official record of the transaction
+              listed above. Keep the transaction ID for any support enquiry.
+            </p>
+            <div>
+              <div className="mb-1 h-6 w-36 border-b border-foreground/40" />
+              <span className="text-[9px] uppercase tracking-widest">Authorised signature · Fidelity</span>
+            </div>
           </div>
-          <div className="relative h-28 w-28 shrink-0">
+          <div className="print-stamp relative h-28 w-28 shrink-0">
             <div className="absolute inset-0 -rotate-12 rounded-full border-4 border-success/60 text-success">
               <div className="flex h-full w-full flex-col items-center justify-center rounded-full border border-success/40 text-center">
                 <span className="text-[9px] font-bold uppercase tracking-widest">Fidelity</span>
@@ -190,13 +204,18 @@ function ReceiptPage() {
             </div>
           </div>
         </div>
+
+        <div className="border-t border-border px-5 py-3 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
+          Fidelity · Douala, Cameroon · This document is valid without a handwritten signature
+        </div>
       </div>
+
 
       <Button
         className="w-full print:hidden"
         onClick={() => { if (typeof window !== "undefined") window.print(); }}
       >
-        <Download className="mr-2 h-4 w-4" /> Download receipt
+        <Download className="mr-2 h-4 w-4" /> {fr ? "Télécharger le reçu" : "Download receipt"}
       </Button>
     </div>
   );

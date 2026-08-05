@@ -438,7 +438,51 @@ const DICT = {
   },
 } as const;
 
-type Key = keyof typeof DICT["en"];
+/** Additional keys (checkout, receipts, profile). Merged into DICT below. */
+const EXTRA = {
+  en: {
+    "deposit.iConfirmPaid": "I confirm that I have sent",
+    "deposit.tickConfirm": "Tick payment confirmation",
+    "deposit.proofStepTitle": "Upload payment proof",
+    "deposit.proofStepSub": "Upload a clear screenshot showing your completed transfer.",
+    "deposit.selectProof": "Select payment proof",
+    "deposit.proofHint": "JPG, PNG or a screenshot from your payment app",
+    "deposit.proofTip": "Make sure the amount, receiver and reference are visible before submitting.",
+    "deposit.summary": "Payment summary",
+    "receipt.title": "Official transaction receipt",
+    "receipt.download": "Download receipt",
+    "receipt.back": "Back to history",
+    "receipt.notFound": "Receipt not found.",
+    "receipt.amount": "Amount",
+    "receipt.issued": "Issued",
+    "profile.language": "Language",
+  },
+  fr: {
+    "deposit.iConfirmPaid": "Je confirme avoir envoyé",
+    "deposit.tickConfirm": "Cochez la confirmation de paiement",
+    "deposit.proofStepTitle": "Téléversez la preuve de paiement",
+    "deposit.proofStepSub": "Téléversez une capture claire de votre transfert effectué.",
+    "deposit.selectProof": "Choisir la preuve de paiement",
+    "deposit.proofHint": "JPG, PNG ou une capture de votre application de paiement",
+    "deposit.proofTip": "Vérifiez que le montant, le bénéficiaire et la référence sont visibles avant d'envoyer.",
+    "deposit.summary": "Récapitulatif du paiement",
+    "receipt.title": "Reçu officiel de transaction",
+    "receipt.download": "Télécharger le reçu",
+    "receipt.back": "Retour à l'historique",
+    "receipt.notFound": "Reçu introuvable.",
+    "receipt.amount": "Montant",
+    "receipt.issued": "Émis le",
+    "profile.language": "Langue",
+  },
+} as const;
+
+const MERGED = {
+  en: { ...DICT.en, ...EXTRA.en },
+  fr: { ...DICT.fr, ...EXTRA.fr },
+};
+
+type Key = keyof typeof MERGED["en"];
+
 
 const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: Key) => string }>({
   lang: "en",
@@ -446,7 +490,19 @@ const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: Key) 
   t: (k) => k,
 });
 
+/** Store the chosen language on the user's profile so emails match their language. */
+async function persistLang(l: Lang) {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data } = await supabase.auth.getSession();
+    const uid = data.session?.user?.id;
+    if (!uid) return;
+    await supabase.from("profiles").update({ preferred_language: l }).eq("id", uid);
+  } catch (_) { /* ignore */ }
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
+
   // Always start with "en" so SSR and first client render match.
   const [lang, setLangState] = useState<Lang>("en");
 
@@ -456,6 +512,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const next = stored ?? (browser as Lang);
     if (next !== lang) setLangState(next);
     if (typeof document !== "undefined") document.documentElement.lang = next;
+    void persistLang(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -463,9 +520,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLangState(l);
     try { localStorage.setItem("safegrow-lang", l); } catch (_) { /* ignore */ }
     if (typeof document !== "undefined") document.documentElement.lang = l;
+    void persistLang(l);
   };
 
-  const t = (k: Key) => (DICT[lang] as Record<string, string>)[k] ?? (DICT.en as Record<string, string>)[k] ?? k;
+  const t = (k: Key) => (MERGED[lang] as Record<string, string>)[k] ?? (MERGED.en as Record<string, string>)[k] ?? k;
+
 
   return <Ctx.Provider value={{ lang, setLang, t }}>{children}</Ctx.Provider>;
 }

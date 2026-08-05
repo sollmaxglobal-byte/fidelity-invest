@@ -56,9 +56,10 @@ function DepositPage() {
     if (!canStep2) return;
     // Navigate to a dedicated payment page for the actual transfer + proof upload
     navigate({
-      to: "/dashboard/deposit-payment",
+      to: "/deposit-payment",
       search: { amount: amountNum, method: selected } as never,
     });
+
   }
 
   const stepLabels = [t("deposit.step1"), t("deposit.step2")];

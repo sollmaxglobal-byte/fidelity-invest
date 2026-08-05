@@ -158,25 +158,31 @@ export type Database = {
         Row: {
           enabled: boolean
           html_body: string
+          html_body_fr: string | null
           key: string
           name: string
           subject: string
+          subject_fr: string | null
           updated_at: string
         }
         Insert: {
           enabled?: boolean
           html_body: string
+          html_body_fr?: string | null
           key: string
           name: string
           subject: string
+          subject_fr?: string | null
           updated_at?: string
         }
         Update: {
           enabled?: boolean
           html_body?: string
+          html_body_fr?: string | null
           key?: string
           name?: string
           subject?: string
+          subject_fr?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -330,6 +336,7 @@ export type Database = {
           is_suspended: boolean
           kyc_status: string
           phone: string | null
+          preferred_language: string
           referral_code: string | null
           referral_earnings: number
           referred_by: string | null
@@ -345,6 +352,7 @@ export type Database = {
           is_suspended?: boolean
           kyc_status?: string
           phone?: string | null
+          preferred_language?: string
           referral_code?: string | null
           referral_earnings?: number
           referred_by?: string | null
@@ -360,6 +368,7 @@ export type Database = {
           is_suspended?: boolean
           kyc_status?: string
           phone?: string | null
+          preferred_language?: string
           referral_code?: string | null
           referral_earnings?: number
           referred_by?: string | null

@@ -39,10 +39,8 @@ export function AuthShell({ children }: { children: ReactNode }) {
             <LanguageToggle />
           </div>
           {children}
-          <p className="mt-8 text-center text-[11px] leading-relaxed text-muted-foreground">
-            {t("auth.disclaimer")}
-          </p>
         </div>
+
       </div>
       <SocialProof />
     </div>

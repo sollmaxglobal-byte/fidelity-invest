@@ -148,12 +148,50 @@
 }
 
 @media print {
+  @page { size: A4; margin: 14mm; }
+
+  html, body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
   body * { visibility: hidden !important; }
   #receipt, #receipt * { visibility: visible !important; }
+
   #receipt {
     position: absolute !important;
     inset: 0 auto auto 0;
     width: 100%;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #b9b9b9 !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
+    font-size: 11.5pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
+  /* Bank-statement look: crisp hairlines, no rounded cards */
+  #receipt * {
+    color: #111111 !important;
+    border-color: #cccccc !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  #receipt .bg-hero,
+  #receipt [class*="bg-card"],
+  #receipt [class*="bg-background"],
+  #receipt [class*="bg-muted"],
+  #receipt [class*="bg-secondary"] {
+    background: #ffffff !important;
+  }
+  /* Status banner keeps a light tint so approved / rejected stays obvious */
+  #receipt .print-banner { background: #f4f4f4 !important; border-bottom: 2px solid #111111 !important; }
+  #receipt .print-stamp { opacity: 1 !important; }
+}
+
+
+@media print {
+  #receipt .print-stamp,
+  #receipt .print-stamp * { border-radius: 9999px !important; }
 }
