@@ -140,10 +140,12 @@ function ReceiptPage() {
             </div>
             <div className="text-xs opacity-90">
               {meta.tone === "success"
-                ? isDeposit ? "Your funds have been credited to your account balance." : "Your payout has been processed to your account."
+                ? isDeposit
+                  ? fr ? "Les fonds ont été crédités sur le solde de votre compte." : "Your funds have been credited to your account balance."
+                  : fr ? "Votre paiement a été envoyé au compte indiqué." : "Your payout has been processed to your account."
                 : meta.tone === "destructive"
-                ? "This transaction was declined. Contact support if you need help."
-                : "This transaction is being reviewed. This usually takes a few minutes."}
+                ? fr ? "Cette opération a été refusée. Contactez l’assistance si nécessaire." : "This transaction was declined. Contact support if you need help."
+                : fr ? "Cette opération est en cours de vérification." : "This transaction is being reviewed. This usually takes a few minutes."}
             </div>
           </div>
         </div>
@@ -185,12 +187,13 @@ function ReceiptPage() {
         <div className="relative flex items-end justify-between gap-4 px-5 py-4">
           <div className="max-w-[62%] space-y-2 text-[10px] font-bold leading-relaxed text-muted-foreground">
             <p>
-              This receipt is computer generated and constitutes an official record of the transaction
-              listed above. Keep the transaction ID for any support enquiry.
+              {fr
+                ? "Ce reçu généré par ordinateur constitue un justificatif officiel de l’opération indiquée. Conservez l’identifiant pour toute demande d’assistance."
+                : "This computer-generated receipt is an official record of the transaction above. Keep the transaction ID for any support enquiry."}
             </p>
             <div>
               <div className="mb-1 h-6 w-36 border-b border-foreground/40" />
-              <span className="text-[9px] uppercase tracking-widest">Authorised signature · Fidelity</span>
+              <span className="text-[9px] uppercase tracking-widest">{fr ? "Signature autorisée · Fidelity" : "Authorised signature · Fidelity"}</span>
             </div>
           </div>
           <div className="print-stamp relative h-24 w-24 shrink-0">
@@ -198,7 +201,7 @@ function ReceiptPage() {
               <div className="flex h-full w-full flex-col items-center justify-center rounded-full border border-success/40 text-center">
                 <span className="text-[9px] font-bold uppercase tracking-widest">Fidelity</span>
                 <ShieldCheck className="my-0.5 h-5 w-5" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Verified</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest">{fr ? "Vérifié" : "Verified"}</span>
                 <span className="mt-0.5 text-[7px] font-bold uppercase tabular-nums">#{txRef(row.id)}</span>
               </div>
             </div>
@@ -206,7 +209,7 @@ function ReceiptPage() {
         </div>
 
         <div className="border-t-2 border-border px-5 py-2.5 text-center text-[9px] font-black uppercase text-muted-foreground">
-          Fidelity · Douala, Cameroon · This document is valid without a handwritten signature
+          {fr ? "Fidelity · Douala, Cameroun · Ce document est valable sans signature manuscrite" : "Fidelity · Douala, Cameroon · This document is valid without a handwritten signature"}
         </div>
       </article>
 
