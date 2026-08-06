@@ -125,16 +125,23 @@ async function processQueue() {
   return sent;
 }
 
+function isAuthorized(request: Request) {
+  const expected = process.env["SUPABASE_ANON_KEY"];
+  return !!expected && request.headers.get("apikey") === expected;
+}
+
 export const Route = createFileRoute("/api/public/process-receipt-emails")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        if (!isAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
         const sent = await processQueue();
         return new Response(JSON.stringify({ ok: true, sent }), {
           headers: { "Content-Type": "application/json" },
         });
       },
-      GET: async () => {
+      GET: async ({ request }) => {
+        if (!isAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
         const sent = await processQueue();
         return new Response(JSON.stringify({ ok: true, sent }), {
           headers: { "Content-Type": "application/json" },
