@@ -119,8 +119,6 @@
 
 
 @layer base {
-  @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap");
-
   * {
     border-color: var(--color-border);
   }
@@ -134,7 +132,7 @@
 
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 }
 
@@ -148,7 +146,7 @@
 }
 
 @media print {
-  @page { size: A4; margin: 14mm; }
+  @page { size: A4; margin: 9mm; }
 
   html, body {
     background: #ffffff !important;
@@ -166,13 +164,16 @@
     border: 1px solid #b9b9b9 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    font-size: 11.5pt;
+    max-height: 270mm !important;
+    overflow: hidden !important;
+    font-size: 10pt;
+    font-weight: 700 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
   /* Bank-statement look: crisp hairlines, no rounded cards */
   #receipt * {
-    color: #111111 !important;
+    color: #111111;
     border-color: #cccccc !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -186,7 +187,13 @@
     background: #ffffff !important;
   }
   /* Status banner keeps a light tint so approved / rejected stays obvious */
-  #receipt .print-banner { background: #f4f4f4 !important; border-bottom: 2px solid #111111 !important; }
+  #receipt .print-banner { border-bottom: 2px solid currentColor !important; }
+  #receipt .print-banner[data-status="success"],
+  #receipt .print-banner[data-status="success"] * { color: #087443 !important; background: #eaf8f0 !important; }
+  #receipt .print-banner[data-status="destructive"],
+  #receipt .print-banner[data-status="destructive"] * { color: #b42318 !important; background: #fff0ef !important; }
+  #receipt .print-banner[data-status="warning"],
+  #receipt .print-banner[data-status="warning"] * { color: #9a6700 !important; background: #fff8df !important; }
   #receipt .print-stamp { opacity: 1 !important; }
 }
 

@@ -14,6 +14,8 @@ import { TidioLoader } from "@/components/TidioLoader";
 import { SendPulseLoader } from "@/components/SendPulseLoader";
 import { TawkLoader } from "@/components/TawkLoader";
 import { Toaster } from "@/components/ui/sonner";
+import { AppInstallPrompt } from "@/components/AppInstallPrompt";
+import { TransactionNotifications } from "@/components/TransactionNotifications";
 
 import appCss from "../styles.css?url";
 
@@ -87,12 +89,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "theme-color", content: "#171a1b" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/fidelity-app-icon-192.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -128,6 +137,8 @@ function RootComponent() {
             <TawkLoader />
             <TidioLoader />
             <SendPulseLoader />
+            <TransactionNotifications />
+            <AppInstallPrompt />
           </AuthProvider>
         </I18nProvider>
       </ThemeProvider>

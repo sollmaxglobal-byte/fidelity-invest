@@ -497,8 +497,11 @@ async function persistLang(l: Lang) {
     const { data } = await supabase.auth.getSession();
     const uid = data.session?.user?.id;
     if (!uid) return;
-    await supabase.from("profiles").update({ preferred_language: l }).eq("id", uid);
-  } catch (_) { /* ignore */ }
+    const { error } = await supabase.from("profiles").update({ preferred_language: l }).eq("id", uid);
+    if (error) console.error("Could not save email language preference", error.message);
+  } catch (error) {
+    console.error("Could not save email language preference", error);
+  }
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {

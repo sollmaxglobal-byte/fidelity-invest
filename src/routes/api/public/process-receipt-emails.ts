@@ -17,7 +17,9 @@ function amount(n: number) {
 async function processQueue() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const supabaseUrl = process.env["SUPABASE_URL"]!;
-  const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"]!;
+  const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  const anonKey = process.env["SUPABASE_ANON_KEY"];
+  if (!supabaseUrl || !serviceKey || !anonKey) throw new Error("Email processor is not configured");
 
   const { data: settings } = await supabaseAdmin
     .from("app_settings")
@@ -45,7 +47,7 @@ async function processQueue() {
 
       const { data: profile } = await supabaseAdmin
         .from("profiles")
-        .select("full_name")
+        .select("full_name,preferred_language")
         .eq("id", job.user_id)
         .maybeSingle();
 
@@ -91,14 +93,15 @@ async function processQueue() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
           "x-internal-secret": serviceKey,
         },
         body: JSON.stringify({
           to: `user_id:${job.user_id}`,
           template_key: isDeposit ? "deposit_receipt" : "withdrawal_receipt",
           variables,
+          lang: profile?.preferred_language === "fr" ? "fr" : "en",
         }),
       });
       if (!res.ok) throw new Error(`send-email ${res.status}: ${await res.text()}`);
@@ -111,23 +114,34 @@ async function processQueue() {
     } catch (e) {
       await supabaseAdmin
         .from("receipt_email_queue")
-        .update({ attempts: job.attempts + 1, last_error: String((e as Error)?.message ?? e) })
+        .update({
+          attempts: job.attempts + 1,
+          last_error: String((e as Error)?.message ?? e),
+          send_after: new Date(Date.now() + Math.min(15, 2 ** job.attempts) * 60_000).toISOString(),
+        })
         .eq("id", job.id);
     }
   }
   return sent;
 }
 
+function isAuthorized(request: Request) {
+  const expected = process.env["SUPABASE_ANON_KEY"];
+  return !!expected && request.headers.get("apikey") === expected;
+}
+
 export const Route = createFileRoute("/api/public/process-receipt-emails")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        if (!isAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
         const sent = await processQueue();
         return new Response(JSON.stringify({ ok: true, sent }), {
           headers: { "Content-Type": "application/json" },
         });
       },
-      GET: async () => {
+      GET: async ({ request }) => {
+        if (!isAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
         const sent = await processQueue();
         return new Response(JSON.stringify({ ok: true, sent }), {
           headers: { "Content-Type": "application/json" },

@@ -72,7 +72,7 @@ function ReceiptPage() {
         const { data: m } = await supabase
           .from("payment_methods")
           .select("label,account_name,account_number")
-          .eq("id", (r as Row).payment_method_id!)
+          .eq("id", (r as Row).payment_method_id ?? "")
           .maybeSingle();
         if (m) setMethodLabel(m.label);
       } else if (r && !isDeposit) {
@@ -123,39 +123,41 @@ function ReceiptPage() {
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-bold">
       <div className="flex items-center justify-between print:hidden">
         <Link to="/dashboard/wallet" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary">
           <ArrowLeft className="h-4 w-4" /> {fr ? "Retour à l\u2019historique" : "Back to history"}
         </Link>
       </div>
 
-      <div id="receipt" className="overflow-hidden rounded-2xl border border-border bg-card shadow-elegant">
+      <article id="receipt" className="mx-auto overflow-hidden rounded-lg border-2 border-foreground/25 bg-card font-sans font-bold shadow-elegant">
         {/* Big status notification */}
-        <div className={`print-banner flex items-center gap-3 border-b px-5 py-4 ${toneBg}`}>
+        <div className={`print-banner flex items-center gap-3 border-b-2 px-5 py-4 ${toneBg}`} data-status={meta.tone}>
           <Icon className="h-8 w-8 shrink-0" />
           <div>
-            <div className="font-display text-lg font-bold uppercase tracking-wide">
-              {isDeposit ? "Deposit" : "Withdrawal"} {meta.label}
+            <div className="text-lg font-black uppercase">
+              {isDeposit ? (fr ? "Dépôt" : "Deposit") : (fr ? "Retrait" : "Withdrawal")} {fr ? (meta.tone === "success" ? "réussi" : meta.tone === "destructive" ? "refusé" : "en attente") : meta.label}
             </div>
             <div className="text-xs opacity-90">
               {meta.tone === "success"
-                ? isDeposit ? "Your funds have been credited to your account balance." : "Your payout has been processed to your account."
+                ? isDeposit
+                  ? fr ? "Les fonds ont été crédités sur le solde de votre compte." : "Your funds have been credited to your account balance."
+                  : fr ? "Votre paiement a été envoyé au compte indiqué." : "Your payout has been processed to your account."
                 : meta.tone === "destructive"
-                ? "This transaction was declined. Contact support if you need help."
-                : "This transaction is being reviewed. This usually takes a few minutes."}
+                ? fr ? "Cette opération a été refusée. Contactez l’assistance si nécessaire." : "This transaction was declined. Contact support if you need help."
+                : fr ? "Cette opération est en cours de vérification." : "This transaction is being reviewed. This usually takes a few minutes."}
             </div>
           </div>
         </div>
 
         {/* Letterhead */}
-        <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+        <div className="flex items-start justify-between gap-4 border-b-2 border-border px-5 py-4">
           <div className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-display text-lg font-semibold text-primary">Fidelity</div>
+              <div className="text-xl font-black uppercase text-primary">Fidelity</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{fr ? "Reçu officiel de transaction" : "Official transaction receipt"}</div>
             </div>
           </div>
@@ -166,49 +168,50 @@ function ReceiptPage() {
         </div>
 
         {/* Amount hero */}
-        <div className="border-b border-border px-5 py-5 text-center">
+        <div className="border-b-2 border-border px-5 py-4 text-center">
           <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{fr ? "Montant" : "Amount"}</div>
-          <div className="mt-1 font-display text-3xl"><Money value={Number(row.amount)} /></div>
+          <div className="mt-1 text-3xl font-black"><Money value={Number(row.amount)} /></div>
         </div>
 
         {/* Details */}
         <div className="divide-y divide-border">
           {rows.map(([k, v]) => (
-            <div key={k} className="flex items-start justify-between gap-4 px-5 py-3 text-sm">
-              <span className="text-muted-foreground">{k}</span>
-              <span className="max-w-[60%] break-words text-right font-medium">{v}</span>
+            <div key={k} className="flex items-start justify-between gap-4 px-5 py-2.5 text-sm font-bold">
+              <span className="font-bold text-muted-foreground">{k}</span>
+              <span className="max-w-[60%] break-words text-right font-black">{v}</span>
             </div>
           ))}
         </div>
 
         {/* Stamp + footer */}
-        <div className="relative flex items-end justify-between gap-4 px-5 py-6">
-          <div className="max-w-[55%] space-y-3 text-[10px] leading-relaxed text-muted-foreground">
+        <div className="relative flex items-end justify-between gap-4 px-5 py-4">
+          <div className="max-w-[62%] space-y-2 text-[10px] font-bold leading-relaxed text-muted-foreground">
             <p>
-              This receipt is computer generated and constitutes an official record of the transaction
-              listed above. Keep the transaction ID for any support enquiry.
+              {fr
+                ? "Ce reçu généré par ordinateur constitue un justificatif officiel de l’opération indiquée. Conservez l’identifiant pour toute demande d’assistance."
+                : "This computer-generated receipt is an official record of the transaction above. Keep the transaction ID for any support enquiry."}
             </p>
             <div>
               <div className="mb-1 h-6 w-36 border-b border-foreground/40" />
-              <span className="text-[9px] uppercase tracking-widest">Authorised signature · Fidelity</span>
+              <span className="text-[9px] uppercase tracking-widest">{fr ? "Signature autorisée · Fidelity" : "Authorised signature · Fidelity"}</span>
             </div>
           </div>
-          <div className="print-stamp relative h-28 w-28 shrink-0">
+          <div className="print-stamp relative h-24 w-24 shrink-0">
             <div className="absolute inset-0 -rotate-12 rounded-full border-4 border-success/60 text-success">
               <div className="flex h-full w-full flex-col items-center justify-center rounded-full border border-success/40 text-center">
                 <span className="text-[9px] font-bold uppercase tracking-widest">Fidelity</span>
                 <ShieldCheck className="my-0.5 h-5 w-5" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Verified</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest">{fr ? "Vérifié" : "Verified"}</span>
                 <span className="mt-0.5 text-[7px] font-bold uppercase tabular-nums">#{txRef(row.id)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-border px-5 py-3 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
-          Fidelity · Douala, Cameroon · This document is valid without a handwritten signature
+        <div className="border-t-2 border-border px-5 py-2.5 text-center text-[9px] font-black uppercase text-muted-foreground">
+          {fr ? "Fidelity · Douala, Cameroun · Ce document est valable sans signature manuscrite" : "Fidelity · Douala, Cameroon · This document is valid without a handwritten signature"}
         </div>
-      </div>
+      </article>
 
 
       <Button
