@@ -154,7 +154,7 @@ function DepositProofPage() {
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-2 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <div className="mx-auto flex max-w-xl gap-2">
           <Button asChild variant="outline" className="h-10 flex-1">
-            <Link to="/dashboard/deposit-payment" search={{ amount, method }}><ArrowLeft className="mr-1 h-4 w-4" /> Back</Link>
+            <Link to="/deposit-payment" search={{ amount, method }}><ArrowLeft className="mr-1 h-4 w-4" /> Back</Link>
           </Button>
           <Button onClick={submitDeposit} disabled={!file || busy || !paymentMethod} className="h-10 flex-[2] bg-primary text-primary-foreground">
             {busy ? t("deposit.submitting") : t("deposit.submit")}
