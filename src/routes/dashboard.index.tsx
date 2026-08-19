@@ -145,14 +145,14 @@ function DashboardHome() {
         </div>
       </motion.div>
 
+      {/* Referral card — above the balance */}
       <motion.div variants={itemVariants}>
-        <LiveMarketStrip
-          balance={Number(profile?.balance ?? 0)}
-          earned={Number(profile?.total_earned ?? 0)}
-          activeCount={activeCount}
+        <ReferralCard
+          code={profile?.referral_code ?? null}
+          earnings={Number(profile?.referral_earnings ?? 0)}
+          count={referralCount}
         />
       </motion.div>
-
 
       {/* Hero balance card */}
       <motion.div
@@ -177,19 +177,6 @@ function DashboardHome() {
             <AnimatedNumber value={profile?.balance ?? 0} />
           </div>
 
-          <motion.div
-            className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold uppercase backdrop-blur"
-            animate={{ boxShadow: ["0 0 0 0 rgba(255,255,255,0.35)", "0 0 0 10px rgba(255,255,255,0)"] }}
-            transition={{ repeat: Infinity, duration: 1.8 }}
-          >
-            <TrendingUp className="h-3.5 w-3.5" />
-            <span className="opacity-80">Profit earned today</span>
-            <span className="font-display text-sm font-bold uppercase tabular-nums">
-              +<AnimatedNumber value={todayProfit} />
-            </span>
-
-          </motion.div>
-
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link to="/dashboard/deposit" className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-medium backdrop-blur transition hover:bg-white/25 active:scale-95">
               <ArrowDownToLine className="h-4 w-4" /> {t("common.deposit")}
@@ -199,149 +186,6 @@ function DashboardHome() {
             </Link>
           </div>
         </div>
-      </motion.div>
-
-      {/* Stats row */}
-      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-        <StatCard icon={Sparkles} label={t("home.totalProfit")} value={formatXAF(profile?.total_earned ?? 0)} accent="success" />
-        <StatCard icon={TrendingUp} label={t("home.activePlans")} value={String(activeCount)} accent="primary" />
-      </motion.div>
-
-      {/* Profit chart */}
-      <motion.div variants={itemVariants} className="rounded-2xl border border-border bg-card p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg text-primary">{t("home.profitGrowth")}</h2>
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-            </span>
-            Live · XAF
-          </span>
-        </div>
-        <div className="mt-3 h-44">
-
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
-              <defs>
-                <linearGradient id="profit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="oklch(0.5 0.09 160)" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="oklch(0.5 0.09 160)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="d" hide />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                formatter={(v: number) => [formatXAF(Number(v)), t("wallet.profit")]}
-                labelFormatter={(l) => formatDate(String(l))}
-              />
-              <Area type="monotone" dataKey="v" stroke="oklch(0.5 0.09 160)" strokeWidth={2} fill="url(#profit)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </motion.div>
-
-      {/* Active plans list */}
-      <motion.div variants={itemVariants}>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg text-primary">{t("home.yourPlans")}</h2>
-          <Link to="/dashboard/invest" className="text-xs font-medium text-primary hover:underline">{t("home.newInvestment")}</Link>
-        </div>
-        {investments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            {t("home.noInvestments")} <Link to="/dashboard/invest" className="font-medium text-primary underline">{t("home.activatePlan")}</Link>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {investments.map((inv, idx) => {
-              const freq = inv.plans?.payout_frequency ?? "daily";
-              const cycleDays = freq === "daily" ? 1 : freq === "weekly" ? 7 : freq === "monthly" ? 30 : inv.duration_days;
-              const last = inv.last_payout_at ? new Date(inv.last_payout_at) : new Date(inv.start_date);
-              const nextPayoutMs = last.getTime() + cycleDays * 86400000;
-              const endMs = new Date(inv.end_date).getTime();
-              const nextPayout = new Date(Math.min(nextPayoutMs, endMs));
-              const isActive = inv.status === "active" && !inv.is_paused;
-              return (
-              <motion.div
-                key={inv.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 * idx }}
-                whileHover={{ y: -2, scale: 1.005 }}
-                className={`relative overflow-hidden rounded-2xl border bg-card p-4 ${
-                  isActive ? "border-success/40" : "border-border"
-                }`}
-              >
-                {isActive && (
-                  <>
-                    <motion.div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 opacity-40"
-                      style={{
-                        backgroundImage: "linear-gradient(115deg, transparent 0 42%, color-mix(in oklab, oklch(0.7 0.15 160) 30%, transparent) 48%, transparent 54% 100%)",
-                        backgroundSize: "240% 100%",
-                      }}
-                      animate={{ backgroundPosition: ["140% 0%", "-80% 0%"] }}
-                      transition={{ repeat: Infinity, duration: 4.8, ease: "linear" }}
-                    />
-                    <motion.span
-                      aria-hidden
-                      className="absolute right-3 top-3 h-2 w-2 rounded-full bg-success"
-                      animate={{ boxShadow: ["0 0 0 0 rgba(16,185,129,0.55)", "0 0 0 8px rgba(16,185,129,0)"] }}
-                      transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut" }}
-                    />
-                  </>
-                )}
-                <div className="relative flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-display text-base text-primary">{inv.plans?.name ?? "Plan"}</div>
-                    <div className="text-xs text-muted-foreground">{t("home.ends")} {formatDate(inv.end_date)}</div>
-                  </div>
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase ${
-                    inv.is_paused ? "bg-warning/15 text-warning" :
-                    inv.status === "active" ? "bg-success/15 text-success" :
-                    inv.status === "completed" ? "bg-muted text-foreground/70" :
-                    "bg-destructive/15 text-destructive"
-                  }`}>
-                    {inv.is_paused ? "Suspended" : inv.status}
-                  </span>
-                </div>
-                {isActive && (
-                  <div className="relative mt-3 space-y-3 rounded-xl bg-secondary/50 p-3">
-                    <ProfitRobot />
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Next profit payout ({freq})</div>
-                      <div className="mt-1"><Countdown to={nextPayout} /></div>
-                    </div>
-                    <div className="flex items-center justify-between border-t border-border pt-2">
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Investment ends in</span>
-                      <Countdown to={inv.end_date} compact />
-                    </div>
-                  </div>
-                )}
-                <div className="relative mt-3 grid grid-cols-3 gap-3 border-t border-border pt-3 text-sm">
-                  <Mini label={t("home.invested")} v={formatXAF(inv.amount)} />
-                  <Mini label={t("home.roi")} v={`${inv.daily_roi_percent}%`} />
-                  <Mini label={t("home.earned")} v={formatXAF(inv.total_earned)} accent />
-                </div>
-              </motion.div>
-            );})}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Referral card */}
-      <motion.div variants={itemVariants}>
-        <ReferralCard
-          code={profile?.referral_code ?? null}
-          earnings={Number(profile?.referral_earnings ?? 0)}
-          count={referralCount}
-        />
       </motion.div>
     </motion.div>
   );
