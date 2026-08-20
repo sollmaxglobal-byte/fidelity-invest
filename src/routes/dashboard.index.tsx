@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDownToLine, ArrowUpFromLine, Share2, Copy, Users } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Share2, Copy, Users, TrendingUp, Clock } from "lucide-react";
+import { Countdown } from "@/components/Countdown";
+import { formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
