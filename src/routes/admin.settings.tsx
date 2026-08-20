@@ -178,6 +178,49 @@ function AdminSettings() {
         </div>
       </section>
 
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <Megaphone className="h-5 w-5" /> Popup notification
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Shown once to every user. Save with “Show to everyone again” checked to re-display it after editing.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              checked={!!s.announcement_enabled}
+              onCheckedChange={(v) => set("announcement_enabled", v)}
+            />
+            <span className="text-sm">Enable popup</span>
+          </div>
+          <div>
+            <Label>Title</Label>
+            <Input value={s.announcement_title ?? ""} onChange={(e) => set("announcement_title", e.target.value)}
+              placeholder="Join our official group" />
+          </div>
+          <div>
+            <Label>Button label</Label>
+            <Input value={s.announcement_link_label ?? ""} onChange={(e) => set("announcement_link_label", e.target.value)}
+              placeholder="Join now" />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Message</Label>
+            <Textarea className="min-h-[100px]" value={s.announcement_message ?? ""}
+              onChange={(e) => set("announcement_message", e.target.value)}
+              placeholder="Write the announcement your users will see…" />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Link (WhatsApp / Telegram / any URL)</Label>
+            <Input value={s.announcement_link ?? ""} onChange={(e) => set("announcement_link", e.target.value)}
+              placeholder="https://chat.whatsapp.com/…" />
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch checked={reshow} onCheckedChange={setReshow} />
+            <span className="text-sm">Show to everyone again on save</span>
+          </div>
+        </div>
+      </section>
+
       <div className="sticky bottom-20 z-10 md:bottom-4">
         <Button onClick={save} disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
           <Save className="mr-2 h-4 w-4" /> {busy ? "Saving…" : "Save settings"}
