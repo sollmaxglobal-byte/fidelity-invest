@@ -529,6 +529,12 @@ export type Database = {
     Views: {
       public_app_settings: {
         Row: {
+          announcement_enabled: boolean | null
+          announcement_link: string | null
+          announcement_link_label: string | null
+          announcement_message: string | null
+          announcement_title: string | null
+          announcement_version: number | null
           id: number | null
           referral_percent: number | null
           sendpulse_chat_id: string | null
@@ -540,6 +546,12 @@ export type Database = {
           tidio_public_key: string | null
         }
         Insert: {
+          announcement_enabled?: boolean | null
+          announcement_link?: string | null
+          announcement_link_label?: string | null
+          announcement_message?: string | null
+          announcement_title?: string | null
+          announcement_version?: number | null
           id?: number | null
           referral_percent?: number | null
           sendpulse_chat_id?: string | null
@@ -551,6 +563,12 @@ export type Database = {
           tidio_public_key?: string | null
         }
         Update: {
+          announcement_enabled?: boolean | null
+          announcement_link?: string | null
+          announcement_link_label?: string | null
+          announcement_message?: string | null
+          announcement_title?: string | null
+          announcement_version?: number | null
           id?: number | null
           referral_percent?: number | null
           sendpulse_chat_id?: string | null
