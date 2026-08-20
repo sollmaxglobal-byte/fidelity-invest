@@ -155,6 +155,67 @@ function DashboardHome() {
           </div>
         </div>
       </motion.div>
+
+      {/* Referral card — sits under the balance */}
+      <motion.div variants={itemVariants}>
+        <ReferralCard
+          code={profile?.referral_code ?? null}
+          earnings={Number(profile?.referral_earnings ?? 0)}
+          count={referralCount}
+        />
+      </motion.div>
+
+      {/* Active investments with expiry countdown */}
+      <motion.div variants={itemVariants} className="space-y-3">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <h2 className="font-display text-lg text-primary">Active investments</h2>
+        </div>
+        {investments.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            No active plan yet.{" "}
+            <Link to="/dashboard/invest" className="font-medium text-primary underline">
+              Start investing
+            </Link>
+          </div>
+        ) : (
+          investments.map((inv) => (
+            <motion.div
+              key={inv.id}
+              whileHover={{ scale: 1.01 }}
+              className="rounded-2xl border border-border bg-card p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="font-display text-base text-primary">{inv.plans?.name ?? "Investment plan"}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    Invested <Money value={Number(inv.amount)} /> · Earned{" "}
+                    <span className="text-success"><Money value={Number(inv.total_earned)} /></span>
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+                    inv.is_paused ? "bg-muted text-muted-foreground" : "bg-success/10 text-success"
+                  }`}
+                >
+                  {inv.is_paused ? "Paused" : "Running"}
+                </span>
+              </div>
+              <div className="mt-3 rounded-xl bg-secondary/60 p-3">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <Clock className="h-3 w-3" /> Expires in
+                </div>
+                <div className="mt-2">
+                  <Countdown to={inv.end_date} />
+                </div>
+                <div className="mt-2 text-[11px] text-muted-foreground">
+                  Ends on {formatDate(inv.end_date)}
+                </div>
+              </div>
+            </motion.div>
+          ))
+        )}
+      </motion.div>
     </motion.div>
   );
 }
