@@ -24,7 +24,7 @@ type Withdrawal = {
 };
 
 const schema = z.object({
-  amount: z.number().min(1000, "Minimum 1,000 XAF").max(50_000_000),
+  amount: z.number().min(250, "Minimum 250 XAF").max(50_000_000),
   method: z.enum(["mobile_money", "bank_transfer", "crypto"]),
   account_name: z.string().min(2).max(120),
   account_number: z.string().min(4).max(120),
