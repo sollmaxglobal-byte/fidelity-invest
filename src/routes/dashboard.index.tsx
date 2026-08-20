@@ -113,15 +113,6 @@ function DashboardHome() {
         </div>
       </motion.div>
 
-      {/* Referral card — sits above the balance */}
-      <motion.div variants={itemVariants}>
-        <ReferralCard
-          code={profile?.referral_code ?? null}
-          earnings={Number(profile?.referral_earnings ?? 0)}
-          count={referralCount}
-        />
-      </motion.div>
-
       {/* Hero balance card */}
       <motion.div
         variants={itemVariants}
