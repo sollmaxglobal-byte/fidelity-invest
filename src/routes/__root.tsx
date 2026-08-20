@@ -16,6 +16,7 @@ import { TawkLoader } from "@/components/TawkLoader";
 import { Toaster } from "@/components/ui/sonner";
 import { AppInstallPrompt } from "@/components/AppInstallPrompt";
 import { TransactionNotifications } from "@/components/TransactionNotifications";
+import { AnnouncementPopup } from "@/components/AnnouncementPopup";
 
 import appCss from "../styles.css?url";
 
