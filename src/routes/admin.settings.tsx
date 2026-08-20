@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, MessageCircle, Mail, Share2 } from "lucide-react";
+import { Save, MessageCircle, Mail, Share2, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,11 +30,18 @@ type Settings = {
   smtp_password: string | null;
   smtp_from_name: string | null;
   smtp_from_email: string | null;
+  announcement_enabled: boolean | null;
+  announcement_title: string | null;
+  announcement_message: string | null;
+  announcement_link: string | null;
+  announcement_link_label: string | null;
+  announcement_version: number | null;
 };
 
 function AdminSettings() {
   const [s, setS] = useState<Settings | null>(null);
   const [busy, setBusy] = useState(false);
+  const [reshow, setReshow] = useState(true);
 
   async function load() {
     // Full row (including SMTP credentials) is admin-only via SECURITY DEFINER RPC.
@@ -65,6 +72,12 @@ function AdminSettings() {
         smtp_password: s.smtp_password,
         smtp_from_name: s.smtp_from_name,
         smtp_from_email: s.smtp_from_email,
+        announcement_enabled: !!s.announcement_enabled,
+        announcement_title: s.announcement_title,
+        announcement_message: s.announcement_message,
+        announcement_link: s.announcement_link,
+        announcement_link_label: s.announcement_link_label,
+        announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
       }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
@@ -174,6 +187,49 @@ function AdminSettings() {
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch checked={!!s.smtp_secure} onCheckedChange={(v) => set("smtp_secure", v)} />
             <span className="text-sm">Use TLS/SSL</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <Megaphone className="h-5 w-5" /> Popup notification
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Shown once to every user. Save with “Show to everyone again” checked to re-display it after editing.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              checked={!!s.announcement_enabled}
+              onCheckedChange={(v) => set("announcement_enabled", v)}
+            />
+            <span className="text-sm">Enable popup</span>
+          </div>
+          <div>
+            <Label>Title</Label>
+            <Input value={s.announcement_title ?? ""} onChange={(e) => set("announcement_title", e.target.value)}
+              placeholder="Join our official group" />
+          </div>
+          <div>
+            <Label>Button label</Label>
+            <Input value={s.announcement_link_label ?? ""} onChange={(e) => set("announcement_link_label", e.target.value)}
+              placeholder="Join now" />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Message</Label>
+            <Textarea className="min-h-[100px]" value={s.announcement_message ?? ""}
+              onChange={(e) => set("announcement_message", e.target.value)}
+              placeholder="Write the announcement your users will see…" />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Link (WhatsApp / Telegram / any URL)</Label>
+            <Input value={s.announcement_link ?? ""} onChange={(e) => set("announcement_link", e.target.value)}
+              placeholder="https://chat.whatsapp.com/…" />
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch checked={reshow} onCheckedChange={setReshow} />
+            <span className="text-sm">Show to everyone again on save</span>
           </div>
         </div>
       </section>

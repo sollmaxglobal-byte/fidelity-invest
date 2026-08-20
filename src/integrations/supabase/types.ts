@@ -16,6 +16,12 @@ export type Database = {
     Tables: {
       app_settings: {
         Row: {
+          announcement_enabled: boolean
+          announcement_link: string | null
+          announcement_link_label: string | null
+          announcement_message: string | null
+          announcement_title: string | null
+          announcement_version: number
           id: number
           referral_percent: number
           sendpulse_chat_id: string | null
@@ -35,6 +41,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          announcement_enabled?: boolean
+          announcement_link?: string | null
+          announcement_link_label?: string | null
+          announcement_message?: string | null
+          announcement_title?: string | null
+          announcement_version?: number
           id?: number
           referral_percent?: number
           sendpulse_chat_id?: string | null
@@ -54,6 +66,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          announcement_enabled?: boolean
+          announcement_link?: string | null
+          announcement_link_label?: string | null
+          announcement_message?: string | null
+          announcement_title?: string | null
+          announcement_version?: number
           id?: number
           referral_percent?: number
           sendpulse_chat_id?: string | null
@@ -511,6 +529,12 @@ export type Database = {
     Views: {
       public_app_settings: {
         Row: {
+          announcement_enabled: boolean | null
+          announcement_link: string | null
+          announcement_link_label: string | null
+          announcement_message: string | null
+          announcement_title: string | null
+          announcement_version: number | null
           id: number | null
           referral_percent: number | null
           sendpulse_chat_id: string | null
@@ -522,6 +546,12 @@ export type Database = {
           tidio_public_key: string | null
         }
         Insert: {
+          announcement_enabled?: boolean | null
+          announcement_link?: string | null
+          announcement_link_label?: string | null
+          announcement_message?: string | null
+          announcement_title?: string | null
+          announcement_version?: number | null
           id?: number | null
           referral_percent?: number | null
           sendpulse_chat_id?: string | null
@@ -533,6 +563,12 @@ export type Database = {
           tidio_public_key?: string | null
         }
         Update: {
+          announcement_enabled?: boolean | null
+          announcement_link?: string | null
+          announcement_link_label?: string | null
+          announcement_message?: string | null
+          announcement_title?: string | null
+          announcement_version?: number | null
           id?: number | null
           referral_percent?: number | null
           sendpulse_chat_id?: string | null
@@ -580,6 +616,12 @@ export type Database = {
       get_app_settings_admin: {
         Args: never
         Returns: {
+          announcement_enabled: boolean
+          announcement_link: string | null
+          announcement_link_label: string | null
+          announcement_message: string | null
+          announcement_title: string | null
+          announcement_version: number
           id: number
           referral_percent: number
           sendpulse_chat_id: string | null
@@ -611,6 +653,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      my_referrals: {
+        Args: never
+        Returns: {
+          full_name: string
+          invested: number
+          investment_status: string
+          joined_at: string
+          plan_name: string
+          user_id: string
+        }[]
       }
       recent_activity: {
         Args: { _limit?: number }

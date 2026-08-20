@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDownToLine, ArrowUpFromLine, Share2, Copy, Users } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Share2, Copy, Users, TrendingUp, Clock } from "lucide-react";
+import { Countdown } from "@/components/Countdown";
+import { formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -52,25 +54,43 @@ type Profile = {
   referral_earnings: number | null;
 };
 
+type ActiveInvestment = {
+  id: string;
+  amount: number;
+  total_earned: number;
+  start_date: string;
+  end_date: string;
+  is_paused: boolean;
+  plans: { name: string } | null;
+};
+
 function DashboardHome() {
   const { user } = useAuth();
   const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [referralCount, setReferralCount] = useState(0);
+  const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { count: refCount }] = await Promise.all([
+      const [{ data: p }, { count: refCount }, { data: inv }] = await Promise.all([
         supabase
           .from("profiles")
           .select("full_name,balance,referral_code,referral_earnings")
           .eq("id", user.id)
           .maybeSingle(),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("referred_by", user.id),
+        supabase
+          .from("investments")
+          .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .order("end_date", { ascending: true }),
       ]);
       setProfile(p as Profile);
       setReferralCount(refCount ?? 0);
+      setInvestments((inv as unknown as ActiveInvestment[]) ?? []);
     })();
   }, [user]);
 
@@ -93,15 +113,6 @@ function DashboardHome() {
             <span className="h-1.5 w-1.5 rounded-full bg-success" /> Live
           </motion.span>
         </div>
-      </motion.div>
-
-      {/* Referral card — sits above the balance */}
-      <motion.div variants={itemVariants}>
-        <ReferralCard
-          code={profile?.referral_code ?? null}
-          earnings={Number(profile?.referral_earnings ?? 0)}
-          count={referralCount}
-        />
       </motion.div>
 
       {/* Hero balance card */}
@@ -145,6 +156,67 @@ function DashboardHome() {
             </Link>
           </div>
         </div>
+      </motion.div>
+
+      {/* Referral card — sits under the balance */}
+      <motion.div variants={itemVariants}>
+        <ReferralCard
+          code={profile?.referral_code ?? null}
+          earnings={Number(profile?.referral_earnings ?? 0)}
+          count={referralCount}
+        />
+      </motion.div>
+
+      {/* Active investments with expiry countdown */}
+      <motion.div variants={itemVariants} className="space-y-3">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <h2 className="font-display text-lg text-primary">Active investments</h2>
+        </div>
+        {investments.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            No active plan yet.{" "}
+            <Link to="/dashboard/invest" className="font-medium text-primary underline">
+              Start investing
+            </Link>
+          </div>
+        ) : (
+          investments.map((inv) => (
+            <motion.div
+              key={inv.id}
+              whileHover={{ scale: 1.01 }}
+              className="rounded-2xl border border-border bg-card p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="font-display text-base text-primary">{inv.plans?.name ?? "Investment plan"}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    Invested <Money value={Number(inv.amount)} /> · Earned{" "}
+                    <span className="text-success"><Money value={Number(inv.total_earned)} /></span>
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+                    inv.is_paused ? "bg-muted text-muted-foreground" : "bg-success/10 text-success"
+                  }`}
+                >
+                  {inv.is_paused ? "Paused" : "Running"}
+                </span>
+              </div>
+              <div className="mt-3 rounded-xl bg-secondary/60 p-3">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <Clock className="h-3 w-3" /> Expires in
+                </div>
+                <div className="mt-2">
+                  <Countdown to={inv.end_date} />
+                </div>
+                <div className="mt-2 text-[11px] text-muted-foreground">
+                  Ends on {formatDate(inv.end_date)}
+                </div>
+              </div>
+            </motion.div>
+          ))
+        )}
       </motion.div>
     </motion.div>
   );

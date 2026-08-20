@@ -24,7 +24,7 @@ type Withdrawal = {
 };
 
 const schema = z.object({
-  amount: z.number().min(1000, "Minimum 1,000 XAF").max(50_000_000),
+  amount: z.number().min(250, "Minimum 250 XAF").max(50_000_000),
   method: z.enum(["mobile_money", "bank_transfer", "crypto"]),
   account_name: z.string().min(2).max(120),
   account_number: z.string().min(4).max(120),
@@ -138,7 +138,8 @@ function WithdrawPage() {
       <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
         <div>
           <Label htmlFor="amount">{t("common.amount")}</Label>
-          <Input id="amount" name="amount" type="number" min={1000} step={500} required />
+          <Input id="amount" name="amount" type="number" min={250} step={1} required />
+          <p className="mt-1 text-xs text-muted-foreground">Minimum withdrawal: 250 XAF — any amount above is allowed.</p>
         </div>
         <div>
           <Label htmlFor="method">{t("common.method")}</Label>
