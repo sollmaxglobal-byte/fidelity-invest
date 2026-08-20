@@ -139,6 +139,7 @@ function RootComponent() {
             <SendPulseLoader />
             <TransactionNotifications />
             <AppInstallPrompt />
+            <AnnouncementPopup />
           </AuthProvider>
         </I18nProvider>
       </ThemeProvider>
