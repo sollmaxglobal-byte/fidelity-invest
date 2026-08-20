@@ -72,6 +72,12 @@ function AdminSettings() {
         smtp_password: s.smtp_password,
         smtp_from_name: s.smtp_from_name,
         smtp_from_email: s.smtp_from_email,
+        announcement_enabled: !!s.announcement_enabled,
+        announcement_title: s.announcement_title,
+        announcement_message: s.announcement_message,
+        announcement_link: s.announcement_link,
+        announcement_link_label: s.announcement_link_label,
+        announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
       }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
