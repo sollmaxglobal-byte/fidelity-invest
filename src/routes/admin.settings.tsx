@@ -30,11 +30,18 @@ type Settings = {
   smtp_password: string | null;
   smtp_from_name: string | null;
   smtp_from_email: string | null;
+  announcement_enabled: boolean | null;
+  announcement_title: string | null;
+  announcement_message: string | null;
+  announcement_link: string | null;
+  announcement_link_label: string | null;
+  announcement_version: number | null;
 };
 
 function AdminSettings() {
   const [s, setS] = useState<Settings | null>(null);
   const [busy, setBusy] = useState(false);
+  const [reshow, setReshow] = useState(true);
 
   async function load() {
     // Full row (including SMTP credentials) is admin-only via SECURITY DEFINER RPC.
