@@ -52,25 +52,43 @@ type Profile = {
   referral_earnings: number | null;
 };
 
+type ActiveInvestment = {
+  id: string;
+  amount: number;
+  total_earned: number;
+  start_date: string;
+  end_date: string;
+  is_paused: boolean;
+  plans: { name: string } | null;
+};
+
 function DashboardHome() {
   const { user } = useAuth();
   const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [referralCount, setReferralCount] = useState(0);
+  const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { count: refCount }] = await Promise.all([
+      const [{ data: p }, { count: refCount }, { data: inv }] = await Promise.all([
         supabase
           .from("profiles")
           .select("full_name,balance,referral_code,referral_earnings")
           .eq("id", user.id)
           .maybeSingle(),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("referred_by", user.id),
+        supabase
+          .from("investments")
+          .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .order("end_date", { ascending: true }),
       ]);
       setProfile(p as Profile);
       setReferralCount(refCount ?? 0);
+      setInvestments((inv as unknown as ActiveInvestment[]) ?? []);
     })();
   }, [user]);
 
