@@ -34,6 +34,7 @@ import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminPushRouteImport } from './routes/admin.push'
 import { Route as AdminPlansRouteImport } from './routes/admin.plans'
 import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
 import { Route as AdminInvestmentsRouteImport } from './routes/admin.investments'
@@ -169,6 +170,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPushRoute = AdminPushRouteImport.update({
+  id: '/push',
+  path: '/push',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPlansRoute = AdminPlansRouteImport.update({
   id: '/plans',
   path: '/plans',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/admin/investments': typeof AdminInvestmentsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/admin/investments': typeof AdminInvestmentsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/admin/investments': typeof AdminInvestmentsRoute
   '/admin/methods': typeof AdminMethodsRoute
   '/admin/plans': typeof AdminPlansRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
@@ -344,6 +353,7 @@ export interface FileRouteTypes {
     | '/admin/investments'
     | '/admin/methods'
     | '/admin/plans'
+    | '/admin/push'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/withdrawals'
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
     | '/admin/investments'
     | '/admin/methods'
     | '/admin/plans'
+    | '/admin/push'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/withdrawals'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/admin/investments'
     | '/admin/methods'
     | '/admin/plans'
+    | '/admin/push'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/withdrawals'
@@ -629,6 +641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/push': {
+      id: '/admin/push'
+      path: '/push'
+      fullPath: '/admin/push'
+      preLoaderRoute: typeof AdminPushRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/plans': {
       id: '/admin/plans'
       path: '/plans'
@@ -701,6 +720,7 @@ interface AdminRouteChildren {
   AdminInvestmentsRoute: typeof AdminInvestmentsRoute
   AdminMethodsRoute: typeof AdminMethodsRoute
   AdminPlansRoute: typeof AdminPlansRoute
+  AdminPushRoute: typeof AdminPushRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
@@ -713,6 +733,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminInvestmentsRoute: AdminInvestmentsRoute,
   AdminMethodsRoute: AdminMethodsRoute,
   AdminPlansRoute: AdminPlansRoute,
+  AdminPushRoute: AdminPushRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminWithdrawalsRoute: AdminWithdrawalsRoute,

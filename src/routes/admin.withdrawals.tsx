@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { sendEmail } from "@/lib/email-client";
 import { formatXAF, formatDate, txRef } from "@/lib/format";
+import { sendPushToUser } from "@/lib/push.functions";
 
 export const Route = createFileRoute("/admin/withdrawals")({
   component: AdminWithdrawals,
@@ -40,27 +41,32 @@ function AdminWithdrawals() {
   async function review(w: W, status: "approved" | "rejected" | "paid") {
     setBusy(w.id);
     try {
-      const { error } = await supabase.from("withdrawals").update({
-        status, reviewed_at: new Date().toISOString(),
-      }).eq("id", w.id);
-      if (error) throw error;
-
-      // Funds are already held (debited) when the user submits the request.
-      if (status === "approved" || status === "paid") {
-        // Just log a transaction the first time we move it past pending.
+      if (status === "rejected") {
+        // Atomic: marks rejected and refunds the held amount exactly once.
+        const { error } = await supabase.rpc("reject_withdrawal", { _id: w.id } as never);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("withdrawals").update({
+          status, reviewed_at: new Date().toISOString(),
+        }).eq("id", w.id);
+        if (error) throw error;
+        // Funds were already held when the user submitted; just log it once.
         if (w.status === "pending") {
           await supabase.from("transactions").insert({
             user_id: w.user_id, type: "withdrawal", amount: -Number(w.amount),
             description: `Withdrawal ${status} (${w.method})`, ref_id: w.id,
           });
         }
-      } else if (status === "rejected" && w.status === "pending") {
-        // Refund the held amount back to the user's balance.
-        const { data: prof } = await supabase.from("profiles").select("balance").eq("id", w.user_id).single();
-        await supabase.from("profiles").update({
-          balance: Number(prof?.balance ?? 0) + Number(w.amount),
-        }).eq("id", w.user_id);
       }
+
+      void sendPushToUser({
+        data: {
+          userId: w.user_id,
+          title: status === "rejected" ? "Withdrawal rejected" : `Withdrawal ${status}`,
+          body: `${formatXAF(w.amount)} — ${status === "rejected" ? "funds returned to your wallet" : "your payout is on the way"}.`,
+          url: "/dashboard/wallet",
+        },
+      }).catch(() => {});
       const key =
         status === "rejected" ? "withdrawal_rejected"
         : status === "paid" ? "withdrawal_paid"

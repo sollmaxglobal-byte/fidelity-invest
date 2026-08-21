@@ -75,21 +75,15 @@ function WithdrawPage() {
         account_number: String(fd.get("account_number") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
-      const { data: inserted, error } = await supabase.from("withdrawals").insert({
-        user_id: user.id,
-        amount: v.amount,
-        method: v.method,
-        account_name: v.account_name,
-        account_number: v.account_number,
-        status: "pending",
-      }).select("id").single();
+      // Funds are held (debited) atomically on the server; refunded if rejected.
+      const { data: newId, error } = await supabase.rpc("request_withdrawal", {
+        _amount: v.amount,
+        _method: v.method,
+        _account_name: v.account_name,
+        _account_number: v.account_number,
+      } as never);
       if (error) throw error;
-      const withdrawalId = inserted?.id as string;
-      // Hold funds immediately — balance leaves the account on submit.
-      // Refunded automatically if the admin rejects the request.
-      await supabase.from("profiles").update({
-        balance: balance - v.amount,
-      }).eq("id", user.id);
+      const withdrawalId = newId as unknown as string;
       if (user.email) {
         sendEmail({
           to: user.email,
