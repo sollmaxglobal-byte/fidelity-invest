@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, ArrowDownToLine, ArrowUpFromLine, Users,
-  Settings, Wallet, ShieldCheck, LogOut, Menu, Cog, TrendingUp, Mail,
+  Settings, Wallet, ShieldCheck, LogOut, Menu, Cog, TrendingUp, Mail, BellRing,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
   { to: "/admin/plans", label: "Plans", icon: Wallet },
   { to: "/admin/methods", label: "Payment methods", icon: Settings },
   { to: "/admin/emails", label: "Email templates", icon: Mail },
+  { to: "/admin/push", label: "Push notifications", icon: BellRing },
   { to: "/admin/settings", label: "Site settings", icon: Cog },
 ];
 
