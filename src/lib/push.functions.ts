@@ -43,7 +43,7 @@ export const sendPushBroadcast = createServerFn({ method: "POST" })
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin.from("push_subscriptions").select("id,endpoint,p256dh,auth");
-    const sent = await deliver((rows ?? []) as PushRow[], {
+    const sent = await deliver(rows ?? [], {
       title: data.title,
       body: data.body,
       url: data.url || "/dashboard",
