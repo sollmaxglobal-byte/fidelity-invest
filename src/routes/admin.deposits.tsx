@@ -56,6 +56,16 @@ function AdminDeposits() {
           description: `Deposit approved (${d.payment_methods?.label ?? ""})`, ref_id: d.id,
         });
       }
+      void sendPushToUser({
+        data: {
+          userId: d.user_id,
+          title: status === "approved" ? "Deposit approved" : "Deposit rejected",
+          body: `${Number(d.amount).toLocaleString("fr-CM")} XAF — ${
+            status === "approved" ? "your wallet has been credited." : "we could not verify this payment."
+          }`,
+          url: "/dashboard/wallet",
+        },
+      }).catch(() => {});
       // Notify user (edge function looks up email server-side via user_id)
       sendEmail({
         to: `user_id:${d.user_id}`,
