@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PushToggle } from "@/components/PushToggle";
 
 export const Route = createFileRoute("/dashboard/profile")({
   component: ProfilePage,
@@ -139,6 +140,8 @@ function ProfilePage() {
           </Button>
         </div>
       </div>
+
+      <PushToggle />
 
       {/* Change password */}
       <form onSubmit={changePassword} className="rounded-2xl border border-border bg-card p-5">
