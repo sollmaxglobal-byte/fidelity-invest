@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Home, TrendingUp, Wallet, User, ShieldCheck, Menu, Info, Phone, Layers, FileText, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
@@ -8,6 +8,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { SocialProof } from "@/components/SocialProof";
+import { PushSetup } from "@/components/PushSetup";
+import { isStandalone } from "@/lib/push-client";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
@@ -34,6 +36,14 @@ function DashboardLayout() {
   const { t } = useI18n();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const [appMode, setAppMode] = useState(false);
+
+  useEffect(() => {
+    const standalone = isStandalone();
+    setAppMode(standalone);
+    if (standalone) document.documentElement.classList.add("app-standalone");
+    return () => document.documentElement.classList.remove("app-standalone");
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
@@ -49,7 +59,7 @@ function DashboardLayout() {
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -76,7 +86,7 @@ function DashboardLayout() {
                   <SheetTitle className="font-display text-primary">Site menu</SheetTitle>
                 </SheetHeader>
                 <nav className="mt-4 flex flex-col gap-1">
-                  {SITE_MENU.map((m) => (
+                  {(appMode ? [] : SITE_MENU).map((m) => (
                     <SheetClose asChild key={m.to}>
                       <Link
                         to={m.to as never}
@@ -175,6 +185,7 @@ function DashboardLayout() {
           })}
         </div>
       </nav>
+      <PushSetup />
       <SocialProof />
     </div>
   );

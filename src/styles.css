@@ -202,3 +202,19 @@
   #receipt .print-stamp,
   #receipt .print-stamp * { border-radius: 9999px !important; }
 }
+
+/* Installed PWA: behave like a native app, not a web page */
+html.app-standalone {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+html.app-standalone body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+html.app-standalone input,
+html.app-standalone textarea,
+html.app-standalone [contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}
