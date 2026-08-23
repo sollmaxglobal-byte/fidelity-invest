@@ -5,6 +5,8 @@ import { Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sendEmail } from "@/lib/email-client";
 import { sendPushToUser } from "@/lib/push.functions";
+import { txNotification } from "@/lib/notification-templates";
+
 import { Button } from "@/components/ui/button";
 import { formatXAF, formatDate, txRef } from "@/lib/format";
 
