@@ -1,0 +1,60 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+
+const bodySchema = z.object({
+  text: z.string().min(5).max(4000),
+  sender: z.string().max(60).optional(),
+  secret: z.string().max(200).optional(),
+});
+
+export const Route = createFileRoute("/api/public/mm-sms")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const { secretMatches, ingestMessage } = await import("@/lib/deposit-verify.server");
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+        let payload: z.infer<typeof bodySchema>;
+        try {
+          payload = bodySchema.parse(await request.json());
+        } catch {
+          return new Response(JSON.stringify({ error: "Invalid payload" }), {
+            status: 400,
+            headers: { "content-type": "application/json" },
+          });
+        }
+
+        const provided =
+          request.headers.get("x-mm-secret") ??
+          (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "") ??
+          payload.secret ??
+          null;
+
+        const { data: settings } = await supabaseAdmin
+          .from("app_settings")
+          .select("mm_webhook_secret")
+          .eq("id", 1)
+          .maybeSingle();
+        const expected = settings?.mm_webhook_secret ?? process.env["MM_SMS_WEBHOOK_SECRET"] ?? null;
+
+        if (!expected || !secretMatches(provided || payload.secret || null, expected)) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "content-type": "application/json" },
+          });
+        }
+
+        try {
+          const result = await ingestMessage(payload.text, payload.sender ?? "sms-forwarder");
+          return Response.json(result);
+        } catch (err) {
+          console.error("[mm-sms] ingest failed", err);
+          return new Response(JSON.stringify({ error: "Could not process message" }), {
+            status: 500,
+            headers: { "content-type": "application/json" },
+          });
+        }
+      },
+    },
+  },
+});
