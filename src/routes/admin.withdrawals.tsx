@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { sendEmail } from "@/lib/email-client";
 import { formatXAF, formatDate, txRef } from "@/lib/format";
 import { sendPushToUser } from "@/lib/push.functions";
+import { txNotification } from "@/lib/notification-templates";
+
 
 export const Route = createFileRoute("/admin/withdrawals")({
   component: AdminWithdrawals,
