@@ -5,6 +5,8 @@ import { Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sendEmail } from "@/lib/email-client";
 import { sendPushToUser } from "@/lib/push.functions";
+import { txNotification } from "@/lib/notification-templates";
+
 import { Button } from "@/components/ui/button";
 import { formatXAF, formatDate, txRef } from "@/lib/format";
 
@@ -60,13 +62,12 @@ function AdminDeposits() {
       void sendPushToUser({
         data: {
           userId: d.user_id,
-          title: status === "approved" ? "Deposit approved" : "Deposit rejected",
-          body: `${Number(d.amount).toLocaleString("fr-CM")} XAF — ${
-            status === "approved" ? "your wallet has been credited." : "we could not verify this payment."
-          }`,
-          url: "/dashboard/wallet",
+          ...(status === "approved"
+            ? txNotification.depositApproved(Number(d.amount))
+            : txNotification.depositRejected(Number(d.amount))),
         },
       }).catch(() => {});
+
       // Notify user (edge function looks up email server-side via user_id)
       sendEmail({
         to: `user_id:${d.user_id}`,

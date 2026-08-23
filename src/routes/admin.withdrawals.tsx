@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { sendEmail } from "@/lib/email-client";
 import { formatXAF, formatDate, txRef } from "@/lib/format";
 import { sendPushToUser } from "@/lib/push.functions";
+import { txNotification } from "@/lib/notification-templates";
+
 
 export const Route = createFileRoute("/admin/withdrawals")({
   component: AdminWithdrawals,
@@ -62,11 +64,14 @@ function AdminWithdrawals() {
       void sendPushToUser({
         data: {
           userId: w.user_id,
-          title: status === "rejected" ? "Withdrawal rejected" : `Withdrawal ${status}`,
-          body: `${formatXAF(w.amount)} — ${status === "rejected" ? "funds returned to your wallet" : "your payout is on the way"}.`,
-          url: "/dashboard/wallet",
+          ...(status === "rejected"
+            ? txNotification.withdrawalRejected(Number(w.amount))
+            : status === "paid"
+              ? txNotification.withdrawalPaid(Number(w.amount))
+              : txNotification.withdrawalApproved(Number(w.amount))),
         },
       }).catch(() => {});
+
       const key =
         status === "rejected" ? "withdrawal_rejected"
         : status === "paid" ? "withdrawal_paid"
