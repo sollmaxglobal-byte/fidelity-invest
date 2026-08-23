@@ -36,6 +36,9 @@ type Settings = {
   announcement_link: string | null;
   announcement_link_label: string | null;
   announcement_version: number | null;
+  auto_approve_enabled: boolean | null;
+  auto_approve_max_amount: number | null;
+  mm_webhook_secret: string | null;
 };
 
 function AdminSettings() {
