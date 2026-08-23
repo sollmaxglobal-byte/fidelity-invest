@@ -2,7 +2,7 @@
 import { normalizeTxnId, parseAmount, parseMmMessage } from "@/lib/mm-parse";
 
 const AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash";
+const MODEL = "google/gemini-2.5-flash";
 
 export type OcrResult = {
   transaction_id: string | null;
@@ -54,6 +54,10 @@ export async function readProof(imageUrl: string): Promise<OcrResult> {
 
   if (!res.ok) {
     const detail = await res.text();
+    if (res.status === 402 || res.status === 403) {
+      throw new Error("Automatic reading is paused (AI credits unavailable) — approve this deposit manually.");
+    }
+    if (res.status === 429) throw new Error("Automatic reading is busy — try Re-check in a moment.");
     throw new Error(`AI read failed (${res.status}): ${detail.slice(0, 200)}`);
   }
   const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
