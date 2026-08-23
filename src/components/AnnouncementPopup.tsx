@@ -27,9 +27,11 @@ export function AnnouncementPopup() {
     (async () => {
       try {
         const { data, error } = await supabase
-          .from("public_app_settings")
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .select("announcement_enabled,announcement_title,announcement_message,announcement_link,announcement_link_label,announcement_version" as any)
+          .from("app_settings")
+          .select(
+            "announcement_enabled,announcement_title,announcement_message,announcement_link,announcement_link_label,announcement_version",
+          )
+          .eq("id", 1)
           .maybeSingle();
         if (error || cancelled || !data) return;
         const row = data as unknown as Announcement;
