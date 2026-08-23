@@ -50,7 +50,9 @@ export const sendPushBroadcast = createServerFn({ method: "POST" })
     const { deliver, assertAdmin } = await import("@/lib/push.server");
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows } = await supabaseAdmin.from("push_subscriptions").select("id,endpoint,p256dh,auth");
+    const { data: rows } = await supabaseAdmin
+      .from("push_subscriptions")
+      .select("id,endpoint,p256dh,auth");
     const sent = await deliver(rows ?? [], {
       title: data.title,
       body: data.body,
@@ -69,7 +71,9 @@ export const sendPushBroadcast = createServerFn({ method: "POST" })
 
 export const sendPushToUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { userId: string; title: string; body: string; url?: string; tag?: string }) => data)
+  .inputValidator(
+    (data: { userId: string; title: string; body: string; url?: string; tag?: string }) => data,
+  )
   .handler(async ({ data, context }) => {
     const { deliver, assertAdmin } = await import("@/lib/push.server");
     await assertAdmin(context as never);

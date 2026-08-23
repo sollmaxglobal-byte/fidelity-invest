@@ -22,7 +22,11 @@ export async function deliver(rows: PushRow[], message: PushMessage) {
       try {
         const init = await buildPushPayload(
           { data: message, options: { ttl: 3600, urgency: "high" } },
-          { endpoint: row.endpoint, expirationTime: null, keys: { auth: row.auth, p256dh: row.p256dh } },
+          {
+            endpoint: row.endpoint,
+            expirationTime: null,
+            keys: { auth: row.auth, p256dh: row.p256dh },
+          },
           vapid as { subject: string; publicKey: string; privateKey: string },
         );
         const res = await fetch(row.endpoint, init as RequestInit);
@@ -47,6 +51,9 @@ export async function assertAdmin(context: {
   supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> };
   userId: string;
 }) {
-  const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+  const { data } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
   if (!data) throw new Error("Forbidden");
 }

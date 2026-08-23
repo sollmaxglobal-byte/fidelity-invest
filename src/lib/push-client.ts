@@ -42,9 +42,8 @@ export async function registerPushWorker() {
 
 export async function enablePush(): Promise<"enabled" | "denied" | "unsupported"> {
   if (!pushSupported()) return "unsupported";
-  const permission = Notification.permission === "granted"
-    ? "granted"
-    : await Notification.requestPermission();
+  const permission =
+    Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
   if (permission !== "granted") return "denied";
 
   const reg = await registerPushWorker();
@@ -90,7 +89,6 @@ export async function pushEnabled() {
   const reg = await navigator.serviceWorker.getRegistration("/");
   return Boolean(await reg?.pushManager.getSubscription());
 }
-
 
 export function pushPermission() {
   if (!pushSupported()) return "unsupported" as const;

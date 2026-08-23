@@ -30,7 +30,9 @@ export function PushSetup() {
       if (Notification.permission === "denied") return;
       setShow(true);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   if (!show) return null;
