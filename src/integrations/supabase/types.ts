@@ -22,7 +22,10 @@ export type Database = {
           announcement_message: string | null
           announcement_title: string | null
           announcement_version: number
+          auto_approve_enabled: boolean
+          auto_approve_max_amount: number | null
           id: number
+          mm_webhook_secret: string | null
           referral_percent: number
           sendpulse_chat_id: string | null
           sendpulse_embed_html: string | null
@@ -47,7 +50,10 @@ export type Database = {
           announcement_message?: string | null
           announcement_title?: string | null
           announcement_version?: number
+          auto_approve_enabled?: boolean
+          auto_approve_max_amount?: number | null
           id?: number
+          mm_webhook_secret?: string | null
           referral_percent?: number
           sendpulse_chat_id?: string | null
           sendpulse_embed_html?: string | null
@@ -72,7 +78,10 @@ export type Database = {
           announcement_message?: string | null
           announcement_title?: string | null
           announcement_version?: number
+          auto_approve_enabled?: boolean
+          auto_approve_max_amount?: number | null
           id?: number
+          mm_webhook_secret?: string | null
           referral_percent?: number
           sendpulse_chat_id?: string | null
           sendpulse_embed_html?: string | null
@@ -96,8 +105,16 @@ export type Database = {
         Row: {
           admin_note: string | null
           amount: number
+          auto_approved_at: string | null
+          auto_note: string | null
           created_at: string
           id: string
+          matched_message_id: string | null
+          ocr_amount: number | null
+          ocr_payer: string | null
+          ocr_raw: Json | null
+          ocr_txn_id: string | null
+          ocr_txn_id_norm: string | null
           payer_phone: string | null
           payment_method_id: string | null
           proof_url: string | null
@@ -109,8 +126,16 @@ export type Database = {
         Insert: {
           admin_note?: string | null
           amount: number
+          auto_approved_at?: string | null
+          auto_note?: string | null
           created_at?: string
           id?: string
+          matched_message_id?: string | null
+          ocr_amount?: number | null
+          ocr_payer?: string | null
+          ocr_raw?: Json | null
+          ocr_txn_id?: string | null
+          ocr_txn_id_norm?: string | null
           payer_phone?: string | null
           payment_method_id?: string | null
           proof_url?: string | null
@@ -122,8 +147,16 @@ export type Database = {
         Update: {
           admin_note?: string | null
           amount?: number
+          auto_approved_at?: string | null
+          auto_note?: string | null
           created_at?: string
           id?: string
+          matched_message_id?: string | null
+          ocr_amount?: number | null
+          ocr_payer?: string | null
+          ocr_raw?: Json | null
+          ocr_txn_id?: string | null
+          ocr_txn_id_norm?: string | null
           payer_phone?: string | null
           payment_method_id?: string | null
           proof_url?: string | null
@@ -133,6 +166,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "deposits_matched_message_id_fkey"
+            columns: ["matched_message_id"]
+            isOneToOne: false
+            referencedRelation: "mm_messages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "deposits_payment_method_id_fkey"
             columns: ["payment_method_id"]
@@ -254,6 +294,56 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mm_messages: {
+        Row: {
+          amount: number | null
+          created_at: string
+          id: string
+          matched_at: string | null
+          matched_deposit_id: string | null
+          payer_number: string | null
+          raw_text: string
+          received_at: string
+          sender: string | null
+          txn_id: string | null
+          txn_id_norm: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          id?: string
+          matched_at?: string | null
+          matched_deposit_id?: string | null
+          payer_number?: string | null
+          raw_text: string
+          received_at?: string
+          sender?: string | null
+          txn_id?: string | null
+          txn_id_norm?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          id?: string
+          matched_at?: string | null
+          matched_deposit_id?: string | null
+          payer_number?: string | null
+          raw_text?: string
+          received_at?: string
+          sender?: string | null
+          txn_id?: string | null
+          txn_id_norm?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mm_messages_matched_deposit_id_fkey"
+            columns: ["matched_deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposits"
             referencedColumns: ["id"]
           },
         ]
@@ -675,6 +765,10 @@ export type Database = {
         Args: { _amount: number; _plan_id: string }
         Returns: Json
       }
+      auto_approve_deposit: {
+        Args: { _deposit_id: string; _message_id: string }
+        Returns: Json
+      }
       distribute_profits: { Args: never; Returns: undefined }
       get_app_settings_admin: {
         Args: never
@@ -685,7 +779,10 @@ export type Database = {
           announcement_message: string | null
           announcement_title: string | null
           announcement_version: number
+          auto_approve_enabled: boolean
+          auto_approve_max_amount: number | null
           id: number
+          mm_webhook_secret: string | null
           referral_percent: number
           sendpulse_chat_id: string | null
           sendpulse_embed_html: string | null
