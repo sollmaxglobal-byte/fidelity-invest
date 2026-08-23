@@ -81,6 +81,8 @@ function AdminSettings() {
         announcement_link: s.announcement_link,
         announcement_link_label: s.announcement_link_label,
         announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
+        auto_approve_enabled: s.auto_approve_enabled ?? true,
+        auto_approve_max_amount: s.auto_approve_max_amount,
       }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
