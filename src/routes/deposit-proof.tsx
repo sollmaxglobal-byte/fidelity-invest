@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
 import { txRef } from "@/lib/format";
+import { verifyDepositProof } from "@/lib/deposit-verify.functions";
 import { formatXAF } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 
@@ -99,6 +100,9 @@ function DepositProofPage() {
           },
         });
       }
+      // Kick off automatic verification (reads the screenshot, matches the operator message).
+      void verifyDepositProof({ data: { depositId: data.id } }).catch(() => {});
+
       toast.success(t("deposit.submitted"));
       navigate({ to: "/deposit-pending/$id", params: { id: data.id } });
     } catch (error) {

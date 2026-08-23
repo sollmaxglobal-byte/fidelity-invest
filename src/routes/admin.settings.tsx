@@ -36,6 +36,9 @@ type Settings = {
   announcement_link: string | null;
   announcement_link_label: string | null;
   announcement_version: number | null;
+  auto_approve_enabled: boolean | null;
+  auto_approve_max_amount: number | null;
+  mm_webhook_secret: string | null;
 };
 
 function AdminSettings() {
@@ -78,6 +81,8 @@ function AdminSettings() {
         announcement_link: s.announcement_link,
         announcement_link_label: s.announcement_link_label,
         announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
+        auto_approve_enabled: s.auto_approve_enabled ?? true,
+        auto_approve_max_amount: s.auto_approve_max_amount,
       }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
@@ -102,6 +107,65 @@ function AdminSettings() {
         <div className="grid gap-3 sm:grid-cols-2">
           <div><Label>Site name</Label><Input value={s.site_name ?? ""} onChange={(e) => set("site_name", e.target.value)} /></div>
           <div><Label>Site URL</Label><Input value={s.site_url ?? ""} onChange={(e) => set("site_url", e.target.value)} placeholder="https://..." /></div>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <MessageCircle className="h-5 w-5" /> Automatic deposit approval
+        </h2>
+        <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
+          <div>
+            <div className="text-sm font-medium">Enable auto-approval</div>
+            <p className="text-xs text-muted-foreground">
+              Approves a deposit only when the screenshot transaction ID matches a received mobile-money message and the amounts are identical.
+            </p>
+          </div>
+          <Switch
+            checked={s.auto_approve_enabled ?? true}
+            onCheckedChange={(v) => set("auto_approve_enabled", v)}
+          />
+        </div>
+        <div className="max-w-xs">
+          <Label>Maximum auto-approved amount (XAF)</Label>
+          <Input
+            type="number" min={0} step={500}
+            value={s.auto_approve_max_amount ?? ""}
+            onChange={(e) => set("auto_approve_max_amount", e.target.value === "" ? null : Number(e.target.value))}
+            placeholder="No limit"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">Bigger deposits always wait for your manual review.</p>
+        </div>
+        <div>
+          <Label>SMS forwarder endpoint</Label>
+          <Input readOnly value={`${(s.site_url || "").replace(/\/$/, "")}/api/public/mm-sms`} />
+          <p className="mt-1 text-xs text-muted-foreground">
+            POST JSON <span className="font-mono">{"{ \"text\": \"<sms body>\" }"}</span> with header{" "}
+            <span className="font-mono">x-mm-secret</span>.
+          </p>
+        </div>
+        <div>
+          <Label>Forwarder secret</Label>
+          <Input readOnly type="password" value={s.mm_webhook_secret ?? ""} />
+          <div className="mt-2 flex gap-2">
+            <Button
+              type="button" size="sm" variant="outline"
+              onClick={() => { navigator.clipboard.writeText(s.mm_webhook_secret ?? ""); toast.success("Secret copied"); }}
+            >
+              Copy secret
+            </Button>
+            <Button
+              type="button" size="sm" variant="outline"
+              onClick={async () => {
+                const next = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+                const { error } = await supabase.from("app_settings").update({ mm_webhook_secret: next }).eq("id", 1);
+                if (error) toast.error(error.message);
+                else { set("mm_webhook_secret", next); toast.success("New secret generated"); }
+              }}
+            >
+              Regenerate
+            </Button>
+          </div>
         </div>
       </section>
 

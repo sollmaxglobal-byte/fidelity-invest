@@ -43,6 +43,7 @@ import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 import { Route as InvestSuccessIdRouteImport } from './routes/invest.success.$id'
 import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm.$planId'
 import { Route as ApiPublicProcessReceiptEmailsRouteImport } from './routes/api/public/process-receipt-emails'
+import { Route as ApiPublicMmSmsRouteImport } from './routes/api/public/mm-sms'
 import { Route as DashboardReceiptKindIdRouteImport } from './routes/dashboard.receipt.$kind.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -216,6 +217,11 @@ const ApiPublicProcessReceiptEmailsRoute =
     path: '/api/public/process-receipt-emails',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMmSmsRoute = ApiPublicMmSmsRouteImport.update({
+  id: '/api/public/mm-sms',
+  path: '/api/public/mm-sms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardReceiptKindIdRoute = DashboardReceiptKindIdRouteImport.update({
   id: '/receipt/$kind/$id',
   path: '/receipt/$kind/$id',
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mm-sms': typeof ApiPublicMmSmsRoute
   '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/mm-sms': typeof ApiPublicMmSmsRoute
   '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
@@ -327,6 +335,7 @@ export interface FileRoutesById {
   '/deposit-pending/$id': typeof DepositPendingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mm-sms': typeof ApiPublicMmSmsRoute
   '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
@@ -366,6 +375,7 @@ export interface FileRouteTypes {
     | '/deposit-pending/$id'
     | '/admin/'
     | '/dashboard/'
+    | '/api/public/mm-sms'
     | '/api/public/process-receipt-emails'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/deposit-pending/$id'
     | '/admin'
     | '/dashboard'
+    | '/api/public/mm-sms'
     | '/api/public/process-receipt-emails'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/deposit-pending/$id'
     | '/admin/'
     | '/dashboard/'
+    | '/api/public/mm-sms'
     | '/api/public/process-receipt-emails'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
@@ -459,6 +471,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   DepositPendingIdRoute: typeof DepositPendingIdRoute
+  ApiPublicMmSmsRoute: typeof ApiPublicMmSmsRoute
   ApiPublicProcessReceiptEmailsRoute: typeof ApiPublicProcessReceiptEmailsRoute
   InvestConfirmPlanIdRoute: typeof InvestConfirmPlanIdRoute
   InvestSuccessIdRoute: typeof InvestSuccessIdRoute
@@ -704,6 +717,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProcessReceiptEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mm-sms': {
+      id: '/api/public/mm-sms'
+      path: '/api/public/mm-sms'
+      fullPath: '/api/public/mm-sms'
+      preLoaderRoute: typeof ApiPublicMmSmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/receipt/$kind/$id': {
       id: '/dashboard/receipt/$kind/$id'
       path: '/receipt/$kind/$id'
@@ -783,6 +803,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   DepositPendingIdRoute: DepositPendingIdRoute,
+  ApiPublicMmSmsRoute: ApiPublicMmSmsRoute,
   ApiPublicProcessReceiptEmailsRoute: ApiPublicProcessReceiptEmailsRoute,
   InvestConfirmPlanIdRoute: InvestConfirmPlanIdRoute,
   InvestSuccessIdRoute: InvestSuccessIdRoute,
