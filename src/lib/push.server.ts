@@ -15,6 +15,7 @@ export async function deliver(rows: PushRow[], message: PushMessage) {
 
   let sent = 0;
   const stale: string[] = [];
+  const failures: Array<{ endpoint: string; status: number; response: string }> = [];
 
   await Promise.all(
     rows.map(async (row) => {
@@ -26,7 +27,11 @@ export async function deliver(rows: PushRow[], message: PushMessage) {
         );
         const res = await fetch(row.endpoint, init as RequestInit);
         if (res.ok || res.status === 201) sent += 1;
-        else if (res.status === 404 || res.status === 410) stale.push(row.endpoint);
+        else {
+          const response = (await res.text()).slice(0, 300);
+          failures.push({ endpoint: row.endpoint.slice(0, 80), status: res.status, response });
+          if ([400, 401, 403, 404, 410].includes(res.status)) stale.push(row.endpoint);
+        }
       } catch (err) {
         console.error("[push] delivery failed", err);
       }
@@ -34,6 +39,7 @@ export async function deliver(rows: PushRow[], message: PushMessage) {
   );
 
   if (stale.length) await supabaseAdmin.from("push_subscriptions").delete().in("endpoint", stale);
+  if (failures.length) console.error("[push] rejected subscriptions", failures);
   return sent;
 }
 
