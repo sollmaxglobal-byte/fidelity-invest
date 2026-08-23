@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
 import { txRef } from "@/lib/format";
+import { verifyDepositProof } from "@/lib/deposit-verify.functions";
 import { formatXAF } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 
