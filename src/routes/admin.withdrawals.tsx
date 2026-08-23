@@ -62,11 +62,14 @@ function AdminWithdrawals() {
       void sendPushToUser({
         data: {
           userId: w.user_id,
-          title: status === "rejected" ? "Withdrawal rejected" : `Withdrawal ${status}`,
-          body: `${formatXAF(w.amount)} — ${status === "rejected" ? "funds returned to your wallet" : "your payout is on the way"}.`,
-          url: "/dashboard/wallet",
+          ...(status === "rejected"
+            ? txNotification.withdrawalRejected(Number(w.amount))
+            : status === "paid"
+              ? txNotification.withdrawalPaid(Number(w.amount))
+              : txNotification.withdrawalApproved(Number(w.amount))),
         },
       }).catch(() => {});
+
       const key =
         status === "rejected" ? "withdrawal_rejected"
         : status === "paid" ? "withdrawal_paid"
