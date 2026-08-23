@@ -99,6 +99,9 @@ function DepositProofPage() {
           },
         });
       }
+      // Kick off automatic verification (reads the screenshot, matches the operator message).
+      void verifyDepositProof({ data: { depositId: data.id } }).catch(() => {});
+
       toast.success(t("deposit.submitted"));
       navigate({ to: "/deposit-pending/$id", params: { id: data.id } });
     } catch (error) {
