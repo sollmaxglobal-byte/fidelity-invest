@@ -1,58 +1,47 @@
-# Plan
+# Offline mode with live sync
 
-## 1. Promote `mokiawajovert@gmail.com` to admin
-- Run a one-off SQL `INSERT` into `public.user_roles` selecting the user id from `auth.users` where email = `mokiawajovert@gmail.com`, role = `admin`, with `ON CONFLICT (user_id, role) DO NOTHING`.
+Goal: the app opens and stays usable without internet, then syncs with the server the moment the connection returns.
 
-## 2. Full English ↔ French translation across the entire site
-Currently `useI18n` only covers a small set of dashboard/auth keys. Most pages (landing, plans, about, contact, footer, header, FAQ, admin, invest, profile, withdraw, forgot/reset password, all toasts) are hardcoded English.
+## What is genuinely possible (and what is not)
 
-- Expand the dictionary in `src/hooks/useI18n.tsx` to cover every visible string, grouped by namespace:
-  - `landing.*` (hero, how-it-works, FAQ, CTA, disclaimer)
-  - `header.*` / `footer.*`
-  - `plans.*` (plan names stay, but labels: "Min", "Max", "Daily ROI", "Duration", "Activate")
-  - `auth.*` (all labels, errors, forgot/reset flows)
-  - `dashboard.home.*`, `dashboard.invest.*`, `dashboard.profile.*`
-  - `withdraw.*` (extend existing)
-  - `deposit.*` (rewrite for 4-step flow — see §4)
-  - `admin.*` minimal (page titles, tab labels)
-  - `toast.*` (success/error messages)
-- Replace hardcoded strings in these files with `t("…")`:
-  - `src/routes/index.tsx`, `plans.tsx`, `about.tsx`, `contact.tsx`
-  - `src/components/SiteHeader.tsx`, `SiteFooter.tsx`
-  - `src/routes/auth.tsx`, `forgot-password.tsx`, `reset-password.tsx`
-  - `src/routes/dashboard.index.tsx`, `dashboard.invest.tsx`, `dashboard.profile.tsx`, `dashboard.wallet.tsx`, `dashboard.withdraw.tsx`, `dashboard.deposit.tsx`
-  - `src/routes/admin.*.tsx` (titles + nav only)
-- Switch is already instant via React context; verify by toggling language and confirming every page updates without reload.
+Money and accounts live on the server, so some things cannot be truly completed offline:
 
-## 3. Tidio live chat widget with test key
-- Add a hardcoded fallback test key (e.g. `xyzabc12`) in `TidioLoader.tsx` that loads when no admin-saved `tidio_public_key` exists in `app_settings`.
-- Mount `<TidioLoader />` in `src/routes/__root.tsx` so it shows site-wide (public + dashboard).
-- Admin can later override via `admin.index.tsx` settings.
+- **Create account / login offline** — not possible for a *new* device or a *new* account: the password is verified on the server. What we can do: once a user has logged in on the device, the session is remembered, so re-opening the app offline keeps them signed in for weeks without re-typing anything. A first-time signup or a login on a brand new device will show a clear "Connect to the internet to sign in" screen instead of a broken page.
+- **Invest / deposit / withdraw offline** — the balance change must be validated by the server (otherwise a user could invest money they don't have, or withdraw twice). What we can do: let the user fill in and submit the request offline, store it safely on the device, show it as **Pending sync**, and send it automatically the second the phone is back online — then the real confirmation, receipt and push notification arrive.
 
-## 4. Redesign deposit page as a 4-step wizard
-Rebuild `src/routes/dashboard.deposit.tsx` as a stepper with progress indicator. The four steps:
+So: everything is *viewable and operable* offline, and every action *completes* automatically on reconnection.
 
-1. **Amount** — large numeric input with quick chips (10k / 25k / 50k / 100k XAF), live XAF formatting, min validation.
-2. **Method** — card grid for active payment methods (MTN MoMo, Orange Money, etc.) with icon + label.
-3. **Payment instructions** — shows account name, account number (copy buttons), the entered amount, and instructions. Confirms user has sent the money.
-4. **Upload proof** — single file upload (screenshot only), preview thumbnail, submit button.
+## What will be built
 
-Behaviour:
-- Sticky bottom "Continue / Back" buttons (mobile-first, app-like).
-- Progress bar across top with step labels (translated).
-- On submit → existing redirect to `/dashboard/wallet?filter=Deposits`.
-- Keep current Supabase insert + storage upload + email notification logic untouched.
+**1. Offline app shell**
+The app itself (screens, icons, fonts, styles) is cached on the device, so it launches instantly with no internet, on both Android and iPhone. Uses the standard Lovable PWA setup so the cache never goes stale after an update.
+
+**2. Cached live data**
+Balance, active investments, plans, deposit/withdrawal history and referrals are saved on the device after each successful load. Offline, the dashboard shows the last synced figures with an "Offline — last updated 10:32" badge instead of empty cards or spinners. When back online, everything refreshes silently.
+
+**3. Offline action queue**
+Deposit submissions (including the payment screenshot), withdrawal requests and investment activations made offline are stored on the device in an outbox:
+- The user gets an immediate "Saved — will be sent when you're back online" confirmation.
+- The item appears in history marked **Pending sync**.
+- On reconnect the app replays each item once, in order, with a unique key so nothing is submitted twice.
+- Success turns it into a real transaction; a server rejection (e.g. insufficient balance) shows a clear message and removes it from the queue.
+
+**4. Connection status**
+A slim banner shows Offline / Syncing / Synced, plus a manual "Sync now" button in the profile page.
+
+**5. Auth behaviour**
+- Already logged in: full offline access to the dashboard.
+- Not logged in and offline: friendly "You're offline — internet is needed to sign in or create an account" screen with a retry button.
 
 ## Technical notes
-- No DB schema changes (only the admin role insert).
-- No new packages required.
-- Tidio fallback key is public/test — safe to commit.
-- All text strings flow through `t()` so language toggle works site-wide instantly.
 
-## Files touched
-- `src/hooks/useI18n.tsx` (large dictionary expansion)
-- `src/components/TidioLoader.tsx` (fallback test key)
-- `src/routes/__root.tsx` (mount TidioLoader)
-- `src/routes/dashboard.deposit.tsx` (full rewrite as 4-step wizard)
-- All pages listed in §2 (string replacement to `t()`)
-- One SQL insert for the admin role
+- `vite-plugin-pwa` (generateSW, `registerType: autoUpdate`, `NetworkFirst` for navigations, `CacheFirst` for hashed assets), registered from a guarded wrapper so it never activates in the Lovable preview or dev.
+- The existing push worker logic is preserved by importing it into the generated `/sw.js`, so notifications keep working exactly as now.
+- TanStack Query persistence to IndexedDB for cached reads (balance, investments, history, plans).
+- Outbox stored in IndexedDB; screenshots kept as blobs and uploaded on replay. Replay is triggered by the `online` event and on app focus, guarded by an idempotency key per queued item so duplicates are impossible.
+- No change to the money logic on the server: the same `request_withdrawal` / `activate_investment_v2` / deposit insert paths are used, just called later.
+
+## Limits to be aware of
+
+- Offline requests are **requests**, not instant balance changes — balances only move once the server accepts them.
+- Offline mode works in the published app, not inside the Lovable editor preview.
