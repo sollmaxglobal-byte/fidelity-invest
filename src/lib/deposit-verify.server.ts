@@ -2,7 +2,7 @@
 import { normalizeTxnId, parseAmount, parseMmMessage } from "@/lib/mm-parse";
 
 const AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash";
+const MODEL = "google/gemini-2.5-flash";
 
 export type OcrResult = {
   transaction_id: string | null;
