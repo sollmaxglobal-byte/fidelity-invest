@@ -21,12 +21,18 @@ export function PushSetup() {
       await registerPushWorker();
       const already = await pushEnabled();
       if (cancelled) return;
-      if (already) return;
+      if (already) {
+        // Re-sync the browser subscription with the current user and server key.
+        await enablePush();
+        return;
+      }
       if (localStorage.getItem(DISMISS_KEY) === "1") return;
       if (Notification.permission === "denied") return;
       setShow(true);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   if (!show) return null;

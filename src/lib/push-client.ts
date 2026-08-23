@@ -1,7 +1,4 @@
-import { savePushSubscription, removePushSubscription } from "./push.functions";
-
-export const VAPID_PUBLIC_KEY =
-  "BPY7do3Rzjo9XKzEeHNoRjzY7Cu77IB10WsWZ2rAJ2M9s9C2pOJ9tRMz0kDvVS3jJeC2kfTvufJdqNqI5EqkoC0";
+import { getPushPublicKey, savePushSubscription, removePushSubscription } from "./push.functions";
 
 function urlBase64ToUint8Array(base64: string) {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
@@ -18,6 +15,12 @@ function encodeKey(sub: PushSubscription, name: "p256dh" | "auth") {
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
+}
+
+function sameKey(left: ArrayBuffer | null, right: Uint8Array) {
+  if (!left) return false;
+  const current = new Uint8Array(left);
+  return current.length === right.length && current.every((value, index) => value === right[index]);
 }
 
 export function pushSupported() {
@@ -39,19 +42,26 @@ export async function registerPushWorker() {
 
 export async function enablePush(): Promise<"enabled" | "denied" | "unsupported"> {
   if (!pushSupported()) return "unsupported";
-  const permission = await Notification.requestPermission();
+  const permission =
+    Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
   if (permission !== "granted") return "denied";
 
-  const reg = (await navigator.serviceWorker.getRegistration("/")) ?? (await registerPushWorker());
+  const reg = await registerPushWorker();
   if (!reg) return "unsupported";
   await navigator.serviceWorker.ready;
 
-  const existing = await reg.pushManager.getSubscription();
+  const { publicKey } = await getPushPublicKey();
+  const applicationServerKey = urlBase64ToUint8Array(publicKey);
+  let existing = await reg.pushManager.getSubscription();
+  if (existing && !sameKey(existing.options.applicationServerKey, applicationServerKey)) {
+    await existing.unsubscribe();
+    existing = null;
+  }
   const sub =
     existing ??
     (await reg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      applicationServerKey,
     }));
 
   await savePushSubscription({
@@ -78,4 +88,9 @@ export async function pushEnabled() {
   if (!pushSupported() || Notification.permission !== "granted") return false;
   const reg = await navigator.serviceWorker.getRegistration("/");
   return Boolean(await reg?.pushManager.getSubscription());
+}
+
+export function pushPermission() {
+  if (!pushSupported()) return "unsupported" as const;
+  return Notification.permission;
 }

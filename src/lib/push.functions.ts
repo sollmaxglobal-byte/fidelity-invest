@@ -3,6 +3,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type SubInput = { endpoint: string; p256dh: string; auth: string; userAgent?: string };
 
+export const getPushPublicKey = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const publicKey = process.env["VAPID_PUBLIC_KEY"];
+    if (!publicKey) throw new Error("Push notifications are not configured");
+    return { publicKey };
+  });
+
 export const savePushSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: SubInput) => data)
@@ -42,7 +50,9 @@ export const sendPushBroadcast = createServerFn({ method: "POST" })
     const { deliver, assertAdmin } = await import("@/lib/push.server");
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows } = await supabaseAdmin.from("push_subscriptions").select("id,endpoint,p256dh,auth");
+    const { data: rows } = await supabaseAdmin
+      .from("push_subscriptions")
+      .select("id,endpoint,p256dh,auth");
     const sent = await deliver(rows ?? [], {
       title: data.title,
       body: data.body,
@@ -61,7 +71,9 @@ export const sendPushBroadcast = createServerFn({ method: "POST" })
 
 export const sendPushToUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { userId: string; title: string; body: string; url?: string }) => data)
+  .inputValidator(
+    (data: { userId: string; title: string; body: string; url?: string; tag?: string }) => data,
+  )
   .handler(async ({ data, context }) => {
     const { deliver, assertAdmin } = await import("@/lib/push.server");
     await assertAdmin(context as never);
@@ -74,7 +86,7 @@ export const sendPushToUser = createServerFn({ method: "POST" })
       title: data.title,
       body: data.body,
       url: data.url || "/dashboard/wallet",
-      tag: `tx-${Date.now()}`,
+      tag: data.tag || `tx-${Date.now()}`,
     });
     return { sent };
   });
