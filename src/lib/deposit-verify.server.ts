@@ -212,7 +212,7 @@ export async function verifyDeposit(depositId: string, userId?: string) {
           ocr_txn_id_norm: normalizeTxnId(ocr.transaction_id),
           ocr_amount: ocr.amount,
           ocr_payer: ocr.payer_number,
-          ocr_raw: ocr as unknown as Record<string, unknown>,
+          ocr_raw: JSON.parse(JSON.stringify(ocr)),
         })
         .eq("id", deposit.id);
     } catch (err) {
