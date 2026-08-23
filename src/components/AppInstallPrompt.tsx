@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, X } from "lucide-react";
+import { Download, X, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -8,42 +8,107 @@ interface InstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+const DISMISS_KEY = "fidelity-install-dismissed";
+
+function isStandalone() {
+  if (typeof window === "undefined") return true;
+  const displayModes = ["standalone", "fullscreen", "minimal-ui", "window-controls-overlay"];
+  const matched = displayModes.some((m) => window.matchMedia(`(display-mode: ${m})`).matches);
+  const iosStandalone = (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+  return matched || iosStandalone;
+}
+
+function isIos() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  const iOS = /iPad|iPhone|iPod/.test(ua);
+  const iPadOS = navigator.platform === "MacIntel" && (navigator as unknown as { maxTouchPoints: number }).maxTouchPoints > 1;
+  return iOS || iPadOS;
+}
+
 export function AppInstallPrompt() {
   const { lang } = useI18n();
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [showIosHint, setShowIosHint] = useState(false);
+  const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
+    // Never show inside the installed app, or once the user dismissed / installed it.
+    if (isStandalone()) return;
+    if (localStorage.getItem(DISMISS_KEY) === "1") return;
+
+    // Chrome / Edge / Samsung (Android + desktop)
     const onPrompt = (event: Event) => {
       event.preventDefault();
       setPrompt(event as InstallPromptEvent);
+      setDismissed(false);
     };
+    // Fired by the browser once the PWA is actually installed
+    const onInstalled = () => {
+      localStorage.setItem(DISMISS_KEY, "1");
+      setPrompt(null);
+      setShowIosHint(false);
+      setDismissed(true);
+    };
+
     window.addEventListener("beforeinstallprompt", onPrompt);
-    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+
+    // iPhone / iPad Safari has no beforeinstallprompt — show manual instructions.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    if (isIos()) {
+      timer = setTimeout(() => {
+        setShowIosHint(true);
+        setDismissed(false);
+      }, 2500);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
-  if (!prompt || dismissed) return null;
+  const close = () => {
+    localStorage.setItem(DISMISS_KEY, "1");
+    setDismissed(true);
+  };
+
+  if (dismissed || (!prompt && !showIosHint)) return null;
 
   const install = async () => {
+    if (!prompt) return;
     await prompt.prompt();
     const choice = await prompt.userChoice;
-    if (choice.outcome === "accepted") setPrompt(null);
-    else setDismissed(true);
+    if (choice.outcome === "accepted") localStorage.setItem(DISMISS_KEY, "1");
+    setPrompt(null);
+    setDismissed(true);
   };
 
   return (
-    <aside className="fixed inset-x-3 bottom-20 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-lg border border-gold/40 bg-card p-3 text-card-foreground shadow-elegant md:bottom-5">
-      <img src="/fidelity-app-icon-192.png" alt="" width={48} height={48} className="h-12 w-12 rounded-lg" />
+    <aside className="fixed inset-x-3 bottom-20 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-border bg-card p-3 text-card-foreground shadow-elegant md:bottom-5">
+      <img src="/fidelity-app-icon-192.png" alt="" width={48} height={48} className="h-12 w-12 rounded-xl" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold">{lang === "fr" ? "Installer Fidelity" : "Install Fidelity"}</p>
         <p className="text-xs font-medium text-muted-foreground">
-          {lang === "fr" ? "Accédez rapidement à votre compte depuis votre écran d’accueil." : "Open your account quickly from your home screen."}
+          {showIosHint
+            ? lang === "fr"
+              ? "Appuyez sur Partager puis « Sur l’écran d’accueil »."
+              : "Tap Share, then “Add to Home Screen”."
+            : lang === "fr"
+              ? "Accédez rapidement à votre compte depuis votre écran d’accueil."
+              : "Open your account quickly from your home screen."}
         </p>
       </div>
-      <Button size="icon" aria-label={lang === "fr" ? "Installer l’application" : "Install app"} onClick={install}>
-        <Download className="h-4 w-4" />
-      </Button>
-      <Button size="icon" variant="ghost" aria-label={lang === "fr" ? "Fermer" : "Dismiss"} onClick={() => setDismissed(true)}>
+      {showIosHint ? (
+        <Share className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+      ) : (
+        <Button size="icon" aria-label={lang === "fr" ? "Installer l’application" : "Install app"} onClick={install}>
+          <Download className="h-4 w-4" />
+        </Button>
+      )}
+      <Button size="icon" variant="ghost" aria-label={lang === "fr" ? "Fermer" : "Dismiss"} onClick={close}>
         <X className="h-4 w-4" />
       </Button>
     </aside>
