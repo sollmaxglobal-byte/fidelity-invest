@@ -109,7 +109,6 @@ function AdminSettings() {
         auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any).eq("id", 1);
-      }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
     } catch (e) {
