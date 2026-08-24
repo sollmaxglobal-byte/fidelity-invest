@@ -226,6 +226,71 @@ function AdminSettings() {
         </div>
       </section>
 
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <Send className="h-5 w-5" /> Automatic MTN withdrawals (MacroDroid)
+        </h2>
+        <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
+          <div>
+            <div className="text-sm font-medium">Enable automatic payouts</div>
+            <p className="text-xs text-muted-foreground">
+              Only pending mobile-money withdrawals sent to an MTN number are paid automatically. Everything else — and
+              any failure such as insufficient float — stays pending for your manual approval.
+            </p>
+          </div>
+          <Switch
+            checked={!!s.auto_withdraw_enabled}
+            onCheckedChange={(v) => set("auto_withdraw_enabled", v)}
+          />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Maximum auto-paid amount (XAF)</Label>
+            <Input
+              type="number" min={0} step={500}
+              value={s.auto_withdraw_max_amount ?? ""}
+              onChange={(e) => set("auto_withdraw_max_amount", e.target.value === "" ? null : Number(e.target.value))}
+              placeholder="No limit"
+            />
+          </div>
+          <div>
+            <Label>USSD template</Label>
+            <Input
+              value={s.auto_withdraw_ussd_template ?? "*126*9*{phone}*{amount}#"}
+              onChange={(e) => set("auto_withdraw_ussd_template", e.target.value)}
+              className="font-mono text-xs"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-mono">{"{phone}"}</span> and <span className="font-mono">{"{amount}"}</span> are replaced automatically.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">MacroDroid setup</h3>
+          <div className="grid gap-3">
+            <CopyField label="1. Queue URL (HTTP GET, every 1 minute)" value={queueUrl} />
+            <CopyField label="Header name" value="x-mm-secret" />
+            <CopyField label="Header value" value={s.mm_webhook_secret ?? ""} />
+            <CopyField label="2. Result URL (HTTP POST)" value={resultUrl} />
+            <CopyField label="Result JSON body" value={'{"id":"{lv=wid}","status":"success"}'} />
+          </div>
+          <ol className="list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
+            <li>Macro 1 — Trigger: <span className="font-mono">Regular Interval, 1 minute</span>.</li>
+            <li>Action: <span className="font-mono">HTTP Request → GET</span> the Queue URL with the header above, save response to variable <span className="font-mono">resp</span>.</li>
+            <li>Action: JSON parse <span className="font-mono">resp</span> → store <span className="font-mono">claimed</span>, <span className="font-mono">code</span>, <span className="font-mono">id</span> (as <span className="font-mono">wid</span>).</li>
+            <li>Condition: if <span className="font-mono">claimed = true</span> → Action <span className="font-mono">Make Call / USSD</span> with <span className="font-mono">{"{lv=code}"}</span> (already built as <span className="font-mono">*126*9*number*amount#</span>).</li>
+            <li>Action: UI Interaction → wait for the PIN screen, <span className="font-mono">Input Text</span> your Mobile Money PIN, then click <span className="font-mono">Send / OK</span> (grant MacroDroid the Accessibility permission).</li>
+            <li>Macro 2 — Trigger: SMS received from <span className="font-mono">MTN Mobile Money</span> → HTTP POST it to the SMS endpoint above; the confirmation closes the withdrawal and notifies the user automatically.</li>
+            <li>Optional fallback: after the USSD screen closes, POST the Result URL with the JSON body above (use <span className="font-mono">status: "failed"</span> when the transfer did not go through).</li>
+          </ol>
+          <p className="text-xs text-amber-500">
+            If the SIM has insufficient balance or the transfer fails, the request simply stays pending — approve or
+            reject it yourself in Admin → Withdrawals.
+          </p>
+        </div>
+      </section>
+
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 font-display text-lg text-primary">
