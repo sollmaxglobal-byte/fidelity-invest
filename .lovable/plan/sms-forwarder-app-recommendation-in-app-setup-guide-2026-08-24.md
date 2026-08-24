@@ -4,8 +4,8 @@
 
 **SMS to URL Forwarder** (developer: Bogomolov) — free, no ads, lets you set a custom URL, custom JSON body and custom headers, which is exactly what this project's endpoint needs.
 
-- Play Store: https://play.google.com/store/apps/details?id=tech.bogomolov.incomingsmsgateway
-- Backup (if unavailable in your country): https://f-droid.org/en/packages/tech.bogomolov.incomingsmsgateway/
+- Play Store: [https://play.google.com/stores/apps/details?id=tech.bogomolov.incomingsmsgateway](https://play.google.com/store/apps/details?id=tech.bogomolov.incomingsmsgateway)
+- Backup (if unavailable in your country): [https://f-droid.org/en/packages/tech.bogomolov.incomingsmsgateway/](https://f-droid.org/en/packages/tech.bogomolov.incomingsmsgateway/)
 
 Note: the popular "SMS Forwarder" by frzinapps only forwards to phones/email/Telegram, not to a custom webhook with headers — it will not work here.
 
