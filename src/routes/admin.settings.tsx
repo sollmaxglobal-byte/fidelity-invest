@@ -39,6 +39,9 @@ type Settings = {
   auto_approve_enabled: boolean | null;
   auto_approve_max_amount: number | null;
   mm_webhook_secret: string | null;
+  auto_withdraw_enabled: boolean | null;
+  auto_withdraw_max_amount: number | null;
+  auto_withdraw_ussd_template: string | null;
 };
 
 function CopyField({ label, value }: { label: string; value: string }) {
