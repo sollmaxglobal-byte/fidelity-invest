@@ -104,6 +104,11 @@ function AdminSettings() {
         announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
         auto_approve_enabled: s.auto_approve_enabled ?? true,
         auto_approve_max_amount: s.auto_approve_max_amount,
+        auto_withdraw_enabled: !!s.auto_withdraw_enabled,
+        auto_withdraw_max_amount: s.auto_withdraw_max_amount,
+        auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any).eq("id", 1);
       }).eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
