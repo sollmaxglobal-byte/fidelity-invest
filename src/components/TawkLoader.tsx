@@ -41,7 +41,11 @@ export function TawkLoader() {
       s.async = true;
       s.src = `https://embed.tawk.to/${propertyId}/${widgetId}`;
       s.charset = "UTF-8";
-      s.setAttribute("crossorigin", "*");
+      // No crossorigin attribute: it forces a CORS fetch and Tawk only sends
+      // CORS headers for whitelisted domains, which breaks local/preview loads.
+      s.onerror = () => {
+        /* chat widget unavailable — fail silently */
+      };
       document.body.appendChild(s);
     })();
     return () => {
