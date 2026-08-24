@@ -24,6 +24,9 @@ export type Database = {
           announcement_version: number
           auto_approve_enabled: boolean
           auto_approve_max_amount: number | null
+          auto_withdraw_enabled: boolean
+          auto_withdraw_max_amount: number | null
+          auto_withdraw_ussd_template: string
           id: number
           mm_webhook_secret: string | null
           referral_percent: number
@@ -52,6 +55,9 @@ export type Database = {
           announcement_version?: number
           auto_approve_enabled?: boolean
           auto_approve_max_amount?: number | null
+          auto_withdraw_enabled?: boolean
+          auto_withdraw_max_amount?: number | null
+          auto_withdraw_ussd_template?: string
           id?: number
           mm_webhook_secret?: string | null
           referral_percent?: number
@@ -80,6 +86,9 @@ export type Database = {
           announcement_version?: number
           auto_approve_enabled?: boolean
           auto_approve_max_amount?: number | null
+          auto_withdraw_enabled?: boolean
+          auto_withdraw_max_amount?: number | null
+          auto_withdraw_ussd_template?: string
           id?: number
           mm_webhook_secret?: string | null
           referral_percent?: number
@@ -645,9 +654,14 @@ export type Database = {
           account_number: string
           admin_note: string | null
           amount: number
+          auto_attempts: number
+          auto_note: string | null
+          auto_state: string
           created_at: string
+          dispatched_at: string | null
           id: string
           method: Database["public"]["Enums"]["payment_method_type"]
+          operator_ref: string | null
           reviewed_at: string | null
           status: Database["public"]["Enums"]["withdrawal_status"]
           user_id: string
@@ -657,9 +671,14 @@ export type Database = {
           account_number: string
           admin_note?: string | null
           amount: number
+          auto_attempts?: number
+          auto_note?: string | null
+          auto_state?: string
           created_at?: string
+          dispatched_at?: string | null
           id?: string
           method: Database["public"]["Enums"]["payment_method_type"]
+          operator_ref?: string | null
           reviewed_at?: string | null
           status?: Database["public"]["Enums"]["withdrawal_status"]
           user_id: string
@@ -669,9 +688,14 @@ export type Database = {
           account_number?: string
           admin_note?: string | null
           amount?: number
+          auto_attempts?: number
+          auto_note?: string | null
+          auto_state?: string
           created_at?: string
+          dispatched_at?: string | null
           id?: string
           method?: Database["public"]["Enums"]["payment_method_type"]
+          operator_ref?: string | null
           reviewed_at?: string | null
           status?: Database["public"]["Enums"]["withdrawal_status"]
           user_id?: string
@@ -769,7 +793,16 @@ export type Database = {
         Args: { _deposit_id: string; _message_id: string }
         Returns: Json
       }
+      claim_auto_withdrawal: { Args: never; Returns: Json }
+      complete_auto_withdrawal: {
+        Args: { _id: string; _ref?: string }
+        Returns: Json
+      }
       distribute_profits: { Args: never; Returns: undefined }
+      fail_auto_withdrawal: {
+        Args: { _id: string; _note?: string }
+        Returns: Json
+      }
       get_app_settings_admin: {
         Args: never
         Returns: {
@@ -781,6 +814,9 @@ export type Database = {
           announcement_version: number
           auto_approve_enabled: boolean
           auto_approve_max_amount: number | null
+          auto_withdraw_enabled: boolean
+          auto_withdraw_max_amount: number | null
+          auto_withdraw_ussd_template: string
           id: number
           mm_webhook_secret: string | null
           referral_percent: number

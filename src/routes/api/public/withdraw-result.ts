@@ -2,17 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 const bodySchema = z.object({
-  text: z.string().min(5).max(4000),
-  sender: z.string().max(60).optional(),
+  id: z.string().uuid(),
+  status: z.enum(["success", "sent", "paid", "failed", "error"]),
+  ref: z.string().max(80).optional().nullable(),
+  note: z.string().max(400).optional().nullable(),
   secret: z.string().max(200).optional(),
 });
 
-export const Route = createFileRoute("/api/public/mm-sms")({
+export const Route = createFileRoute("/api/public/withdraw-result")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { secretMatches, ingestMessage } = await import("@/lib/deposit-verify.server");
+        const { secretMatches } = await import("@/lib/deposit-verify.server");
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { completeWithdrawal, failWithdrawal } = await import("@/lib/withdraw-auto.server");
 
         let payload: z.infer<typeof bodySchema>;
         try {
@@ -45,19 +48,14 @@ export const Route = createFileRoute("/api/public/mm-sms")({
         }
 
         try {
-          const result = await ingestMessage(payload.text, payload.sender ?? "sms-forwarder");
-          // An outgoing MTN transfer confirmation closes the matching auto withdrawal.
-          let withdrawalId: string | null = null;
-          try {
-            const { tryConfirmWithdrawalFromSms } = await import("@/lib/withdraw-auto.server");
-            withdrawalId = await tryConfirmWithdrawalFromSms(payload.text);
-          } catch (err) {
-            console.error("[mm-sms] withdrawal match failed", err);
-          }
-          return Response.json({ ...result, withdrawal_id: withdrawalId });
+          const ok = ["success", "sent", "paid"].includes(payload.status);
+          const result = ok
+            ? await completeWithdrawal(payload.id, payload.ref ?? null)
+            : await failWithdrawal(payload.id, payload.note ?? "Phone reported a failure");
+          return Response.json(result);
         } catch (err) {
-          console.error("[mm-sms] ingest failed", err);
-          return new Response(JSON.stringify({ error: "Could not process message" }), {
+          console.error("[withdraw-result] failed", err);
+          return new Response(JSON.stringify({ error: "Could not record the result" }), {
             status: 500,
             headers: { "content-type": "application/json" },
           });
