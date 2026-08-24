@@ -42,6 +42,8 @@ import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 import { Route as InvestSuccessIdRouteImport } from './routes/invest.success.$id'
 import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm.$planId'
+import { Route as ApiPublicWithdrawResultRouteImport } from './routes/api/public/withdraw-result'
+import { Route as ApiPublicWithdrawQueueRouteImport } from './routes/api/public/withdraw-queue'
 import { Route as ApiPublicProcessReceiptEmailsRouteImport } from './routes/api/public/process-receipt-emails'
 import { Route as ApiPublicMmSmsRouteImport } from './routes/api/public/mm-sms'
 import { Route as DashboardReceiptKindIdRouteImport } from './routes/dashboard.receipt.$kind.$id'
@@ -211,6 +213,16 @@ const InvestConfirmPlanIdRoute = InvestConfirmPlanIdRouteImport.update({
   path: '/invest/confirm/$planId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWithdrawResultRoute = ApiPublicWithdrawResultRouteImport.update({
+  id: '/api/public/withdraw-result',
+  path: '/api/public/withdraw-result',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWithdrawQueueRoute = ApiPublicWithdrawQueueRouteImport.update({
+  id: '/api/public/withdraw-queue',
+  path: '/api/public/withdraw-queue',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProcessReceiptEmailsRoute =
   ApiPublicProcessReceiptEmailsRouteImport.update({
     id: '/api/public/process-receipt-emails',
@@ -262,6 +274,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/public/mm-sms': typeof ApiPublicMmSmsRoute
   '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
+  '/api/public/withdraw-queue': typeof ApiPublicWithdrawQueueRoute
+  '/api/public/withdraw-result': typeof ApiPublicWithdrawResultRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
   '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
@@ -298,6 +312,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/api/public/mm-sms': typeof ApiPublicMmSmsRoute
   '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
+  '/api/public/withdraw-queue': typeof ApiPublicWithdrawQueueRoute
+  '/api/public/withdraw-result': typeof ApiPublicWithdrawResultRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
   '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
@@ -337,6 +353,8 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/public/mm-sms': typeof ApiPublicMmSmsRoute
   '/api/public/process-receipt-emails': typeof ApiPublicProcessReceiptEmailsRoute
+  '/api/public/withdraw-queue': typeof ApiPublicWithdrawQueueRoute
+  '/api/public/withdraw-result': typeof ApiPublicWithdrawResultRoute
   '/invest/confirm/$planId': typeof InvestConfirmPlanIdRoute
   '/invest/success/$id': typeof InvestSuccessIdRoute
   '/dashboard/receipt/$kind/$id': typeof DashboardReceiptKindIdRoute
@@ -377,6 +395,8 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/public/mm-sms'
     | '/api/public/process-receipt-emails'
+    | '/api/public/withdraw-queue'
+    | '/api/public/withdraw-result'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
     | '/dashboard/receipt/$kind/$id'
@@ -413,6 +433,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/public/mm-sms'
     | '/api/public/process-receipt-emails'
+    | '/api/public/withdraw-queue'
+    | '/api/public/withdraw-result'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
     | '/dashboard/receipt/$kind/$id'
@@ -451,6 +473,8 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/public/mm-sms'
     | '/api/public/process-receipt-emails'
+    | '/api/public/withdraw-queue'
+    | '/api/public/withdraw-result'
     | '/invest/confirm/$planId'
     | '/invest/success/$id'
     | '/dashboard/receipt/$kind/$id'
@@ -473,6 +497,8 @@ export interface RootRouteChildren {
   DepositPendingIdRoute: typeof DepositPendingIdRoute
   ApiPublicMmSmsRoute: typeof ApiPublicMmSmsRoute
   ApiPublicProcessReceiptEmailsRoute: typeof ApiPublicProcessReceiptEmailsRoute
+  ApiPublicWithdrawQueueRoute: typeof ApiPublicWithdrawQueueRoute
+  ApiPublicWithdrawResultRoute: typeof ApiPublicWithdrawResultRoute
   InvestConfirmPlanIdRoute: typeof InvestConfirmPlanIdRoute
   InvestSuccessIdRoute: typeof InvestSuccessIdRoute
 }
@@ -710,6 +736,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestConfirmPlanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/withdraw-result': {
+      id: '/api/public/withdraw-result'
+      path: '/api/public/withdraw-result'
+      fullPath: '/api/public/withdraw-result'
+      preLoaderRoute: typeof ApiPublicWithdrawResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/withdraw-queue': {
+      id: '/api/public/withdraw-queue'
+      path: '/api/public/withdraw-queue'
+      fullPath: '/api/public/withdraw-queue'
+      preLoaderRoute: typeof ApiPublicWithdrawQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/process-receipt-emails': {
       id: '/api/public/process-receipt-emails'
       path: '/api/public/process-receipt-emails'
@@ -805,6 +845,8 @@ const rootRouteChildren: RootRouteChildren = {
   DepositPendingIdRoute: DepositPendingIdRoute,
   ApiPublicMmSmsRoute: ApiPublicMmSmsRoute,
   ApiPublicProcessReceiptEmailsRoute: ApiPublicProcessReceiptEmailsRoute,
+  ApiPublicWithdrawQueueRoute: ApiPublicWithdrawQueueRoute,
+  ApiPublicWithdrawResultRoute: ApiPublicWithdrawResultRoute,
   InvestConfirmPlanIdRoute: InvestConfirmPlanIdRoute,
   InvestSuccessIdRoute: InvestSuccessIdRoute,
 }

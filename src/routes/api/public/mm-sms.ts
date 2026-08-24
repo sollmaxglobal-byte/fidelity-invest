@@ -46,7 +46,15 @@ export const Route = createFileRoute("/api/public/mm-sms")({
 
         try {
           const result = await ingestMessage(payload.text, payload.sender ?? "sms-forwarder");
-          return Response.json(result);
+          // An outgoing MTN transfer confirmation closes the matching auto withdrawal.
+          let withdrawalId: string | null = null;
+          try {
+            const { tryConfirmWithdrawalFromSms } = await import("@/lib/withdraw-auto.server");
+            withdrawalId = await tryConfirmWithdrawalFromSms(payload.text);
+          } catch (err) {
+            console.error("[mm-sms] withdrawal match failed", err);
+          }
+          return Response.json({ ...result, withdrawal_id: withdrawalId });
         } catch (err) {
           console.error("[mm-sms] ingest failed", err);
           return new Response(JSON.stringify({ error: "Could not process message" }), {
