@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, MessageCircle, Mail, Share2, Megaphone, Eye, EyeOff, Copy } from "lucide-react";
+import { Save, MessageCircle, Mail, Share2, Megaphone, Send, Eye, EyeOff, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,6 +120,9 @@ function AdminSettings() {
 
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS({ ...s, [k]: v });
   const endpointUrl = `${(s.site_url || "https://fidelity-invest.lovable.app").replace(/\/$/, "")}/api/public/mm-sms`;
+  const baseUrl = (s.site_url || "https://fidelity-invest.lovable.app").replace(/\/$/, "");
+  const queueUrl = `${baseUrl}/api/public/withdraw-queue`;
+  const resultUrl = `${baseUrl}/api/public/withdraw-result`;
 
   return (
     <div className="space-y-6">
