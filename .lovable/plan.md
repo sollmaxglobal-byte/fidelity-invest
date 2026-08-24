@@ -1,24 +1,49 @@
-# Fix the SMS forwarder app recommendation
+# SMS forwarder: no code changes needed — F-Droid app works as-is
 
-The app previously listed (SMS to URL Forwarder by Bogomolov) was removed from the Play Store — it now only exists on F-Droid/GitHub. I'll switch the admin instructions to apps that are actually live on Google Play today, and make the webhook accept their payload formats.
+## What changed from the previous plan
+The earlier plan assumed "SMS to URL Forwarder" (Bogomolov) was gone from the Play Store and proposed
+switching to other apps + loosening the webhook. That premise was wrong: the app **is** available on
+F-Droid (and GitHub releases) and the user has installed it. Google Play's SMS-permission policy
+forbids this kind of app on the Play Store entirely — F-Droid/GitHub is the official channel, not a
+"dead link."
 
-## Recommended apps (verified live on Google Play)
+The current `/api/public/mm-sms` endpoint already accepts exactly what this app sends:
+- The app's **Json Payload Template** field lets the user emit `{"text":"%text%","sender":"%from%"}`,
+  which matches the endpoint's strict Zod schema (`text` required, `sender` optional).
+- The app's **Headers** field lets the user pass `x-mm-secret`, which the endpoint already reads.
+- Zod's default strip mode drops the extra keys the app's *default* template adds (`from`, `sentStamp`,
+  `receivedStamp`, `sim`), so even the untouched default template would be accepted (only `text` is
+  required and it's present).
 
-1. **SMS Forwarder** (frzinapps) — 1M+ downloads, forwards SMS to a URL/webhook. Primary recommendation.
-2. **Forward SMS** (Point Dume) — 100K+ downloads, forwards SMS to phone/email/Telegram/URL. Backup option.
-3. **SMS to URL Forwarder** (F-Droid / GitHub APK) — kept only as an advanced fallback for anyone who prefers open source.
+So the endpoint is already compatible. **No endpoint change, no admin-UI change is required.**
 
-## What changes
+## Decision: do nothing to the code
+- Keep the strict `{"text","sender"}` JSON validation (stricter = more secure; the supported app
+  can emit it directly, so there's no reason to accept form-encoded/plain-text/query-param bodies).
+- Keep the existing Admin → Settings → Phone setup card (it already documents the F-Droid link,
+  the endpoint URL, the body template, and the header name/value with copy + regenerate buttons).
 
-- **Admin → Settings → Phone setup card**: replace the dead Play Store link with the two live apps above, each with its own step-by-step config (URL, method POST, headers, body template) plus the F-Droid fallback. Keep the copy buttons and battery-optimization checklist.
-- **Webhook flexibility**: the current `/api/public/mm-sms` endpoint only accepts a strict `{"text","sender"}` JSON body. Play Store forwarders send different shapes (some send `message`/`from`, some send plain text, some allow only URL query params). I'll make the endpoint accept:
-  - JSON with any of `text` / `message` / `body` / `msg` and `sender` / `from` / `number`
-  - `application/x-www-form-urlencoded` bodies
-  - plain-text bodies
-  - secret via `x-mm-secret` header, `Authorization: Bearer`, or a `?secret=` query param (needed because some apps can't set custom headers)
-- No change to matching or auto-approval logic — only how messages arrive.
+## Configuration handed to the user (informational, not a build step)
+The user tapped "+" in the app. The exact values to enter (also visible in Admin → Settings → Phone
+setup with copy buttons):
 
-## Technical notes
+- Sender: `MTN Mobile Money` (add a 2nd rule for `Orange Money`, or `*` for all)
+- Webhook URL: `https://fidelity-invest.lovable.app/api/public/mm-sms`
+- Json Payload Template: `{"text":"%text%","sender":"%from%"}`
+- Headers: `{"x-mm-secret":"<mm_webhook_secret from app_settings>"}`
+- Number of retries: 10 · Ignore SSL: off · Chunked Mode: off · Sign with HMAC-SHA-256: off
+- After saving: tap Test (expect 200), then send a real MTN/Orange SMS.
+- Disable battery optimisation for the app; turn off RCS in Google Messages if SMS doesn't arrive.
 
-- `src/routes/api/public/mm-sms.ts`: content-type-aware parsing, alias field mapping, query-param secret support, unchanged constant-time secret comparison and 401/400 behaviour.
-- `src/routes/admin.settings.tsx`: rewrite the Phone setup card content and links.
+The webhook secret is the admin's own value from `app_settings.mm_webhook_secret` (shown with a
+reveal/copy button in Admin → Settings and regenerable there); it is not stored or echoed in code.
+
+## Technical notes (verified against app source)
+- App source placeholders: `%from%`, `%text%`, `%sentStamp%`, `%receivedStamp%`, `%sim%`, plus
+  device-health and `Regex=…`. The recommended template uses `%text%` + `%from%`.
+- `ForwardingConfig.getDefaultJsonTemplate()` is the multi-key default; the custom template above
+  produces a clean 2-key body.
+- Headers field is a JSON object of name→value pairs applied via `setRequestProperty`; the user can
+  set just `{"x-mm-secret":"…"}` (User-agent not required by the endpoint).
+- Endpoint reads secret from `x-mm-secret` header, `Authorization: Bearer`, or a `secret` field in the
+  JSON body — all three are already supported by `src/routes/api/public/mm-sms.ts`.
