@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, MessageCircle, Mail, Share2, Megaphone } from "lucide-react";
+import { Save, MessageCircle, Mail, Share2, Megaphone, Eye, EyeOff, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,10 +41,28 @@ type Settings = {
   mm_webhook_secret: string | null;
 };
 
+function CopyField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <div className="flex gap-2">
+        <Input readOnly value={value} className="font-mono text-xs" />
+        <Button
+          type="button" size="sm" variant="outline"
+          onClick={() => { navigator.clipboard.writeText(value); toast.success(`${label} copied`); }}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function AdminSettings() {
   const [s, setS] = useState<Settings | null>(null);
   const [busy, setBusy] = useState(false);
   const [reshow, setReshow] = useState(true);
+  const [showSecret, setShowSecret] = useState(false);
 
   async function load() {
     // Full row (including SMTP credentials) is admin-only via SECURITY DEFINER RPC.
@@ -94,6 +112,7 @@ function AdminSettings() {
   if (!s) return <div className="text-muted-foreground">Loading…</div>;
 
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS({ ...s, [k]: v });
+  const endpointUrl = `${(s.site_url || "https://fidelity-invest.lovable.app").replace(/\/$/, "")}/api/public/mm-sms`;
 
   return (
     <div className="space-y-6">
@@ -136,38 +155,70 @@ function AdminSettings() {
           />
           <p className="mt-1 text-xs text-muted-foreground">Bigger deposits always wait for your manual review.</p>
         </div>
-        <div>
-          <Label>SMS forwarder endpoint</Label>
-          <Input readOnly value={`${(s.site_url || "").replace(/\/$/, "")}/api/public/mm-sms`} />
-          <p className="mt-1 text-xs text-muted-foreground">
-            POST JSON <span className="font-mono">{"{ \"text\": \"<sms body>\" }"}</span> with header{" "}
-            <span className="font-mono">x-mm-secret</span>.
+        <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">Phone setup (SMS forwarder)</h3>
+          <p className="text-xs text-muted-foreground">
+            Install <span className="font-medium">SMS to URL Forwarder</span> (by Bogomolov) on the Android phone that
+            receives your MTN / Orange Money confirmations, then copy the values below into it.
           </p>
-        </div>
-        <div>
-          <Label>Forwarder secret</Label>
-          <Input readOnly type="password" value={s.mm_webhook_secret ?? ""} />
-          <div className="mt-2 flex gap-2">
-            <Button
-              type="button" size="sm" variant="outline"
-              onClick={() => { navigator.clipboard.writeText(s.mm_webhook_secret ?? ""); toast.success("Secret copied"); }}
-            >
-              Copy secret
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              <a href="https://play.google.com/store/apps/details?id=tech.bogomolov.incomingsmsgateway" target="_blank" rel="noreferrer">
+                Get it on Google Play
+              </a>
             </Button>
-            <Button
-              type="button" size="sm" variant="outline"
-              onClick={async () => {
-                const next = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
-                const { error } = await supabase.from("app_settings").update({ mm_webhook_secret: next }).eq("id", 1);
-                if (error) toast.error(error.message);
-                else { set("mm_webhook_secret", next); toast.success("New secret generated"); }
-              }}
-            >
-              Regenerate
+            <Button asChild size="sm" variant="ghost">
+              <a href="https://f-droid.org/en/packages/tech.bogomolov.incomingsmsgateway/" target="_blank" rel="noreferrer">
+                F-Droid fallback
+              </a>
             </Button>
           </div>
+
+          <div className="grid gap-3">
+            <CopyField label="Endpoint URL" value={endpointUrl} />
+            <CopyField label="JSON body template" value={'{"text":"%text%","sender":"%from%"}'} />
+            <CopyField label="Header name" value="x-mm-secret" />
+            <div>
+              <Label>Header value (forwarder secret)</Label>
+              <div className="flex gap-2">
+                <Input readOnly type={showSecret ? "text" : "password"} value={s.mm_webhook_secret ?? ""} />
+                <Button type="button" size="sm" variant="outline" onClick={() => setShowSecret((v) => !v)}>
+                  {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+                <Button
+                  type="button" size="sm" variant="outline"
+                  onClick={() => { navigator.clipboard.writeText(s.mm_webhook_secret ?? ""); toast.success("Secret copied"); }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button
+                type="button" size="sm" variant="ghost" className="mt-2 px-0 text-xs"
+                onClick={async () => {
+                  const next = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+                  const { error } = await supabase.from("app_settings").update({ mm_webhook_secret: next }).eq("id", 1);
+                  if (error) toast.error(error.message);
+                  else { set("mm_webhook_secret", next); toast.success("New secret generated — update it in the phone app"); }
+                }}
+              >
+                Regenerate secret
+              </Button>
+            </div>
+          </div>
+
+          <ol className="list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
+            <li>Open the app, tap “+”, set Sender to <span className="font-mono">MTN Mobile Money</span> (add a second rule for <span className="font-mono">Orange Money</span>, or use <span className="font-mono">*</span> for all).</li>
+            <li>Paste the endpoint URL above.</li>
+            <li>Paste the JSON body template, and add the header <span className="font-mono">x-mm-secret</span> with the secret value.</li>
+            <li>Save, then send yourself a test mobile-money message and check Admin → Deposits for the received message.</li>
+          </ol>
+          <p className="text-xs text-amber-500">
+            Important: turn off battery optimisation for the forwarder app (Settings → Apps → SMS to URL Forwarder →
+            Battery → Unrestricted), otherwise Android will stop it in the background.
+          </p>
         </div>
       </section>
+
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 font-display text-lg text-primary">
