@@ -112,6 +112,7 @@ function AdminSettings() {
   if (!s) return <div className="text-muted-foreground">Loading…</div>;
 
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS({ ...s, [k]: v });
+  const endpointUrl = `${(s.site_url || "https://fidelity-invest.lovable.app").replace(/\/$/, "")}/api/public/mm-sms`;
 
   return (
     <div className="space-y-6">
