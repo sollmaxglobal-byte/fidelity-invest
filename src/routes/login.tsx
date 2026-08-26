@@ -55,10 +55,13 @@ function LoginPage() {
 
   return (
     <AuthShell>
-      <h1 className="font-display text-3xl text-primary">{t("auth.welcomeBack")}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t("auth.signInSub")}</p>
+      <div className="mb-7">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">Welcome back</p>
+        <h1 className="font-display text-4xl leading-tight text-foreground">{t("auth.welcomeBack")}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("auth.signInSub")}</p>
+      </div>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <Label htmlFor="email">{t("auth.email")}</Label>
           <Input id="email" name="email" type="email" required autoComplete="email" />

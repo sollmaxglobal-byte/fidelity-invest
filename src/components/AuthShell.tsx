@@ -8,39 +8,45 @@ import { SocialProof } from "@/components/SocialProof";
 export function AuthShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   return (
-    <div className="grid min-h-screen md:grid-cols-2">
-      {/* Left — brand panel */}
-      <div className="relative hidden bg-hero p-12 text-primary-foreground md:flex md:flex-col md:justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-            <ShieldCheck className="h-5 w-5" />
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto grid min-h-screen max-w-7xl md:grid-cols-[0.9fr_1.1fr]">
+        <aside className="relative hidden overflow-hidden bg-primary p-10 text-primary-foreground md:flex md:flex-col md:justify-between lg:p-14">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full border border-primary-foreground/10" />
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-foreground/10 ring-1 ring-primary-foreground/20">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <span className="font-display text-2xl tracking-tight">Fidelity</span>
           </div>
-          <span className="font-display text-2xl">Fidelity</span>
-        </div>
-        <div>
-          <h2 className="font-display text-5xl">
-            {t("auth.heroLine1")} <em className="not-italic text-success">{t("auth.heroLine2")}</em>.
-          </h2>
-          <p className="mt-4 max-w-md opacity-80">{t("auth.heroSub")}</p>
-        </div>
-        <p className="text-xs opacity-60">© Fidelity 2026</p>
-      </div>
-
-      {/* Right — content */}
-      <div className="flex items-center justify-center bg-background p-6 md:p-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <Link to="/login" className="inline-flex items-center gap-2 md:invisible">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <ShieldCheck className="h-4 w-4" />
-              </div>
-              <span className="font-display text-xl text-primary">Fidelity</span>
-            </Link>
-            <LanguageToggle />
+          <div className="relative max-w-md">
+            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/60">Secure investing, made simple</p>
+            <h2 className="font-display text-5xl leading-[1.05] lg:text-6xl">
+              {t("auth.heroLine1")} <em className="not-italic text-accent">{t("auth.heroLine2")}</em>.
+            </h2>
+            <p className="mt-6 max-w-sm text-sm leading-6 text-primary-foreground/75">{t("auth.heroSub")}</p>
           </div>
-          {children}
-        </div>
+          <p className="relative text-xs text-primary-foreground/50">© Fidelity 2026 · Your financial journey starts here.</p>
+        </aside>
 
+        <main className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 md:px-12 lg:px-20">
+          <div className="w-full max-w-md">
+            <div className="mb-10 flex items-center justify-between">
+              <Link to="/login" className="inline-flex items-center gap-2 md:hidden">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <span className="font-display text-xl text-primary">Fidelity</span>
+              </Link>
+              <div className="ml-auto"><LanguageToggle /></div>
+            </div>
+            <div className="rounded-3xl border border-border/70 bg-card p-6 shadow-elegant sm:p-9">
+              {children}
+            </div>
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="h-3.5 w-3.5 text-success" /> Protected account access
+            </div>
+          </div>
+        </main>
       </div>
       <SocialProof />
     </div>

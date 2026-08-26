@@ -96,7 +96,7 @@ function RegisterPage() {
   return (
     <AuthShell>
       {refName && (
-        <div className="mb-5 flex items-start gap-3 rounded-xl border border-success/30 bg-success/10 p-3">
+        <div className="mb-7 flex items-start gap-3 rounded-2xl border border-success/30 bg-success/10 p-4">
           <UserPlus className="mt-0.5 h-4 w-4 text-success" />
           <div className="text-sm">
             <p>
@@ -107,10 +107,13 @@ function RegisterPage() {
         </div>
       )}
 
-      <h1 className="font-display text-3xl text-primary">{t("auth.registerTitle")}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t("auth.signUpSub")}</p>
+      <div className="mb-7">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">Get started</p>
+        <h1 className="font-display text-4xl leading-tight text-foreground">{t("auth.registerTitle")}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("auth.signUpSub")}</p>
+      </div>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <Label htmlFor="full_name">{t("auth.fullName")}</Label>
           <Input id="full_name" name="full_name" required maxLength={80} />

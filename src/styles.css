@@ -49,10 +49,10 @@
   --radius: 0.875rem;
 
   /* Forest Teal · Warm Bronze · Neutral Stone — distinctive, works in light & dark */
-  --background: oklch(0.985 0.005 95);
-  --foreground: oklch(0.18 0.02 220);
+  --background: oklch(0.975 0.012 190);
+  --foreground: oklch(0.18 0.025 220);
 
-  --card: oklch(1 0 0);
+  --card: oklch(0.995 0.004 100);
   --card-foreground: oklch(0.18 0.02 220);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.02 220);
