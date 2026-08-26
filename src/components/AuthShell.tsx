@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SocialProof } from "@/components/SocialProof";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function AuthShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
@@ -13,7 +14,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <aside className="relative hidden overflow-hidden bg-primary p-10 text-primary-foreground md:flex md:flex-col md:justify-between lg:p-14">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full border border-primary-foreground/10" />
           <div className="relative flex items-center gap-3">
-            <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-12 w-auto object-contain" />
+            <BrandLogo className="h-12" />
           </div>
           <div className="relative max-w-md">
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/60">
@@ -36,7 +37,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <div className="w-full max-w-md">
             <div className="mb-10 flex items-center justify-between">
               <Link to="/login" className="inline-flex items-center">
-                <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-10 w-auto object-contain" />
+                <BrandLogo className="h-10" />
               </Link>
               <div className="ml-auto">
                 <LanguageToggle />
