@@ -54,10 +54,20 @@ export function AppInstallAction({ compact = false }: AppInstallActionProps) {
   }, []);
 
   const install = async () => {
-    if (!prompt) return;
-    await prompt.prompt();
-    await prompt.userChoice;
-    setPrompt(null);
+    if (prompt) {
+      await prompt.prompt();
+      await prompt.userChoice;
+      setPrompt(null);
+      return;
+    }
+
+    // Browsers only expose the native install sheet after the app is installable.
+    // Give users an actionable fallback instead of silently doing nothing.
+    window.alert(
+      lang === "fr"
+        ? "Ouvrez ce site dans Chrome, puis utilisez le menu ⋮ → Installer l’application."
+        : "Open this site in Chrome, then use the ⋮ menu → Install app.",
+    );
   };
 
   if (isStandalone()) return null;
