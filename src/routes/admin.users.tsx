@@ -33,20 +33,13 @@ function AdminUsers() {
   );
 
   async function load() {
-    const rpc = await supabase.rpc("admin_list_users_v2");
-    if (!rpc.error) {
-      setRows((Array.isArray(rpc.data) ? rpc.data : []) as unknown as Row[]);
-      return;
-    }
-
-    // Fall back to the admin RLS policy while PostgREST refreshes its RPC schema cache.
-    const { data: profiles, error: profilesError } = await supabase
+    const { data: profiles, error } = await supabase
       .from("profiles")
       .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended,withdrawal_disabled")
       .order("created_at", { ascending: false });
-    if (profilesError) {
-      console.error("[v0] Failed to load admin users", rpc.error, profilesError);
-      toast.error(`Unable to load registered users: ${profilesError.message}`);
+    if (error) {
+      console.error("[v0] Failed to load registered users", error);
+      toast.error(`Unable to load registered users: ${error.message}`);
       return;
     }
     const { data: roles } = await supabase.from("user_roles").select("user_id,role").eq("role", "admin");
