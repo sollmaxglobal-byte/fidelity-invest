@@ -184,9 +184,10 @@ function AdminSettings() {
       </section>
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-        <h2 className="flex items-center gap-2 font-display text-lg text-primary">
+          <h2 className="flex items-center gap-2 font-display text-lg text-primary">
           <MessageCircle className="h-5 w-5" /> Automatic deposit approval
         </h2>
+        <p className="text-xs text-muted-foreground">Forwarded SMS are stored in Admin → Forwarded SMS so you can inspect the raw message, parsed amount, transaction ID, and matching status.</p>
         <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
           <div>
             <div className="text-sm font-medium">Enable auto-approval</div>

@@ -253,6 +253,7 @@ export async function ingestMessage(rawText: string, sender?: string | null) {
     .from("mm_messages")
     .insert({
       raw_text: rawText.slice(0, 4000),
+      received_at: new Date().toISOString(),
       sender: sender ?? null,
       txn_id: parsed.txnId,
       txn_id_norm: txnIdNorm,

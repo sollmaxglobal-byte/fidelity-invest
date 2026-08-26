@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Mail,
   BellRing,
+  MessageSquareText,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?
 const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/deposits", label: "Deposits", icon: ArrowDownToLine },
+  { to: "/admin/sms", label: "Forwarded SMS", icon: MessageSquareText },
   { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowUpFromLine },
   { to: "/admin/investments", label: "Investments", icon: TrendingUp },
   { to: "/admin/users", label: "Users", icon: Users },
