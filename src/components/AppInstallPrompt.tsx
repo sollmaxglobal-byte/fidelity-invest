@@ -30,6 +30,70 @@ function isIos() {
   return iOS || iPadOS;
 }
 
+interface AppInstallActionProps {
+  compact?: boolean;
+}
+
+export function AppInstallAction({ compact = false }: AppInstallActionProps) {
+  const { lang } = useI18n();
+  const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
+  const [showIosHint, setShowIosHint] = useState(false);
+
+  useEffect(() => {
+    void registerPushWorker().catch((error) =>
+      console.warn("[v0] Service worker registration failed", error),
+    );
+    if (isStandalone()) return;
+    const onPrompt = (event: Event) => {
+      event.preventDefault();
+      setPrompt(event as InstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    if (isIos()) setShowIosHint(true);
+    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
+  }, []);
+
+  const install = async () => {
+    if (!prompt) return;
+    await prompt.prompt();
+    await prompt.userChoice;
+    setPrompt(null);
+  };
+
+  if (isStandalone()) return null;
+  return (
+    <Button
+      type="button"
+      variant={compact ? "outline" : "default"}
+      className={compact ? "w-full" : ""}
+      onClick={
+        showIosHint
+          ? () =>
+              window.alert(
+                lang === "fr"
+                  ? "Dans Safari, appuyez sur Partager puis Sur l’écran d’accueil."
+                  : "In Safari, tap Share, then Add to Home Screen.",
+              )
+          : install
+      }
+      aria-label={showIosHint ? "How to install Fidelity" : "Install Fidelity app"}
+    >
+      {showIosHint ? (
+        <Share className="mr-2 h-4 w-4" aria-hidden />
+      ) : (
+        <Download className="mr-2 h-4 w-4" aria-hidden />
+      )}
+      {showIosHint
+        ? lang === "fr"
+          ? "Partager → écran d’accueil"
+          : "Share → Add to Home Screen"
+        : lang === "fr"
+          ? "Installer l’application"
+          : "Download app"}
+    </Button>
+  );
+}
+
 export function AppInstallPrompt() {
   const { lang } = useI18n();
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);

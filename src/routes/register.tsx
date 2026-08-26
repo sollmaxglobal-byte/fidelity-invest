@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthShell } from "@/components/AuthShell";
+import { AppInstallAction } from "@/components/AppInstallPrompt";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -158,6 +159,10 @@ function RegisterPage() {
           {busy ? t("common.pleaseWait") : t("auth.signUp")}
         </Button>
       </form>
+
+      <div className="mt-6">
+        <AppInstallAction compact />
+      </div>
 
       <div className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.haveAccount")}{" "}
