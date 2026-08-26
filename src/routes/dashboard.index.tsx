@@ -187,11 +187,6 @@ function DashboardHome() {
               <span aria-label="Balance hidden">••••••••</span>
             )}
           </div>
-          <div
-            className={`mt-1 text-xs font-semibold uppercase tracking-wide ${up ? "text-success" : "text-destructive"}`}
-          >
-            {up ? "▲" : "▼"} {formatXAF(Math.abs(windowGain))} · {range}
-          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4">
