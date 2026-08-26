@@ -22,6 +22,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ResetPinRouteImport } from './routes/reset-pin'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
 import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
@@ -111,6 +112,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPinRoute = ResetPinRouteImport.update({
+  id: '/reset-pin',
+  path: '/reset-pin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/reset-pin': typeof ResetPinRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/emails': typeof AdminEmailsRoute
   '/admin/investments': typeof AdminInvestmentsRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/reset-pin': typeof ResetPinRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/emails': typeof AdminEmailsRoute
   '/admin/investments': typeof AdminInvestmentsRoute
@@ -333,6 +341,7 @@ export interface FileRoutesById {
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/reset-pin': typeof ResetPinRoute
   '/admin/deposits': typeof AdminDepositsRoute
   '/admin/emails': typeof AdminEmailsRoute
   '/admin/investments': typeof AdminInvestmentsRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/register'
     | '/reset-password'
+    | '/reset-pin'
     | '/admin/deposits'
     | '/admin/emails'
     | '/admin/investments'
@@ -413,6 +423,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/register'
     | '/reset-password'
+    | '/reset-pin'
     | '/admin/deposits'
     | '/admin/emails'
     | '/admin/investments'
@@ -453,6 +464,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/register'
     | '/reset-password'
+    | '/reset-pin'
     | '/admin/deposits'
     | '/admin/emails'
     | '/admin/investments'
@@ -494,6 +506,7 @@ export interface RootRouteChildren {
   PlansRoute: typeof PlansRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ResetPinRoute: typeof ResetPinRoute
   DepositPendingIdRoute: typeof DepositPendingIdRoute
   ApiPublicMmSmsRoute: typeof ApiPublicMmSmsRoute
   ApiPublicProcessReceiptEmailsRoute: typeof ApiPublicProcessReceiptEmailsRoute
@@ -594,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-pin': {
+      id: '/reset-pin'
+      path: '/reset-pin'
+      fullPath: '/reset-pin'
+      preLoaderRoute: typeof ResetPinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -842,6 +862,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlansRoute: PlansRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ResetPinRoute: ResetPinRoute,
   DepositPendingIdRoute: DepositPendingIdRoute,
   ApiPublicMmSmsRoute: ApiPublicMmSmsRoute,
   ApiPublicProcessReceiptEmailsRoute: ApiPublicProcessReceiptEmailsRoute,

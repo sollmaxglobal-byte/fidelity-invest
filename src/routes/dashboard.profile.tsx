@@ -122,6 +122,15 @@ function ProfilePage() {
     }
   }
 
+  async function sendPinReset(kind: "withdrawal" | "transfer") {
+    if (!user?.email) return toast.error("No email address is associated with this account");
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/reset-pin?kind=${kind}`,
+    });
+    if (error) return toast.error("We could not send the reset link. Please try again.");
+    toast.success(`A ${kind} PIN reset link was sent to your email`);
+  }
+
   function copyReferral() {
     navigator.clipboard.writeText(referralLink);
     toast.success("Referral link copied");
@@ -280,6 +289,24 @@ function ProfilePage() {
       </section>
 
       <PushToggle />
+
+      <section className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-4 w-4 text-primary" />
+          <span className="font-display text-base text-primary">Security PINs</span>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          We&apos;ll email you a secure link before either PIN can be changed.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <Button type="button" variant="outline" onClick={() => sendPinReset("withdrawal")}>
+            Reset withdrawal PIN
+          </Button>
+          <Button type="button" variant="outline" onClick={() => sendPinReset("transfer")}>
+            Reset transfer PIN
+          </Button>
+        </div>
+      </section>
 
       {/* Change password */}
       <form onSubmit={changePassword} className="rounded-2xl border border-border bg-card p-5">
