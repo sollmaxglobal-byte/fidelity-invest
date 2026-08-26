@@ -32,6 +32,8 @@ function AdminEmails() {
   const [busy, setBusy] = useState(false);
   const [testTo, setTestTo] = useState("");
   const [tab, setTab] = useState<"en" | "fr">("en");
+  const [broadcast, setBroadcast] = useState({ subject: "", html: "" });
+  const [broadcastBusy, setBroadcastBusy] = useState(false);
 
   async function load() {
     const { data } = await supabase
@@ -95,6 +97,29 @@ function AdminEmails() {
     }
   }
 
+  async function sendBroadcast() {
+    if (!broadcast.subject.trim() || !broadcast.html.trim())
+      return toast.error("Add a subject and message first");
+    setBroadcastBusy(true);
+    try {
+      const { data: users, error: directoryError } = await supabase.rpc("get_admin_user_emails");
+      if (directoryError) throw directoryError;
+      const recipients = (users as { email: string }[]).map((item) => item.email).filter(Boolean);
+      if (!recipients.length) throw new Error("No users found");
+      const { data, error } = await supabase.functions.invoke("send-email", {
+        body: { to: recipients, subject: broadcast.subject.trim(), html: broadcast.html },
+      });
+      if (error) throw error;
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      toast.success(`Announcement queued for ${recipients.length} users`);
+      setBroadcast({ subject: "", html: "" });
+    } catch (e) {
+      toast.error("Send failed: " + (e as Error).message);
+    } finally {
+      setBroadcastBusy(false);
+    }
+  }
+
   async function sendTest() {
     if (!active || !testTo) return;
     setBusy(true);
@@ -125,6 +150,39 @@ function AdminEmails() {
           {"{{name}}, {{amount}}, {{status}}, {{site_name}}"}.
         </p>
       </div>
+
+      <section className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+        <div>
+          <h2 className="font-display text-xl text-primary">Send announcement to all users</h2>
+          <p className="text-xs text-muted-foreground">
+            This uses the existing send-email function and the admin-only user directory.
+          </p>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <Input
+            value={broadcast.subject}
+            onChange={(e) => setBroadcast({ ...broadcast, subject: e.target.value })}
+            placeholder="Announcement subject"
+            maxLength={180}
+          />
+          <Textarea
+            value={broadcast.html}
+            onChange={(e) => setBroadcast({ ...broadcast, html: e.target.value })}
+            placeholder="HTML message"
+            className="min-h-24 lg:row-span-2"
+            maxLength={20000}
+          />
+          <Button
+            type="button"
+            onClick={sendBroadcast}
+            disabled={broadcastBusy}
+            className="lg:w-fit"
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {broadcastBusy ? "Queueing…" : "Send to all users"}
+          </Button>
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <div className="space-y-2">
