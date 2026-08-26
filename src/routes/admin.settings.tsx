@@ -95,6 +95,15 @@ function AdminSettings() {
 
   async function save() {
     if (!s) return;
+    const secret = s.mm_webhook_secret?.trim() ?? "";
+    if (s.auto_approve_enabled && secret.length < 24) {
+      toast.error("Set a webhook secret with at least 24 characters before enabling automation");
+      return;
+    }
+    if (s.site_url && !/^https:\/\//i.test(s.site_url)) {
+      toast.error("Site URL must use HTTPS");
+      return;
+    }
     setBusy(true);
     try {
       const { error } = await supabase
@@ -299,8 +308,9 @@ function AdminSettings() {
             </li>
             <li>Paste the endpoint URL above.</li>
             <li>
-              Paste the JSON body template, and add the header{" "}
-              <span className="font-mono">x-mm-secret</span> with the secret value.
+              Set method to <span className="font-mono">POST</span>, content type to{" "}
+              <span className="font-mono">application/json</span>, paste the JSON body template, and
+              add the header <span className="font-mono">x-mm-secret</span> with the secret value.
             </li>
             <li>
               Save, then send yourself a test mobile-money message and check Admin → Deposits for

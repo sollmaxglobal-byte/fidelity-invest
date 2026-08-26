@@ -1,11 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const bodySchema = z.object({
-  text: z.string().min(5).max(4000),
-  sender: z.string().max(60).optional(),
-  secret: z.string().max(200).optional(),
-});
+const bodySchema = z
+  .object({
+    text: z.string().min(5).max(4000),
+    sender: z.string().max(120).optional(),
+    secret: z.string().max(200).optional(),
+  })
+  .or(
+    z.object({
+      message: z.string().min(5).max(4000),
+      from: z.string().max(120).optional(),
+      secret: z.string().max(200).optional(),
+    }),
+  );
 
 export const Route = createFileRoute("/api/public/mm-sms")({
   server: {
@@ -25,10 +33,16 @@ export const Route = createFileRoute("/api/public/mm-sms")({
         }
 
         const provided =
-          request.headers.get("x-mm-secret") ??
-          (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "") ??
-          payload.secret ??
+          request.headers.get("x-mm-secret")?.trim() ||
+          request.headers.get("x-webhook-secret")?.trim() ||
+          request.headers
+            .get("authorization")
+            ?.replace(/^Bearer\s+/i, "")
+            .trim() ||
+          payload.secret?.trim() ||
           null;
+        const text = "text" in payload ? payload.text : payload.message;
+        const sender = "sender" in payload ? payload.sender : payload.from;
 
         const { data: settings } = await supabaseAdmin
           .from("app_settings")
@@ -46,7 +60,7 @@ export const Route = createFileRoute("/api/public/mm-sms")({
         }
 
         try {
-          const result = await ingestMessage(payload.text, payload.sender ?? "sms-forwarder");
+          const result = await ingestMessage(text, sender ?? "sms-forwarder");
           // An outgoing MTN transfer confirmation closes the matching auto withdrawal.
           let withdrawalId: string | null = null;
           try {

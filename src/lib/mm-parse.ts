@@ -36,6 +36,9 @@ const AMOUNT_LABELS =
 const GENERIC_AMOUNT = /([\d][\d\s.,]{2,})\s*(?:f\s*cfa|fcfa|xaf|frs?|cfa)/i;
 
 const PHONE = /(?:\+?237)?\s?6\d{2}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2}/;
+const SENDER_PHONE =
+  /(?:from|de|sender|exp[ée]diteur)\s*[:=]?\s*((?:\+?237)?\s?6\d{2}(?:[\s.-]?\d{2}){2,3})/i;
+const COMPACT_PHONE = /(?:\+?237)?6\d{8}/;
 
 /** Best-effort extraction of transaction id, amount and payer number from an SMS body. */
 export function parseMmMessage(raw: string): ParsedMessage {
@@ -61,11 +64,13 @@ export function parseMmMessage(raw: string): ParsedMessage {
     if (generic?.[1]) amount = parseAmount(generic[1]);
   }
 
-  const phone = text.match(PHONE);
+  const phone = text.match(SENDER_PHONE) ?? text.match(PHONE) ?? text.match(COMPACT_PHONE);
 
   return {
-    txnId,
+    txnId: normalizeTxnId(txnId),
     amount,
-    payerNumber: phone ? phone[0].replace(/[\s.-]/g, "") : null,
+    payerNumber: phone
+      ? (phone[1]?.replace(/[\s.-]/g, "") ?? phone[0].replace(/[\s.-]/g, ""))
+      : null,
   };
 }
