@@ -92,9 +92,9 @@ function DashboardLayout() {
             </span>
             <Link to="/" className="flex items-center">
               <img
-                src="/fidelity-logo.png"
+                src="/fidelity-dashboard-logo.png"
                 alt="Fidelity Invest"
-                className="h-9 w-auto object-contain"
+                className="h-9 w-[150px] object-contain object-left sm:h-10 sm:w-[170px]"
               />
             </Link>
           </div>
