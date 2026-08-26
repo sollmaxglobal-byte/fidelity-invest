@@ -4,12 +4,11 @@ import { motion } from "framer-motion";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  Send,
   Share2,
   Copy,
   Users,
   TrendingUp,
-  Wallet,
-  PiggyBank,
   ChevronRight,
   Bell,
   ShieldCheck,
@@ -18,7 +17,6 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { Countdown } from "@/components/Countdown";
 import { formatDate, formatXAF } from "@/lib/format";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -253,6 +251,14 @@ function DashboardHome() {
           primary
         />
         <ActionSheet
+          label="Transfer"
+          icon={<Send className="h-5 w-5" />}
+          title="Transfer funds"
+          description="Send funds securely to another Fidelity Invest user by email."
+          to="/dashboard/wallet"
+          cta="Open wallet"
+        />
+        <ActionSheet
           label={t("common.withdraw")}
           icon={<ArrowUpFromLine className="h-5 w-5" />}
           title={t("common.withdraw")}
@@ -304,28 +310,6 @@ function DashboardHome() {
         </div>
       </motion.div>
 
-      {/* Wallet summary */}
-      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <Wallet className="h-3.5 w-3.5 text-primary" /> Main wallet
-          </div>
-          <div className="mt-2 text-lg font-semibold text-foreground">
-            {balanceVisible ? <Money value={Number(profile?.balance ?? 0)} /> : "••••••"}
-          </div>
-          <p className="mt-1 text-[10px] text-muted-foreground">Available to withdraw</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <PiggyBank className="h-3.5 w-3.5 text-success" /> Total profit
-          </div>
-          <div className="mt-2 text-lg font-semibold text-success">
-            {balanceVisible ? <Money value={totalProfit} /> : "••••••"}
-          </div>
-          <p className="mt-1 text-[10px] text-muted-foreground">Lifetime earnings</p>
-        </div>
-      </motion.div>
-
       {/* Referral card */}
       <motion.div variants={itemVariants}>
         <ReferralCard
@@ -357,6 +341,13 @@ function DashboardHome() {
 }
 
 function InvestmentCard({ inv }: { inv: ActiveInvestment }) {
+  const start = new Date(inv.start_date).getTime();
+  const end = new Date(inv.end_date).getTime();
+  const progress = Math.max(
+    0,
+    Math.min(100, ((Date.now() - start) / Math.max(1, end - start)) * 100),
+  );
+
   return (
     <motion.div whileTap={{ scale: 0.99 }} className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
@@ -381,11 +372,21 @@ function InvestmentCard({ inv }: { inv: ActiveInvestment }) {
         </span>
       </div>
 
-      <div className="mt-3 flex items-center justify-between rounded-xl bg-secondary/60 p-3">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Investment end date
-        </span>
-        <span className="text-xs font-semibold text-foreground">{formatDate(inv.end_date)}</span>
+      <div className="mt-4">
+        <div className="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span>Investment progress</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full bg-success transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground">
+          <span>Started {formatDate(inv.start_date)}</span>
+          <span>Ends {formatDate(inv.end_date)}</span>
+        </div>
       </div>
     </motion.div>
   );
@@ -412,7 +413,7 @@ function ActionSheet({
     <Sheet>
       <SheetTrigger asChild>
         <button
-          className={`flex min-h-20 flex-col items-start justify-between gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition active:scale-95 ${
+          className={`flex h-12 flex-row items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition active:scale-95 ${
             primary
               ? "bg-primary text-primary-foreground shadow-elegant"
               : "border border-border bg-card text-foreground"
