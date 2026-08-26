@@ -107,6 +107,14 @@ function WithdrawPage() {
         account_number: String(fd.get("account_number") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
+      const { data: canWithdraw, error: eligibilityError } = await supabase.rpc("can_withdraw", {
+        _user_id: user.id,
+      });
+      if (eligibilityError) throw eligibilityError;
+      if (!canWithdraw)
+        throw new Error(
+          "Withdrawals are unavailable for this account. An active investment may be required.",
+        );
       // Funds are held (debited) atomically on the server; refunded if rejected.
       const { data: newId, error } = await supabase.rpc("request_withdrawal", {
         _amount: v.amount,

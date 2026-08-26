@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Shield, ShieldOff, Plus, Minus, Ban, CheckCircle2 } from "lucide-react";
+import { Shield, ShieldOff, Plus, Minus, Ban, CheckCircle2, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,17 +21,23 @@ type Row = {
   created_at: string;
   is_admin: boolean;
   is_suspended: boolean;
+  withdrawal_disabled: boolean;
 };
 
 function AdminUsers() {
   const [rows, setRows] = useState<Row[]>([]);
   const [q, setQ] = useState("");
   const [adj, setAdj] = useState<{ id: string; amount: string }>({ id: "", amount: "" });
+  const [editing, setEditing] = useState<{ id: string; full_name: string; phone: string } | null>(
+    null,
+  );
 
   async function load() {
     const { data: profs } = await supabase
       .from("profiles")
-      .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended")
+      .select(
+        "id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended,withdrawal_disabled",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
     const { data: roles } = await supabase
@@ -44,6 +50,18 @@ function AdminUsers() {
   useEffect(() => {
     load();
   }, []);
+
+  async function saveProfile() {
+    if (!editing) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: editing.full_name.trim(), phone: editing.phone.trim() || null })
+      .eq("id", editing.id);
+    if (error) return toast.error(error.message);
+    toast.success("Account updated");
+    setEditing(null);
+    load();
+  }
 
   async function toggleAdmin(r: Row) {
     if (r.is_admin) {
@@ -69,6 +87,17 @@ function AdminUsers() {
     });
     toast.success("Balance updated");
     setAdj({ id: "", amount: "" });
+    load();
+  }
+
+  async function toggleWithdrawal(r: Row) {
+    const next = !r.withdrawal_disabled;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ withdrawal_disabled: next })
+      .eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(next ? "Withdrawals disabled" : "Withdrawals enabled");
     load();
   }
 
@@ -120,9 +149,34 @@ function AdminUsers() {
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {r.phone ?? "—"} • Joined {formatDate(r.created_at)}
-                </div>
+                {editing?.id === r.id ? (
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <Input
+                      value={editing.full_name}
+                      onChange={(e) => setEditing({ ...editing, full_name: e.target.value })}
+                      placeholder="Full name"
+                      maxLength={120}
+                    />
+                    <Input
+                      value={editing.phone}
+                      onChange={(e) => setEditing({ ...editing, phone: e.target.value })}
+                      placeholder="Phone"
+                      maxLength={40}
+                    />
+                    <div className="flex gap-2 sm:col-span-2">
+                      <Button size="sm" onClick={saveProfile}>
+                        <Save className="mr-1 h-4 w-4" /> Save
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-muted-foreground">
+                    {r.phone ?? "—"} • Joined {formatDate(r.created_at)}
+                  </div>
+                )}
                 <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
                   <div>
                     <div className="text-muted-foreground">Balance</div>
@@ -139,6 +193,15 @@ function AdminUsers() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setEditing({ id: r.id, full_name: r.full_name ?? "", phone: r.phone ?? "" })
+                  }
+                >
+                  Edit account
+                </Button>
                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(r)}>
                   {r.is_admin ? (
                     <>
@@ -151,6 +214,13 @@ function AdminUsers() {
                       Make admin
                     </>
                   )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={r.withdrawal_disabled ? "destructive" : "outline"}
+                  onClick={() => toggleWithdrawal(r)}
+                >
+                  {r.withdrawal_disabled ? "Enable withdrawals" : "Disable withdrawals"}
                 </Button>
                 <Button
                   size="sm"

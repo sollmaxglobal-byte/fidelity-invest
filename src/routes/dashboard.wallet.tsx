@@ -1,7 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { ArrowDownToLine, ArrowUpFromLine, TrendingUp, Sparkles } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  TrendingUp,
+  Sparkles,
+  Send,
+  KeyRound,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
@@ -38,6 +49,8 @@ function WalletPage() {
   const [pendingWithdrawals, setPendingWithdrawals] = useState<Pending[]>([]);
   const [filter, setFilter] = useState<Filter>(search.filter ?? "All");
   const [balance, setBalance] = useState(0);
+  const [transferBusy, setTransferBusy] = useState(false);
+  const [pinBusy, setPinBusy] = useState(false);
 
   useEffect(() => {
     if (search.filter) setFilter(search.filter);
@@ -73,6 +86,37 @@ function WalletPage() {
       setBalance(Number(prof?.balance ?? 0));
     })();
   }, [user]);
+
+  async function setTransferPin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!user) return;
+    setPinBusy(true);
+    const pin = String(new FormData(e.currentTarget).get("new_pin") ?? "");
+    const { error } = await supabase.rpc("set_transfer_pin", { _pin: pin });
+    setPinBusy(false);
+    if (error) return toast.error(error.message);
+    e.currentTarget.reset();
+    toast.success("Transfer PIN saved");
+  }
+
+  async function sendTransfer(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!user) return;
+    setTransferBusy(true);
+    const values = new FormData(e.currentTarget);
+    const amount = Number(values.get("transfer_amount"));
+    const { error } = await supabase.rpc("create_transfer", {
+      _recipient_email: String(values.get("recipient_email") ?? "").trim(),
+      _amount: amount,
+      _pin: String(values.get("transfer_pin") ?? ""),
+      _note: String(values.get("transfer_note") ?? "").trim() || null,
+    });
+    setTransferBusy(false);
+    if (error) return toast.error(error.message);
+    e.currentTarget.reset();
+    setBalance((current) => current - amount);
+    toast.success("Transfer sent securely");
+  }
 
   // Merge deposits/withdrawals (all statuses, receipt-linked) + profit/investment transactions
   const rows = useMemo(() => {
@@ -179,6 +223,83 @@ function WalletPage() {
           </Link>
         </div>
       </div>
+
+      <section className="grid gap-5 rounded-2xl border border-border bg-card p-5 lg:grid-cols-2">
+        <div>
+          <div className="flex items-center gap-2">
+            <Send className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-base text-primary">Transfer funds</h2>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Send money to another user by email. Your transfer PIN is required.
+          </p>
+          <form onSubmit={sendTransfer} className="mt-4 space-y-3">
+            <div>
+              <Label htmlFor="recipient_email">Recipient email</Label>
+              <Input
+                id="recipient_email"
+                name="recipient_email"
+                type="email"
+                required
+                maxLength={254}
+              />
+            </div>
+            <div>
+              <Label htmlFor="transfer_amount">Amount</Label>
+              <Input
+                id="transfer_amount"
+                name="transfer_amount"
+                type="number"
+                min="1"
+                step="0.01"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="transfer_pin">Transfer PIN</Label>
+              <Input
+                id="transfer_pin"
+                name="transfer_pin"
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]{4,6}"
+                minLength={4}
+                maxLength={6}
+                required
+              />
+            </div>
+            <Input name="transfer_note" placeholder="Note (optional)" maxLength={160} />
+            <Button type="submit" disabled={transferBusy} className="w-full">
+              <Send className="mr-2 h-4 w-4" />
+              {transferBusy ? "Sending…" : "Send transfer"}
+            </Button>
+          </form>
+        </div>
+        <div className="rounded-xl bg-secondary p-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-base text-primary">Set transfer PIN</h2>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Choose a 4–6 digit PIN and keep it private.
+          </p>
+          <form onSubmit={setTransferPin} className="mt-4 flex gap-2">
+            <Input
+              name="new_pin"
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]{4,6}"
+              minLength={4}
+              maxLength={6}
+              placeholder="4–6 digits"
+              required
+            />
+            <Button type="submit" disabled={pinBusy}>
+              {pinBusy ? "Saving…" : "Save PIN"}
+            </Button>
+          </form>
+        </div>
+      </section>
 
       {/* Filter tabs */}
       <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">

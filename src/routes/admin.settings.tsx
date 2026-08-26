@@ -53,6 +53,7 @@ type Settings = {
   auto_withdraw_enabled: boolean | null;
   auto_withdraw_max_amount: number | null;
   auto_withdraw_ussd_template: string | null;
+  withdrawals_require_active_investment: boolean | null;
 };
 
 function CopyField({ label, value }: { label: string; value: string }) {
@@ -136,6 +137,7 @@ function AdminSettings() {
           auto_withdraw_enabled: !!s.auto_withdraw_enabled,
           auto_withdraw_max_amount: s.auto_withdraw_max_amount,
           auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
+          withdrawals_require_active_investment: !!s.withdrawals_require_active_investment,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any)
         .eq("id", 1);
@@ -439,6 +441,25 @@ function AdminSettings() {
             pending — approve or reject it yourself in Admin → Withdrawals.
           </p>
         </div>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="font-display text-lg text-primary">Withdrawal access</h2>
+        <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
+          <div>
+            <div className="text-sm font-medium">Require an active investment</div>
+            <p className="text-xs text-muted-foreground">
+              When enabled, users without an active plan cannot submit withdrawals.
+            </p>
+          </div>
+          <Switch
+            checked={!!s.withdrawals_require_active_investment}
+            onCheckedChange={(v) => set("withdrawals_require_active_investment", v)}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Use the Users page to disable withdrawals for an individual account.
+        </p>
       </section>
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
