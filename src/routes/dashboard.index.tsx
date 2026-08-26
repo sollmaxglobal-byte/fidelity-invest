@@ -8,7 +8,6 @@ import {
   Copy,
   Users,
   TrendingUp,
-  Clock,
   Wallet,
   PiggyBank,
   ChevronRight,
@@ -379,23 +378,25 @@ function DashboardHome() {
         </div>
       </motion.div>
 
-      {/* Stats cards */}
+      {/* Wallet summary */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-            <PiggyBank className="h-3.5 w-3.5" /> Invested
+          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Wallet className="h-3.5 w-3.5 text-primary" /> Main wallet
           </div>
-          <div className="mt-1.5 text-lg text-foreground">
-            <Money value={totalInvested} />
+          <div className="mt-2 text-lg font-semibold text-foreground">
+            {balanceVisible ? <Money value={Number(profile?.balance ?? 0)} /> : "••••••"}
           </div>
+          <p className="mt-1 text-[10px] text-muted-foreground">Available to withdraw</p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-            <Wallet className="h-3.5 w-3.5" /> Profit
+          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <PiggyBank className="h-3.5 w-3.5 text-success" /> Total profit
           </div>
-          <div className="mt-1.5 text-lg text-success">
-            <Money value={totalProfit} />
+          <div className="mt-2 text-lg font-semibold text-success">
+            {balanceVisible ? <Money value={totalProfit} /> : "••••••"}
           </div>
+          <p className="mt-1 text-[10px] text-muted-foreground">Lifetime earnings</p>
         </div>
       </motion.div>
 
@@ -430,9 +431,6 @@ function DashboardHome() {
 }
 
 function InvestmentCard({ inv }: { inv: ActiveInvestment }) {
-  const start = new Date(inv.start_date).getTime();
-  const end = new Date(inv.end_date).getTime();
-  const pct = Math.max(0, Math.min(100, ((Date.now() - start) / Math.max(1, end - start)) * 100));
   return (
     <motion.div whileTap={{ scale: 0.99 }} className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
@@ -457,29 +455,11 @@ function InvestmentCard({ inv }: { inv: ActiveInvestment }) {
         </span>
       </div>
 
-      {/* Progress */}
-      <div className="mt-3">
-        <div className="h-2 overflow-hidden rounded-full bg-secondary">
-          <motion.div
-            className="h-full rounded-full bg-success"
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-          />
-        </div>
-        <div className="mt-1.5 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
-          <span>{Math.round(pct)}% complete</span>
-          <span>Ends {formatDate(inv.end_date)}</span>
-        </div>
-      </div>
-
-      <div className="mt-3 rounded-xl bg-secondary/60 p-3">
-        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-          <Clock className="h-3 w-3" /> Expires in
-        </div>
-        <div className="mt-2">
-          <Countdown to={inv.end_date} />
-        </div>
+      <div className="mt-3 flex items-center justify-between rounded-xl bg-secondary/60 p-3">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Investment end date
+        </span>
+        <span className="text-xs font-semibold text-foreground">{formatDate(inv.end_date)}</span>
       </div>
     </motion.div>
   );
