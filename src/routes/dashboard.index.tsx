@@ -16,6 +16,8 @@ import {
   ShieldCheck,
   ArrowUpRight,
   CircleDollarSign,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { Countdown } from "@/components/Countdown";
@@ -98,6 +100,9 @@ function DashboardHome() {
   const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
   const [profits, setProfits] = useState<ProfitTx[]>([]);
   const [range, setRange] = useState<RangeKey>("1W");
+  const [balanceVisible, setBalanceVisible] = useState(false);
+
+  const toggleBalance = () => setBalanceVisible((visible) => !visible);
 
   useEffect(() => {
     if (!user) return;
@@ -195,14 +200,30 @@ function DashboardHome() {
       {/* Balance + chart card */}
       <motion.div
         variants={itemVariants}
-        className="overflow-hidden rounded-3xl border border-border bg-card shadow-elegant"
+        className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-elegant"
       >
         <div className="px-5 pt-5">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            {t("home.availableBalance")}
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {t("home.availableBalance")}
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-9 w-9 rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+              onClick={toggleBalance}
+              aria-label={balanceVisible ? "Hide available balance" : "Show available balance"}
+            >
+              {balanceVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
           </div>
           <div className="mt-1.5 font-display text-3xl leading-tight text-foreground sm:text-4xl">
-            <AnimatedNumber value={profile?.balance ?? 0} />
+            {balanceVisible ? (
+              <AnimatedNumber value={profile?.balance ?? 0} />
+            ) : (
+              <span aria-label="Balance hidden">••••••••</span>
+            )}
           </div>
           <div
             className={`mt-1 text-xs font-semibold uppercase tracking-wide ${up ? "text-success" : "text-destructive"}`}
