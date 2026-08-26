@@ -152,6 +152,15 @@ function RegisterPage() {
             autoComplete="new-password"
           />
         </div>
+        <div>
+          <Label htmlFor="withdrawal_pin">Withdrawal PIN</Label>
+          <Input id="withdrawal_pin" name="withdrawal_pin" type="password" inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} required autoComplete="off" />
+          <p className="mt-1 text-xs text-muted-foreground">Use exactly 6 numbers. You will need this PIN before every withdrawal.</p>
+        </div>
+        <div>
+          <Label htmlFor="withdrawal_pin_confirm">Confirm withdrawal PIN</Label>
+          <Input id="withdrawal_pin_confirm" name="withdrawal_pin_confirm" type="password" inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} required autoComplete="off" />
+        </div>
         {refCode && (
           <div>
             <Label htmlFor="ref">{t("auth.referralCode")}</Label>

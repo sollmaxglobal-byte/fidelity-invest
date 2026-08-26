@@ -46,6 +46,7 @@ const schema = z.object({
   method: z.enum(["mobile_money", "bank_transfer", "crypto"]),
   account_name: z.string().min(2).max(120),
   account_number: z.string().min(4).max(120),
+  withdrawal_pin: z.string().regex(/^\d{6}$/, "Withdrawal PIN must be exactly 6 digits"),
 });
 
 function WithdrawPage() {
@@ -105,6 +106,7 @@ function WithdrawPage() {
         method: fd.get("method") as never,
         account_name: String(fd.get("account_name") ?? ""),
         account_number: String(fd.get("account_number") ?? ""),
+        withdrawal_pin: String(fd.get("withdrawal_pin") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
       const { data: canWithdraw, error: eligibilityError } = await supabase.rpc("can_withdraw", {
@@ -121,6 +123,7 @@ function WithdrawPage() {
         _method: v.method,
         _account_name: v.account_name,
         _account_number: v.account_number,
+        _pin: v.withdrawal_pin,
       } as never);
       if (error) throw error;
       const withdrawalId = newId as unknown as string;
@@ -254,6 +257,11 @@ function WithdrawPage() {
         <div>
           <Label htmlFor="account_number">{t("withdraw.accountNumber")}</Label>
           <Input id="account_number" name="account_number" required maxLength={120} />
+        </div>
+        <div className="md:col-span-2">
+          <Label htmlFor="withdrawal_pin">Withdrawal PIN</Label>
+          <Input id="withdrawal_pin" name="withdrawal_pin" type="password" inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} required autoComplete="off" />
+          <p className="mt-1 text-xs text-muted-foreground">Enter your 6-digit PIN before confirming this withdrawal.</p>
         </div>
         <div className="md:col-span-2">
           <Button
