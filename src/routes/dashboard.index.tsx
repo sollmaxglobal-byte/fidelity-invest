@@ -265,7 +265,7 @@ function DashboardHome() {
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <ActionSheet
           label={t("common.deposit")}
-          icon={<ArrowDownToLine className="h-4 w-4" />}
+          icon={<ArrowDownToLine className="h-6 w-6" />}
           title={t("common.deposit")}
           description="Fund your account with Mobile Money or bank transfer. Funds appear once approved."
           to="/dashboard/deposit"
@@ -274,7 +274,7 @@ function DashboardHome() {
         />
         <ActionSheet
           label={t("common.withdraw")}
-          icon={<ArrowUpFromLine className="h-4 w-4" />}
+          icon={<ArrowUpFromLine className="h-6 w-6" />}
           title={t("common.withdraw")}
           description="Minimum withdrawal is 250 XAF. Payouts are processed within 10 minutes."
           to="/dashboard/withdraw"
@@ -409,7 +409,7 @@ function ActionSheet({
     <Sheet>
       <SheetTrigger asChild>
         <button
-          className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition active:scale-95 ${
+          className={`flex min-h-28 flex-col items-start justify-between gap-4 rounded-3xl px-4 py-4 text-sm font-semibold transition active:scale-95 ${
             primary
               ? "bg-primary text-primary-foreground shadow-elegant"
               : "border border-border bg-card text-foreground"
