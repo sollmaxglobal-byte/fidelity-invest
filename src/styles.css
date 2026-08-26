@@ -292,7 +292,43 @@ body {
 html.app-standalone {
   overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
+  background: oklch(0.12 0.025 220);
 }
+
+@media (max-width: 767px) {
+  .app-shell {
+    background: oklch(0.12 0.025 220);
+  }
+
+  .app-header {
+    height: 4.25rem;
+    padding-inline: 1rem;
+    border-bottom-color: oklch(0.24 0.03 220);
+    background: oklch(0.12 0.025 220);
+  }
+
+  .app-content {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .dashboard-home {
+    gap: 1.25rem;
+  }
+
+  .dashboard-home > * {
+    border-radius: 1.5rem;
+  }
+}
+
+html.app-standalone .app-header {
+  padding-top: env(safe-area-inset-top);
+  height: calc(4.25rem + env(safe-area-inset-top));
+}
+
+html.app-standalone .app-content {
+  padding-top: 1.5rem;
+}
+
 html.app-standalone body {
   user-select: none;
   -webkit-user-select: none;

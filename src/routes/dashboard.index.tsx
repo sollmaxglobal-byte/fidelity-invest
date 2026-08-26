@@ -164,7 +164,7 @@ function DashboardHome() {
 
   return (
     <motion.div
-      className="space-y-4 pb-4"
+      className="dashboard-home space-y-4 pb-4"
       variants={containerVariants}
       initial="hidden"
       animate="show"

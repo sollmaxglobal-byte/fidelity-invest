@@ -79,12 +79,18 @@ function DashboardLayout() {
   const isActive = (to: string, exact?: boolean) => (exact ? path === to : path.startsWith(to));
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-0">
+    <div
+      className={`app-shell min-h-screen bg-background pb-24 md:pb-0 ${appMode ? "app-shell-standalone" : ""}`}
+    >
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        <div className="app-header mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <Link to="/" className="flex items-center">
-            <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-9 w-auto object-contain" />
+            <img
+              src="/fidelity-logo.png"
+              alt="Fidelity Invest"
+              className="h-9 w-auto object-contain"
+            />
           </Link>
           <div className="flex items-center gap-1.5">
             <LanguageToggle />
@@ -155,7 +161,7 @@ function DashboardLayout() {
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-6xl gap-6 px-3 py-4 sm:px-4 md:py-6">
+      <div className="app-content mx-auto flex max-w-6xl gap-6 px-3 py-4 sm:px-4 md:py-6">
         {/* Side nav (desktop) */}
         <aside className="hidden w-56 shrink-0 md:block">
           <nav className="sticky top-20 flex flex-col gap-1">
