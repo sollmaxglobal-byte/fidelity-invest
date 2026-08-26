@@ -9,36 +9,54 @@ import { formatXAF, formatDate, txRef } from "@/lib/format";
 import { sendPushToUser } from "@/lib/push.functions";
 import { txNotification } from "@/lib/notification-templates";
 
-
 export const Route = createFileRoute("/admin/withdrawals")({
   component: AdminWithdrawals,
 });
 
 type W = {
-  id: string; user_id: string; amount: number; method: string;
-  account_name: string; account_number: string; status: string; created_at: string;
+  id: string;
+  user_id: string;
+  amount: number;
+  method: string;
+  account_name: string;
+  account_number: string;
+  status: string;
+  created_at: string;
   profiles: { full_name: string | null; phone: string | null } | null;
 };
 
 function AdminWithdrawals() {
-  const [filter, setFilter] = useState<"pending" | "approved" | "paid" | "rejected" | "all">("pending");
+  const [filter, setFilter] = useState<"pending" | "approved" | "paid" | "rejected" | "all">(
+    "pending",
+  );
   const [list, setList] = useState<W[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
-    let q = supabase.from("withdrawals").select("*").order("created_at", { ascending: false }).limit(100);
+    let q = supabase
+      .from("withdrawals")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100);
     if (filter !== "all") q = q.eq("status", filter);
     const { data } = await q;
     const rows = (data ?? []) as unknown as W[];
     const ids = Array.from(new Set(rows.map((r) => r.user_id)));
     if (ids.length) {
-      const { data: profs } = await supabase.from("profiles").select("id,full_name,phone").in("id", ids);
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id,full_name,phone")
+        .in("id", ids);
       const map = new Map((profs ?? []).map((p) => [p.id, p]));
-      rows.forEach((r) => { r.profiles = (map.get(r.user_id) as never) ?? null; });
+      rows.forEach((r) => {
+        r.profiles = (map.get(r.user_id) as never) ?? null;
+      });
     }
     setList(rows);
   }
-  useEffect(() => { load(); }, [filter]);
+  useEffect(() => {
+    load();
+  }, [filter]);
 
   async function review(w: W, status: "approved" | "rejected" | "paid") {
     setBusy(w.id);
@@ -48,15 +66,22 @@ function AdminWithdrawals() {
         const { error } = await supabase.rpc("reject_withdrawal", { _id: w.id } as never);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("withdrawals").update({
-          status, reviewed_at: new Date().toISOString(),
-        }).eq("id", w.id);
+        const { error } = await supabase
+          .from("withdrawals")
+          .update({
+            status,
+            reviewed_at: new Date().toISOString(),
+          })
+          .eq("id", w.id);
         if (error) throw error;
         // Funds were already held when the user submitted; just log it once.
         if (w.status === "pending") {
           await supabase.from("transactions").insert({
-            user_id: w.user_id, type: "withdrawal", amount: -Number(w.amount),
-            description: `Withdrawal ${status} (${w.method})`, ref_id: w.id,
+            user_id: w.user_id,
+            type: "withdrawal",
+            amount: -Number(w.amount),
+            description: `Withdrawal ${status} (${w.method})`,
+            ref_id: w.id,
           });
         }
       }
@@ -73,9 +98,11 @@ function AdminWithdrawals() {
       }).catch(() => {});
 
       const key =
-        status === "rejected" ? "withdrawal_rejected"
-        : status === "paid" ? "withdrawal_paid"
-        : "withdrawal_approved";
+        status === "rejected"
+          ? "withdrawal_rejected"
+          : status === "paid"
+            ? "withdrawal_paid"
+            : "withdrawal_approved";
       sendEmail({
         to: `user_id:${w.user_id}`,
         template_key: key,
@@ -90,7 +117,10 @@ function AdminWithdrawals() {
 
           status,
           date: new Date().toLocaleString(),
-          note: status === "rejected" ? "Request could not be processed. Funds returned to your wallet." : "",
+          note:
+            status === "rejected"
+              ? "Request could not be processed. Funds returned to your wallet."
+              : "",
         },
       });
       toast.success(`Withdrawal ${status}`);
@@ -115,7 +145,9 @@ function AdminWithdrawals() {
               key={f}
               onClick={() => setFilter(f)}
               className={`rounded px-3 py-1.5 text-xs font-medium capitalize ${
-                filter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                filter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               {f}
@@ -136,10 +168,12 @@ function AdminWithdrawals() {
                 <div>
                   <div className="font-display text-xl text-primary">{formatXAF(w.amount)}</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    {w.profiles?.full_name ?? "User"} • {w.profiles?.phone ?? "—"} • {formatDate(w.created_at)}
+                    {w.profiles?.full_name ?? "User"} • {w.profiles?.phone ?? "—"} •{" "}
+                    {formatDate(w.created_at)}
                   </div>
                   <div className="mt-2 text-sm capitalize">
-                    <span className="text-muted-foreground">Method:</span> {w.method.replace("_", " ")}
+                    <span className="text-muted-foreground">Method:</span>{" "}
+                    {w.method.replace("_", " ")}
                   </div>
                   <div className="text-sm">
                     <span className="text-muted-foreground">Pay to:</span> {w.account_name} —{" "}
@@ -149,30 +183,44 @@ function AdminWithdrawals() {
                 <div className="flex flex-wrap items-center gap-2">
                   {w.status === "pending" && (
                     <>
-                      <Button size="sm" disabled={busy === w.id}
+                      <Button
+                        size="sm"
+                        disabled={busy === w.id}
                         onClick={() => review(w, "approved")}
-                        className="bg-success text-white hover:opacity-90">
+                        className="bg-success text-white hover:opacity-90"
+                      >
                         <Check className="mr-1 h-4 w-4" /> Approve
                       </Button>
-                      <Button size="sm" variant="outline" disabled={busy === w.id}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busy === w.id}
                         onClick={() => review(w, "rejected")}
-                        className="border-destructive text-destructive hover:bg-destructive/10">
+                        className="border-destructive text-destructive hover:bg-destructive/10"
+                      >
                         <X className="mr-1 h-4 w-4" /> Reject
                       </Button>
                     </>
                   )}
                   {w.status === "approved" && (
-                    <Button size="sm" disabled={busy === w.id}
+                    <Button
+                      size="sm"
+                      disabled={busy === w.id}
                       onClick={() => review(w, "paid")}
-                      className="bg-primary text-primary-foreground hover:opacity-90">
+                      className="bg-primary text-primary-foreground hover:opacity-90"
+                    >
                       Mark as paid
                     </Button>
                   )}
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
-                    w.status === "paid" || w.status === "approved" ? "bg-success/15 text-success" :
-                    w.status === "rejected" ? "bg-destructive/15 text-destructive" :
-                    "bg-warning/15 text-warning"
-                  }`}>
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
+                      w.status === "paid" || w.status === "approved"
+                        ? "bg-success/15 text-success"
+                        : w.status === "rejected"
+                          ? "bg-destructive/15 text-destructive"
+                          : "bg-warning/15 text-warning"
+                    }`}
+                  >
                     {w.status}
                   </span>
                 </div>

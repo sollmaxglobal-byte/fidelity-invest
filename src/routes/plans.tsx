@@ -43,7 +43,9 @@ function PlansPage() {
       <SiteHeader />
       <section className="bg-hero py-20 text-primary-foreground">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Investment plans</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+            Investment plans
+          </div>
           <h1 className="mt-3 font-display text-5xl md:text-6xl">Pick your pace.</h1>
           <p className="mt-4 max-w-xl opacity-85">
             Three transparent tiers. Flexible amounts. Daily returns paid in XAF.
@@ -80,7 +82,9 @@ function PlansPage() {
                     {p.daily_roi_percent}
                     <span className="text-2xl">%</span>
                   </div>
-                  <div className={`text-xs uppercase tracking-wider ${featured ? "opacity-70" : "text-muted-foreground"}`}>
+                  <div
+                    className={`text-xs uppercase tracking-wider ${featured ? "opacity-70" : "text-muted-foreground"}`}
+                  >
                     daily for {p.duration_days} days
                   </div>
                 </div>

@@ -12,8 +12,13 @@ export const Route = createFileRoute("/admin/users")({
 });
 
 type Row = {
-  id: string; full_name: string | null; phone: string | null;
-  balance: number; total_invested: number; total_earned: number; created_at: string;
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  balance: number;
+  total_invested: number;
+  total_earned: number;
+  created_at: string;
   is_admin: boolean;
   is_suspended: boolean;
 };
@@ -24,14 +29,21 @@ function AdminUsers() {
   const [adj, setAdj] = useState<{ id: string; amount: string }>({ id: "", amount: "" });
 
   async function load() {
-    const { data: profs } = await supabase.from("profiles")
+    const { data: profs } = await supabase
+      .from("profiles")
       .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended")
-      .order("created_at", { ascending: false }).limit(200);
-    const { data: roles } = await supabase.from("user_roles").select("user_id,role").eq("role", "admin");
+      .order("created_at", { ascending: false })
+      .limit(200);
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("user_id,role")
+      .eq("role", "admin");
     const adminSet = new Set((roles ?? []).map((r) => r.user_id));
-    setRows((profs ?? []).map((p) => ({ ...p, is_admin: adminSet.has(p.id) } as Row)));
+    setRows((profs ?? []).map((p) => ({ ...p, is_admin: adminSet.has(p.id) }) as Row));
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function toggleAdmin(r: Row) {
     if (r.is_admin) {
@@ -50,7 +62,9 @@ function AdminUsers() {
     if (newBalance < 0) return toast.error("Resulting balance is negative");
     await supabase.from("profiles").update({ balance: newBalance }).eq("id", r.id);
     await supabase.from("transactions").insert({
-      user_id: r.id, type: "adjustment", amount: delta,
+      user_id: r.id,
+      type: "adjustment",
+      amount: delta,
       description: `Manual adjustment by admin`,
     });
     toast.success("Balance updated");
@@ -66,8 +80,11 @@ function AdminUsers() {
     load();
   }
 
-  const filtered = rows.filter((r) =>
-    !q || (r.full_name ?? "").toLowerCase().includes(q.toLowerCase()) || (r.phone ?? "").includes(q)
+  const filtered = rows.filter(
+    (r) =>
+      !q ||
+      (r.full_name ?? "").toLowerCase().includes(q.toLowerCase()) ||
+      (r.phone ?? "").includes(q),
   );
 
   return (
@@ -77,7 +94,12 @@ function AdminUsers() {
           <h1 className="font-display text-3xl text-primary md:text-4xl">Users</h1>
           <p className="mt-1 text-sm text-muted-foreground">{rows.length} accounts</p>
         </div>
-        <Input className="max-w-xs" placeholder="Search name or phone…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Input
+          className="max-w-xs"
+          placeholder="Search name or phone…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
       </div>
 
       <div className="space-y-3">
@@ -98,33 +120,63 @@ function AdminUsers() {
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground">{r.phone ?? "—"} • Joined {formatDate(r.created_at)}</div>
+                <div className="text-xs text-muted-foreground">
+                  {r.phone ?? "—"} • Joined {formatDate(r.created_at)}
+                </div>
                 <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
-                  <div><div className="text-muted-foreground">Balance</div><div className="font-medium">{formatXAF(r.balance)}</div></div>
-                  <div><div className="text-muted-foreground">Invested</div><div className="font-medium">{formatXAF(r.total_invested)}</div></div>
-                  <div><div className="text-muted-foreground">Earned</div><div className="font-medium text-success">{formatXAF(r.total_earned)}</div></div>
+                  <div>
+                    <div className="text-muted-foreground">Balance</div>
+                    <div className="font-medium">{formatXAF(r.balance)}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Invested</div>
+                    <div className="font-medium">{formatXAF(r.total_invested)}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Earned</div>
+                    <div className="font-medium text-success">{formatXAF(r.total_earned)}</div>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(r)}>
-                  {r.is_admin ? <><ShieldOff className="mr-1 h-4 w-4" />Remove admin</> : <><Shield className="mr-1 h-4 w-4" />Make admin</>}
+                  {r.is_admin ? (
+                    <>
+                      <ShieldOff className="mr-1 h-4 w-4" />
+                      Remove admin
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="mr-1 h-4 w-4" />
+                      Make admin
+                    </>
+                  )}
                 </Button>
                 <Button
                   size="sm"
                   variant={r.is_suspended ? "outline" : "destructive"}
                   onClick={() => toggleSuspend(r)}
                 >
-                  {r.is_suspended
-                    ? <><CheckCircle2 className="mr-1 h-4 w-4" />Reactivate</>
-                    : <><Ban className="mr-1 h-4 w-4" />Suspend</>}
+                  {r.is_suspended ? (
+                    <>
+                      <CheckCircle2 className="mr-1 h-4 w-4" />
+                      Reactivate
+                    </>
+                  ) : (
+                    <>
+                      <Ban className="mr-1 h-4 w-4" />
+                      Suspend
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
 
-
             <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-border pt-3">
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Adjust balance (XAF)</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Adjust balance (XAF)
+                </div>
                 <Input
                   type="number"
                   className="mt-1 w-40"
@@ -133,12 +185,18 @@ function AdminUsers() {
                   placeholder="e.g. 5000"
                 />
               </div>
-              <Button size="sm" className="bg-success text-white hover:opacity-90"
-                onClick={() => adjustBalance(r, Number(adj.amount || 0))}>
+              <Button
+                size="sm"
+                className="bg-success text-white hover:opacity-90"
+                onClick={() => adjustBalance(r, Number(adj.amount || 0))}
+              >
                 <Plus className="mr-1 h-4 w-4" /> Credit
               </Button>
-              <Button size="sm" variant="outline"
-                onClick={() => adjustBalance(r, -Number(adj.amount || 0))}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => adjustBalance(r, -Number(adj.amount || 0))}
+              >
                 <Minus className="mr-1 h-4 w-4" /> Debit
               </Button>
             </div>

@@ -18,7 +18,8 @@ export const ingestMmMessages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { text: string; sender?: string }) => {
     const text = (data.text ?? "").trim();
-    if (text.length < 10 || text.length > 8000) throw new Error("Paste the full confirmation message");
+    if (text.length < 10 || text.length > 8000)
+      throw new Error("Paste the full confirmation message");
     return { text, sender: data.sender?.slice(0, 60) };
   })
   .handler(async ({ data, context }) => {

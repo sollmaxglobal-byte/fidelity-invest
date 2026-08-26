@@ -1,12 +1,31 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Home, TrendingUp, Wallet, User, ShieldCheck, Menu, Info, Phone, Layers, FileText, LogOut } from "lucide-react";
+import {
+  Home,
+  TrendingUp,
+  Wallet,
+  User,
+  ShieldCheck,
+  Menu,
+  Info,
+  Phone,
+  Layers,
+  FileText,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { SocialProof } from "@/components/SocialProof";
 import { PushSetup } from "@/components/PushSetup";
 import { isStandalone } from "@/lib/push-client";
@@ -50,11 +69,14 @@ function DashboardLayout() {
   }, [user, loading, nav]);
 
   if (loading || !user) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.loading")}</div>;
+    return (
+      <div className="grid min-h-screen place-items-center text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
   }
 
-  const isActive = (to: string, exact?: boolean) =>
-    exact ? path === to : path.startsWith(to);
+  const isActive = (to: string, exact?: boolean) => (exact ? path === to : path.startsWith(to));
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -98,7 +120,9 @@ function DashboardLayout() {
                     </SheetClose>
                   ))}
                   <div className="my-2 h-px bg-border" />
-                  <div className="px-3 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Account</div>
+                  <div className="px-3 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Account
+                  </div>
                   {NAV.map((item) => (
                     <SheetClose asChild key={item.to}>
                       <Link
@@ -145,7 +169,9 @@ function DashboardLayout() {
                   key={item.to}
                   to={item.to as never}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                    active ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted"
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground/70 hover:bg-muted"
                   }`}
                 >
                   <item.icon className="h-4 w-4" />
@@ -172,12 +198,18 @@ function DashboardLayout() {
                 to={item.to as never}
                 className="flex flex-col items-center justify-center gap-1 py-2 active:scale-95 transition-transform"
               >
-                <span className={`flex h-9 w-12 items-center justify-center rounded-full transition ${
-                  active ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground"
-                }`}>
+                <span
+                  className={`flex h-9 w-12 items-center justify-center rounded-full transition ${
+                    active
+                      ? "bg-primary text-primary-foreground shadow-elegant"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   <item.icon className="h-5 w-5" />
                 </span>
-                <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}
+                >
                   {t(item.label)}
                 </span>
               </Link>

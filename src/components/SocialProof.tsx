@@ -5,29 +5,176 @@ import { supabase } from "@/integrations/supabase/client";
 
 // More than 500 distinct Cameroonian name combinations. Names can repeat naturally.
 const FIRSTS = [
-  "Achille","Marie-Claire","Jean-Paul","Estelle","Boris","Chantal","Serge","Nadine",
-  "Patrick","Sylvie","Emmanuel","Grace","Yannick","Aline","Guy","Rachelle","Christian",
-  "Larissa","Franck","Aïcha","Bertrand","Solange","Cédric","Mireille","Léon","Josiane",
-  "Armand","Brigitte","Dieudonné","Carine","Éric","Florence","Gaston","Hortense","Ismaël",
-  "Judith","Kévin","Liliane","Maxime","Noëlle","Olivier","Pauline","Quentin","Rebecca",
-  "Stéphane","Thérèse","Ulric","Valérie","William","Xavier","Yolande","Zacharie","Abdou",
-  "Blaise","Clarisse","Damien","Edwige","Fabrice","Georgette","Hervé","Irène","Jules",
-  "Ketsia","Landry","Manuela","Nestor","Odette","Paul","Rita","Samuel","Tatiana",
-  "Ursule","Vincent","Wilfrid","Yves","Zita","Alain","Beatrice","Charline","Doris",
-  "Elvis","Fanny","Gilbert","Henriette","Ivan","Joëlle","Konrad","Léa","Mathieu",
+  "Achille",
+  "Marie-Claire",
+  "Jean-Paul",
+  "Estelle",
+  "Boris",
+  "Chantal",
+  "Serge",
+  "Nadine",
+  "Patrick",
+  "Sylvie",
+  "Emmanuel",
+  "Grace",
+  "Yannick",
+  "Aline",
+  "Guy",
+  "Rachelle",
+  "Christian",
+  "Larissa",
+  "Franck",
+  "Aïcha",
+  "Bertrand",
+  "Solange",
+  "Cédric",
+  "Mireille",
+  "Léon",
+  "Josiane",
+  "Armand",
+  "Brigitte",
+  "Dieudonné",
+  "Carine",
+  "Éric",
+  "Florence",
+  "Gaston",
+  "Hortense",
+  "Ismaël",
+  "Judith",
+  "Kévin",
+  "Liliane",
+  "Maxime",
+  "Noëlle",
+  "Olivier",
+  "Pauline",
+  "Quentin",
+  "Rebecca",
+  "Stéphane",
+  "Thérèse",
+  "Ulric",
+  "Valérie",
+  "William",
+  "Xavier",
+  "Yolande",
+  "Zacharie",
+  "Abdou",
+  "Blaise",
+  "Clarisse",
+  "Damien",
+  "Edwige",
+  "Fabrice",
+  "Georgette",
+  "Hervé",
+  "Irène",
+  "Jules",
+  "Ketsia",
+  "Landry",
+  "Manuela",
+  "Nestor",
+  "Odette",
+  "Paul",
+  "Rita",
+  "Samuel",
+  "Tatiana",
+  "Ursule",
+  "Vincent",
+  "Wilfrid",
+  "Yves",
+  "Zita",
+  "Alain",
+  "Beatrice",
+  "Charline",
+  "Doris",
+  "Elvis",
+  "Fanny",
+  "Gilbert",
+  "Henriette",
+  "Ivan",
+  "Joëlle",
+  "Konrad",
+  "Léa",
+  "Mathieu",
 ];
 const LASTS = [
-  "Abanda","Abega","Abessolo","Aboubakar","Achu","Akoa","Amougou","Atangana","Ayissi","Babangida",
-  "Balla","Banda","Belinga","Biya","Bongben","Bouba","Che","Dikoumé","Djoumessi","Ekambi",
-  "Ekotto","Elanga","Essomba","Eto'o","Fai","Fokou","Kameni","Kamga","Kana","Kengne",
-  "Kome","Kouam","Mabouka","Manga","Mbarga","Mbida","Milla","Moukandjo","Ndam","Ndip",
-  "Ndom","Ngadeu","Ngannou","Ngo'o","Ngono","Njie","Njoya","Nkoulou","Nsame","Ntcham",
-  "Ntep","Nyom","Ondoa","Onana","Oyongo","Salli","Song","Tchami","Tchatchoua","Toko",
+  "Abanda",
+  "Abega",
+  "Abessolo",
+  "Aboubakar",
+  "Achu",
+  "Akoa",
+  "Amougou",
+  "Atangana",
+  "Ayissi",
+  "Babangida",
+  "Balla",
+  "Banda",
+  "Belinga",
+  "Biya",
+  "Bongben",
+  "Bouba",
+  "Che",
+  "Dikoumé",
+  "Djoumessi",
+  "Ekambi",
+  "Ekotto",
+  "Elanga",
+  "Essomba",
+  "Eto'o",
+  "Fai",
+  "Fokou",
+  "Kameni",
+  "Kamga",
+  "Kana",
+  "Kengne",
+  "Kome",
+  "Kouam",
+  "Mabouka",
+  "Manga",
+  "Mbarga",
+  "Mbida",
+  "Milla",
+  "Moukandjo",
+  "Ndam",
+  "Ndip",
+  "Ndom",
+  "Ngadeu",
+  "Ngannou",
+  "Ngo'o",
+  "Ngono",
+  "Njie",
+  "Njoya",
+  "Nkoulou",
+  "Nsame",
+  "Ntcham",
+  "Ntep",
+  "Nyom",
+  "Ondoa",
+  "Onana",
+  "Oyongo",
+  "Salli",
+  "Song",
+  "Tchami",
+  "Tchatchoua",
+  "Toko",
 ];
 
 const CITIES = [
-  "Douala","Yaoundé","Bafoussam","Kribi","Garoua","Bamenda","Limbe","Buea","Ngaoundéré",
-  "Bertoua","Ebolowa","Maroua","Dschang","Edéa","Nkongsamba","Kumba",
+  "Douala",
+  "Yaoundé",
+  "Bafoussam",
+  "Kribi",
+  "Garoua",
+  "Bamenda",
+  "Limbe",
+  "Buea",
+  "Ngaoundéré",
+  "Bertoua",
+  "Ebolowa",
+  "Maroua",
+  "Dschang",
+  "Edéa",
+  "Nkongsamba",
+  "Kumba",
 ];
 
 type Notice = {
@@ -40,7 +187,8 @@ type Notice = {
 };
 
 const AMOUNT_BUCKETS = [
-  5000,10000,15000,20000,25000,35000,50000,75000,100000,150000,200000,275000,350000,500000,750000,
+  5000, 10000, 15000, 20000, 25000, 35000, 50000, 75000, 100000, 150000, 200000, 275000, 350000,
+  500000, 750000,
 ];
 
 function makeFakeNotice(id: number): Notice {
@@ -61,7 +209,12 @@ function minutesAgo(ts: string): number {
 function playChime() {
   try {
     const AudioCtx =
-      (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }).AudioContext ||
+      (
+        window as unknown as {
+          AudioContext?: typeof AudioContext;
+          webkitAudioContext?: typeof AudioContext;
+        }
+      ).AudioContext ||
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
@@ -81,7 +234,9 @@ function playChime() {
       osc.stop(start + 0.34);
     });
     setTimeout(() => ctx.close().catch(() => {}), 900);
-  } catch { /* audio not available */ }
+  } catch {
+    /* audio not available */
+  }
 }
 
 type Row = { kind: string; first_name: string; amount: number; created_at: string };
@@ -117,7 +272,10 @@ export function SocialProof() {
     };
     load();
     const iv = setInterval(load, 20000);
-    return () => { cancelled = true; clearInterval(iv); };
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
   }, []);
 
   // Notification cycle

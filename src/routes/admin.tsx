@@ -1,8 +1,19 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  LayoutDashboard, ArrowDownToLine, ArrowUpFromLine, Users,
-  Settings, Wallet, ShieldCheck, LogOut, Menu, Cog, TrendingUp, Mail, BellRing,
+  LayoutDashboard,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Users,
+  Settings,
+  Wallet,
+  ShieldCheck,
+  LogOut,
+  Menu,
+  Cog,
+  TrendingUp,
+  Mail,
+  BellRing,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -38,7 +49,9 @@ function AdminLayout() {
   }, [user, loading, isAdmin, nav]);
 
   if (loading || !user || !isAdmin) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Loading…</div>;
+    return (
+      <div className="grid min-h-screen place-items-center text-muted-foreground">Loading…</div>
+    );
   }
 
   const isActive = (to: string, exact?: boolean) => (exact ? path === to : path.startsWith(to));
@@ -51,7 +64,11 @@ function AdminLayout() {
           <div className="flex items-center gap-2">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button size="icon" variant="ghost" className="text-sidebar-foreground hover:bg-white/10 md:hidden">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="text-sidebar-foreground hover:bg-white/10 md:hidden"
+                >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -70,7 +87,9 @@ function AdminLayout() {
                         to={item.to as never}
                         onClick={() => setOpen(false)}
                         className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                          active ? "bg-primary text-primary-foreground" : "text-foreground/80 hover:bg-muted"
+                          active
+                            ? "bg-primary text-primary-foreground"
+                            : "text-foreground/80 hover:bg-muted"
                         }`}
                       >
                         <item.icon className="h-4 w-4" />
@@ -80,13 +99,20 @@ function AdminLayout() {
                   })}
                   <div className="my-2 h-px bg-border" />
                   <button
-                    onClick={() => { setOpen(false); nav({ to: "/dashboard" }); }}
+                    onClick={() => {
+                      setOpen(false);
+                      nav({ to: "/dashboard" });
+                    }}
                     className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground/80 hover:bg-muted"
                   >
                     <LayoutDashboard className="h-4 w-4" /> My account
                   </button>
                   <button
-                    onClick={async () => { setOpen(false); await signOut(); nav({ to: "/" }); }}
+                    onClick={async () => {
+                      setOpen(false);
+                      await signOut();
+                      nav({ to: "/" });
+                    }}
                     className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-destructive hover:bg-destructive/10"
                   >
                     <LogOut className="h-4 w-4" /> Sign out
@@ -107,12 +133,23 @@ function AdminLayout() {
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
-            <Button size="sm" variant="ghost" className="text-sidebar-foreground hover:bg-white/10"
-              onClick={() => nav({ to: "/dashboard" })}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-sidebar-foreground hover:bg-white/10"
+              onClick={() => nav({ to: "/dashboard" })}
+            >
               My account
             </Button>
-            <Button size="sm" variant="ghost" className="text-sidebar-foreground hover:bg-white/10"
-              onClick={async () => { await signOut(); nav({ to: "/" }); }}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-sidebar-foreground hover:bg-white/10"
+              onClick={async () => {
+                await signOut();
+                nav({ to: "/" });
+              }}
+            >
               <LogOut className="h-4 w-4 md:mr-1" />
               <span className="hidden md:inline">Sign out</span>
             </Button>
@@ -134,7 +171,9 @@ function AdminLayout() {
                   key={item.to}
                   to={item.to as never}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                    active ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted"
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground/70 hover:bg-muted"
                   }`}
                 >
                   <item.icon className="h-4 w-4" />

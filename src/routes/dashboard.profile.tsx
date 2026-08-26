@@ -2,9 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import {
-  User, Mail, Phone, ShieldCheck, Copy, LogOut, KeyRound, Share2, Leaf,
-} from "lucide-react";
+import { User, Mail, Phone, ShieldCheck, Copy, LogOut, KeyRound, Share2, Leaf } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -31,9 +29,11 @@ function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles")
+    supabase
+      .from("profiles")
       .select("full_name,phone,kyc_status,referral_code")
-      .eq("id", user.id).maybeSingle()
+      .eq("id", user.id)
+      .maybeSingle()
       .then(({ data }) => setProfile(data as Profile));
   }, [user]);
 
@@ -46,9 +46,11 @@ function ProfilePage() {
     setBusy(true);
     const fd = new FormData(e.currentTarget);
     try {
-      const v = z.object({
-        password: z.string().min(8, "Min 8 characters").max(72),
-      }).parse({ password: fd.get("password") });
+      const v = z
+        .object({
+          password: z.string().min(8, "Min 8 characters").max(72),
+        })
+        .parse({ password: fd.get("password") });
       const { error } = await supabase.auth.updateUser({ password: v.password });
       if (error) throw error;
       toast.success("Password updated");
@@ -66,7 +68,15 @@ function ProfilePage() {
   }
   async function shareReferral() {
     if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share({ title: "Fidelity", text: "Join me on Fidelity", url: referralLink }); } catch { /* ignore */ }
+      try {
+        await navigator.share({
+          title: "Fidelity",
+          text: "Join me on Fidelity",
+          url: referralLink,
+        });
+      } catch {
+        /* ignore */
+      }
     } else {
       copyReferral();
     }
@@ -84,7 +94,9 @@ function ProfilePage() {
     <div className="space-y-5">
       <div>
         <h1 className="font-display text-2xl text-primary md:text-3xl">Profile</h1>
-        <p className="mt-0.5 text-xs text-muted-foreground">Account details, security and referrals.</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Account details, security and referrals.
+        </p>
       </div>
 
       {/* Identity card */}
@@ -94,7 +106,9 @@ function ProfilePage() {
             <Leaf className="h-6 w-6" />
           </div>
           <div className="min-w-0">
-            <div className="truncate font-display text-lg text-primary">{profile?.full_name ?? "—"}</div>
+            <div className="truncate font-display text-lg text-primary">
+              {profile?.full_name ?? "—"}
+            </div>
             <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
           </div>
         </div>
@@ -113,7 +127,11 @@ function ProfilePage() {
             <ShieldCheck className="h-4 w-4 text-primary" />
             <span className="font-display text-base text-primary">KYC verification</span>
           </div>
-          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase ${kyc.cls}`}>{kyc.label}</span>
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase ${kyc.cls}`}
+          >
+            {kyc.label}
+          </span>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           KYC unlocks higher withdrawal limits. Contact support to submit your documents.
@@ -132,10 +150,18 @@ function ProfilePage() {
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-secondary p-2.5">
           <div className="min-w-0 flex-1">
             <div className="text-[10px] uppercase text-muted-foreground">Your code</div>
-            <div className="truncate font-mono text-sm font-medium">{profile?.referral_code ?? "—"}</div>
+            <div className="truncate font-mono text-sm font-medium">
+              {profile?.referral_code ?? "—"}
+            </div>
           </div>
-          <Button size="sm" variant="outline" onClick={copyReferral}><Copy className="h-4 w-4" /></Button>
-          <Button size="sm" onClick={shareReferral} className="bg-primary text-primary-foreground hover:opacity-90">
+          <Button size="sm" variant="outline" onClick={copyReferral}>
+            <Copy className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            onClick={shareReferral}
+            className="bg-primary text-primary-foreground hover:opacity-90"
+          >
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
@@ -151,16 +177,30 @@ function ProfilePage() {
         </div>
         <div className="mt-3">
           <Label htmlFor="password">New password</Label>
-          <Input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+          />
         </div>
-        <Button type="submit" disabled={busy} className="mt-3 w-full bg-primary text-primary-foreground hover:opacity-90">
+        <Button
+          type="submit"
+          disabled={busy}
+          className="mt-3 w-full bg-primary text-primary-foreground hover:opacity-90"
+        >
           {busy ? "Updating…" : "Update password"}
         </Button>
       </form>
 
       <Button
         variant="outline"
-        onClick={async () => { await signOut(); nav({ to: "/" }); }}
+        onClick={async () => {
+          await signOut();
+          nav({ to: "/" });
+        }}
         className="w-full border-destructive text-destructive hover:bg-destructive/10"
       >
         <LogOut className="mr-2 h-4 w-4" /> Sign out

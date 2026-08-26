@@ -28,7 +28,10 @@ export async function translateEmailTemplate(subject: string, html: string) {
   if (!res.ok) throw new Error(`AI request failed (${res.status})`);
   const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
   const raw = json.choices?.[0]?.message?.content ?? "";
-  const cleaned = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const cleaned = raw
+    .replace(/^```(?:json)?/i, "")
+    .replace(/```$/, "")
+    .trim();
   const parsed = JSON.parse(cleaned) as { subject: string; html: string };
   return { subject: parsed.subject, html: parsed.html };
 }

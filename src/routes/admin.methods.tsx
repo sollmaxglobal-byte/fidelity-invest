@@ -16,9 +16,14 @@ export const Route = createFileRoute("/admin/methods")({
 type Scope = "deposit" | "withdrawal" | "both";
 
 type Method = {
-  id: string; type: "mobile_money" | "bank_transfer" | "crypto"; label: string;
-  account_name: string | null; account_number: string | null; instructions: string | null;
-  active: boolean; scope: Scope;
+  id: string;
+  type: "mobile_money" | "bank_transfer" | "crypto";
+  label: string;
+  account_name: string | null;
+  account_number: string | null;
+  instructions: string | null;
+  active: boolean;
+  scope: Scope;
 };
 
 const SCOPES: { value: Scope; label: string }[] = [
@@ -39,7 +44,9 @@ function AdminMethods() {
     const { data } = await supabase.from("payment_methods").select("*").order("type");
     setList((data as Method[]) ?? []);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const visible = list.filter((m) =>
     tab === "all" ? true : m.scope === tab || m.scope === "both",
@@ -66,15 +73,18 @@ function AdminMethods() {
 
   async function saveEdit() {
     if (!editing) return;
-    const { error } = await supabase.from("payment_methods").update({
-      type: editing.type,
-      label: editing.label,
-      account_name: editing.account_name,
-      account_number: editing.account_number,
-      instructions: editing.instructions,
-      scope: editing.scope,
-      active: editing.active,
-    }).eq("id", editing.id);
+    const { error } = await supabase
+      .from("payment_methods")
+      .update({
+        type: editing.type,
+        label: editing.label,
+        account_name: editing.account_name,
+        account_number: editing.account_number,
+        instructions: editing.instructions,
+        scope: editing.scope,
+        active: editing.active,
+      })
+      .eq("id", editing.id);
     if (error) return toast.error(error.message);
     toast.success("Method updated");
     setEditing(null);
@@ -96,13 +106,18 @@ function AdminMethods() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl text-primary md:text-4xl">Deposit & withdrawal methods</h1>
+        <h1 className="font-display text-3xl text-primary md:text-4xl">
+          Deposit & withdrawal methods
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Add, edit, enable or delete the channels users see when depositing or withdrawing.
         </p>
       </div>
 
-      <form onSubmit={create} className="grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2">
+      <form
+        onSubmit={create}
+        className="grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2"
+      >
         <div>
           <Label>Type</Label>
           <select name="type" required className={selectClass}>
@@ -114,13 +129,29 @@ function AdminMethods() {
         <div>
           <Label>Used for</Label>
           <select name="scope" required defaultValue="both" className={selectClass}>
-            {SCOPES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            {SCOPES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
           </select>
         </div>
-        <div><Label>Label</Label><Input name="label" required placeholder="MTN Mobile Money" /></div>
-        <div><Label>Account name</Label><Input name="account_name" required /></div>
-        <div className="sm:col-span-2"><Label>Account number / Phone / Wallet</Label><Input name="account_number" required /></div>
-        <div className="sm:col-span-2"><Label>Instructions</Label><Textarea name="instructions" rows={3} /></div>
+        <div>
+          <Label>Label</Label>
+          <Input name="label" required placeholder="MTN Mobile Money" />
+        </div>
+        <div>
+          <Label>Account name</Label>
+          <Input name="account_name" required />
+        </div>
+        <div className="sm:col-span-2">
+          <Label>Account number / Phone / Wallet</Label>
+          <Input name="account_number" required />
+        </div>
+        <div className="sm:col-span-2">
+          <Label>Instructions</Label>
+          <Textarea name="instructions" rows={3} />
+        </div>
         <div className="sm:col-span-2">
           <Button type="submit" className="bg-primary text-primary-foreground hover:opacity-90">
             <Plus className="mr-1 h-4 w-4" /> Add method
@@ -134,7 +165,9 @@ function AdminMethods() {
             key={f}
             onClick={() => setTab(f)}
             className={`rounded px-3 py-1.5 text-xs font-medium capitalize ${
-              tab === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+              tab === f
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {f === "all" ? "All" : f === "deposit" ? "Deposit methods" : "Withdrawal methods"}
@@ -152,7 +185,9 @@ function AdminMethods() {
                   <select
                     className={selectClass}
                     value={editing.type}
-                    onChange={(e) => setEditing({ ...editing, type: e.target.value as Method["type"] })}
+                    onChange={(e) =>
+                      setEditing({ ...editing, type: e.target.value as Method["type"] })
+                    }
                   >
                     <option value="mobile_money">Mobile Money</option>
                     <option value="bank_transfer">Bank transfer</option>
@@ -166,27 +201,47 @@ function AdminMethods() {
                     value={editing.scope}
                     onChange={(e) => setEditing({ ...editing, scope: e.target.value as Scope })}
                   >
-                    {SCOPES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    {SCOPES.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <Label>Label</Label>
-                  <Input value={editing.label} onChange={(e) => setEditing({ ...editing, label: e.target.value })} />
+                  <Input
+                    value={editing.label}
+                    onChange={(e) => setEditing({ ...editing, label: e.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>Account name</Label>
-                  <Input value={editing.account_name ?? ""} onChange={(e) => setEditing({ ...editing, account_name: e.target.value })} />
+                  <Input
+                    value={editing.account_name ?? ""}
+                    onChange={(e) => setEditing({ ...editing, account_name: e.target.value })}
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Account number / Phone / Wallet</Label>
-                  <Input value={editing.account_number ?? ""} onChange={(e) => setEditing({ ...editing, account_number: e.target.value })} />
+                  <Input
+                    value={editing.account_number ?? ""}
+                    onChange={(e) => setEditing({ ...editing, account_number: e.target.value })}
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Instructions</Label>
-                  <Textarea rows={3} value={editing.instructions ?? ""} onChange={(e) => setEditing({ ...editing, instructions: e.target.value })} />
+                  <Textarea
+                    rows={3}
+                    value={editing.instructions ?? ""}
+                    onChange={(e) => setEditing({ ...editing, instructions: e.target.value })}
+                  />
                 </div>
                 <div className="flex items-center gap-2 sm:col-span-2">
-                  <Button onClick={saveEdit} className="bg-primary text-primary-foreground hover:opacity-90">
+                  <Button
+                    onClick={saveEdit}
+                    className="bg-primary text-primary-foreground hover:opacity-90"
+                  >
                     <Save className="mr-1 h-4 w-4" /> Save
                   </Button>
                   <Button variant="outline" onClick={() => setEditing(null)}>
@@ -210,7 +265,9 @@ function AdminMethods() {
                     <span className="text-muted-foreground">Account:</span> {m.account_name} •{" "}
                     <span className="font-mono">{m.account_number}</span>
                   </div>
-                  {m.instructions && <p className="mt-1 text-xs text-muted-foreground">{m.instructions}</p>}
+                  {m.instructions && (
+                    <p className="mt-1 text-xs text-muted-foreground">{m.instructions}</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2 text-xs">
@@ -220,8 +277,12 @@ function AdminMethods() {
                   <Button size="sm" variant="outline" onClick={() => setEditing(m)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="outline" className="border-destructive text-destructive hover:bg-destructive/10"
-                    onClick={() => remove(m.id)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-destructive text-destructive hover:bg-destructive/10"
+                    onClick={() => remove(m.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

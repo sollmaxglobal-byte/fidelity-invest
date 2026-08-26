@@ -83,10 +83,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Fidelity — Grow your capital with confidence" },
-      { name: "description", content: "Fidelity is a professional investment platform in Cameroon. Earn daily returns in XAF with secure, transparent plans." },
+      {
+        name: "description",
+        content:
+          "Fidelity is a professional investment platform in Cameroon. Earn daily returns in XAF with secure, transparent plans.",
+      },
       { name: "author", content: "Fidelity" },
       { property: "og:title", content: "Fidelity — Grow your capital with confidence" },
-      { property: "og:description", content: "Daily returns in XAF. Secure manual deposits via Mobile Money, bank transfer or crypto." },
+      {
+        property: "og:description",
+        content:
+          "Daily returns in XAF. Secure manual deposits via Mobile Money, bank transfer or crypto.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -99,7 +107,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap",
+      },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/fidelity-app-icon-192.png" },

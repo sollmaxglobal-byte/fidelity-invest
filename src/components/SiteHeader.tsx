@@ -58,7 +58,10 @@ export function SiteHeader() {
               </Button>
               <Button
                 variant="outline"
-                onClick={async () => { await signOut(); nav({ to: "/" }); }}
+                onClick={async () => {
+                  await signOut();
+                  nav({ to: "/" });
+                }}
               >
                 {t("nav.signout")}
               </Button>
@@ -103,23 +106,53 @@ export function SiteHeader() {
               {user ? (
                 <>
                   {isAdmin && (
-                    <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/admin" }); }}>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setOpen(false);
+                        nav({ to: "/admin" });
+                      }}
+                    >
                       {t("nav.admin")}
                     </Button>
                   )}
-                  <Button onClick={() => { setOpen(false); nav({ to: "/dashboard" }); }}>
+                  <Button
+                    onClick={() => {
+                      setOpen(false);
+                      nav({ to: "/dashboard" });
+                    }}
+                  >
                     {t("nav.dashboard")}
                   </Button>
-                  <Button variant="ghost" onClick={async () => { await signOut(); setOpen(false); nav({ to: "/" }); }}>
+                  <Button
+                    variant="ghost"
+                    onClick={async () => {
+                      await signOut();
+                      setOpen(false);
+                      nav({ to: "/" });
+                    }}
+                  >
                     {t("nav.signout")}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="outline" onClick={() => { setOpen(false); nav({ to: "/login" }); }}>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setOpen(false);
+                      nav({ to: "/login" });
+                    }}
+                  >
                     {t("nav.signin")}
                   </Button>
-                  <Button className="bg-primary text-primary-foreground hover:opacity-90" onClick={() => { setOpen(false); nav({ to: "/login" }); }}>
+                  <Button
+                    className="bg-primary text-primary-foreground hover:opacity-90"
+                    onClick={() => {
+                      setOpen(false);
+                      nav({ to: "/login" });
+                    }}
+                  >
                     {t("nav.getStarted")}
                   </Button>
                 </>

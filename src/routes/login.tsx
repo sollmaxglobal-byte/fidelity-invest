@@ -14,7 +14,10 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Sign in — Fidelity" },
-      { name: "description", content: "Sign in to your Fidelity dashboard to track deposits, plans and payouts." },
+      {
+        name: "description",
+        content: "Sign in to your Fidelity dashboard to track deposits, plans and payouts.",
+      },
       { property: "og:title", content: "Sign in — Fidelity" },
       { property: "og:description", content: "Access your Fidelity account." },
       { property: "og:type", content: "website" },
@@ -42,7 +45,10 @@ function LoginPage() {
     const fd = new FormData(e.currentTarget);
     try {
       const v = loginSchema.parse({ email: fd.get("email"), password: fd.get("password") });
-      const { error } = await supabase.auth.signInWithPassword({ email: v.email, password: v.password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: v.email,
+        password: v.password,
+      });
       if (error) throw error;
       toast.success(t("auth.welcomeToast"));
     } catch (err) {
@@ -56,8 +62,12 @@ function LoginPage() {
   return (
     <AuthShell>
       <div className="mb-7">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">Welcome back</p>
-        <h1 className="font-display text-4xl leading-tight text-foreground">{t("auth.welcomeBack")}</h1>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+          Welcome back
+        </p>
+        <h1 className="font-display text-4xl leading-tight text-foreground">
+          {t("auth.welcomeBack")}
+        </h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("auth.signInSub")}</p>
       </div>
 
@@ -73,9 +83,19 @@ function LoginPage() {
               {t("auth.forgot")}
             </Link>
           </div>
-          <Input id="password" name="password" type="password" required autoComplete="current-password" />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autoComplete="current-password"
+          />
         </div>
-        <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
+        <Button
+          type="submit"
+          disabled={busy}
+          className="w-full bg-primary text-primary-foreground hover:opacity-90"
+        >
           {busy ? t("common.pleaseWait") : t("auth.signIn")}
         </Button>
       </form>

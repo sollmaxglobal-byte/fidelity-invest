@@ -42,7 +42,11 @@ async function processQueue() {
     try {
       const isDeposit = job.kind === "deposit";
       const table = isDeposit ? "deposits" : "withdrawals";
-      const { data: row } = await supabaseAdmin.from(table).select("*").eq("id", job.ref_id).maybeSingle();
+      const { data: row } = await supabaseAdmin
+        .from(table)
+        .select("*")
+        .eq("id", job.ref_id)
+        .maybeSingle();
       if (!row) throw new Error("transaction not found");
 
       const { data: profile } = await supabaseAdmin
@@ -134,14 +138,16 @@ export const Route = createFileRoute("/api/public/process-receipt-emails")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        if (!isAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
+        if (!isAuthorized(request))
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
         const sent = await processQueue();
         return new Response(JSON.stringify({ ok: true, sent }), {
           headers: { "Content-Type": "application/json" },
         });
       },
       GET: async ({ request }) => {
-        if (!isAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
+        if (!isAuthorized(request))
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
         const sent = await processQueue();
         return new Response(JSON.stringify({ ok: true, sent }), {
           headers: { "Content-Type": "application/json" },

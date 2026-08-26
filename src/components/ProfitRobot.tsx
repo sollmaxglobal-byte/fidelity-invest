@@ -3,7 +3,10 @@ import { Bot, Coins, Cog, Zap } from "lucide-react";
 
 export function ProfitRobot() {
   return (
-    <div className="relative h-24 overflow-hidden rounded-lg border border-success/20 bg-background/70" aria-label="Profit generator working">
+    <div
+      className="relative h-24 overflow-hidden rounded-lg border border-success/20 bg-background/70"
+      aria-label="Profit generator working"
+    >
       <div className="absolute inset-x-3 bottom-3 h-px bg-success/25" />
       <motion.div
         className="absolute bottom-3 left-4"
@@ -53,7 +56,10 @@ export function ProfitRobot() {
       ))}
 
       <div className="absolute bottom-2 right-3 flex items-center gap-1 text-[9px] font-bold uppercase text-success">
-        <motion.span animate={{ opacity: [0.35, 1, 0.35] }} transition={{ repeat: Infinity, duration: 1 }}>
+        <motion.span
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1 }}
+        >
           <Zap className="h-3 w-3" />
         </motion.span>
         Generating profit

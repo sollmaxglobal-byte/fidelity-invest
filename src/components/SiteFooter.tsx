@@ -14,22 +14,38 @@ export function SiteFooter() {
             <p className="mt-3 text-sm opacity-80">{t("footer.tagline")}</p>
           </div>
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">{t("footer.platform")}</h4>
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">
+              {t("footer.platform")}
+            </h4>
             <ul className="space-y-2 text-sm opacity-80">
-              <li><Link to="/plans">{t("footer.investmentPlans")}</Link></li>
-              <li><Link to="/about">{t("footer.aboutUs")}</Link></li>
-              <li><Link to="/contact">{t("footer.contact")}</Link></li>
+              <li>
+                <Link to="/plans">{t("footer.investmentPlans")}</Link>
+              </li>
+              <li>
+                <Link to="/about">{t("footer.aboutUs")}</Link>
+              </li>
+              <li>
+                <Link to="/contact">{t("footer.contact")}</Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">{t("footer.account")}</h4>
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">
+              {t("footer.account")}
+            </h4>
             <ul className="space-y-2 text-sm opacity-80">
-              <li><Link to="/login">{t("nav.signin")}</Link></li>
-              <li><Link to="/dashboard">{t("nav.dashboard")}</Link></li>
+              <li>
+                <Link to="/login">{t("nav.signin")}</Link>
+              </li>
+              <li>
+                <Link to="/dashboard">{t("nav.dashboard")}</Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">{t("footer.contact")}</h4>
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider opacity-90">
+              {t("footer.contact")}
+            </h4>
             <ul className="space-y-2 text-sm opacity-80">
               <li>{t("footer.location")}</li>
               <li>support@safegrowinvest.com</li>

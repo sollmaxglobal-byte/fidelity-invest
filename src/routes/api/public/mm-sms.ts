@@ -35,7 +35,8 @@ export const Route = createFileRoute("/api/public/mm-sms")({
           .select("mm_webhook_secret")
           .eq("id", 1)
           .maybeSingle();
-        const expected = settings?.mm_webhook_secret ?? process.env["MM_SMS_WEBHOOK_SECRET"] ?? null;
+        const expected =
+          settings?.mm_webhook_secret ?? process.env["MM_SMS_WEBHOOK_SECRET"] ?? null;
 
         if (!expected || !secretMatches(provided || payload.secret || null, expected)) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {

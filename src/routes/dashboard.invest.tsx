@@ -12,13 +12,19 @@ export const Route = createFileRoute("/dashboard/invest")({
 });
 
 type Plan = {
-  id: string; name: string; description: string | null;
-  min_amount: number; max_amount: number; daily_roi_percent: number; duration_days: number;
-  profit_type: "percent" | "fixed"; fixed_daily_profit: number;
+  id: string;
+  name: string;
+  description: string | null;
+  min_amount: number;
+  max_amount: number;
+  daily_roi_percent: number;
+  duration_days: number;
+  profit_type: "percent" | "fixed";
+  fixed_daily_profit: number;
   payout_frequency: "daily" | "weekly" | "monthly" | "end_of_term";
-  amount_type: "range" | "fixed"; fixed_amount: number;
+  amount_type: "range" | "fixed";
+  fixed_amount: number;
 };
-
 
 const POPULAR = "Growth Plan";
 
@@ -49,13 +55,14 @@ function InvestPage() {
     });
   }
 
-
   return (
     <div className="space-y-5">
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl text-primary md:text-3xl">Investment plans</h1>
-          <p className="mt-0.5 text-xs text-muted-foreground">Capital + profit paid at end of term.</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Capital + profit paid at end of term.
+          </p>
         </div>
         <div className="rounded-xl border border-border bg-card px-3 py-1.5 text-right">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Wallet</div>
@@ -67,9 +74,12 @@ function InvestPage() {
         {plans.map((p) => {
           const popular = p.name === POPULAR;
           return (
-            <div key={p.id} className={`relative rounded-2xl border p-5 ${
-              popular ? "border-primary bg-card shadow-elegant" : "border-border bg-card"
-            }`}>
+            <div
+              key={p.id}
+              className={`relative rounded-2xl border p-5 ${
+                popular ? "border-primary bg-card shadow-elegant" : "border-border bg-card"
+              }`}
+            >
               {popular && (
                 <span className="absolute -top-2.5 left-4 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
                   Popular
@@ -80,9 +90,13 @@ function InvestPage() {
                   <div className="font-display text-xl text-primary">{p.name}</div>
                   <div className="mt-1 flex items-baseline gap-1">
                     <span className="font-display text-3xl text-success">
-                      {p.profit_type === "fixed" ? formatXAF(p.fixed_daily_profit) : `${p.daily_roi_percent}%`}
+                      {p.profit_type === "fixed"
+                        ? formatXAF(p.fixed_daily_profit)
+                        : `${p.daily_roi_percent}%`}
                     </span>
-                    <span className="text-xs text-muted-foreground">/ day · {p.duration_days} days</span>
+                    <span className="text-xs text-muted-foreground">
+                      / day · {p.duration_days} days
+                    </span>
                   </div>
                   <div className="mt-1 inline-flex rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
                     Paid {(p.payout_frequency ?? "daily").replace("_", " ")}
@@ -116,7 +130,8 @@ function InvestPage() {
                 Activate
               </Button>
               <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-                Profit paid {(p.payout_frequency ?? "daily").replace("_", " ")}. Investments carry risk.
+                Profit paid {(p.payout_frequency ?? "daily").replace("_", " ")}. Investments carry
+                risk.
               </p>
             </div>
           );

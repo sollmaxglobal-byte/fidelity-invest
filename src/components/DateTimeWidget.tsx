@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function fmt(d: Date) {
   const day = DAYS[d.getDay()];
@@ -37,7 +37,9 @@ export function DateTimeWidget() {
           <div className="text-sm font-medium text-foreground">{date}</div>
         </div>
       </div>
-      <div className="font-display text-xl font-bold uppercase tabular-nums text-primary">{time}</div>
+      <div className="font-display text-xl font-bold uppercase tabular-nums text-primary">
+        {time}
+      </div>
     </div>
   );
 }

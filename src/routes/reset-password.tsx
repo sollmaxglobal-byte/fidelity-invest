@@ -10,20 +10,20 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
-    meta: [
-      { title: "Set new password — Fidelity" },
-    ],
+    meta: [{ title: "Set new password — Fidelity" }],
   }),
   component: ResetPasswordPage,
 });
 
-const schema = z.object({
-  password: z.string().min(8, "At least 8 characters").max(72),
-  confirm: z.string(),
-}).refine((d) => d.password === d.confirm, {
-  message: "Passwords don't match",
-  path: ["confirm"],
-});
+const schema = z
+  .object({
+    password: z.string().min(8, "At least 8 characters").max(72),
+    confirm: z.string(),
+  })
+  .refine((d) => d.password === d.confirm, {
+    message: "Passwords don't match",
+    path: ["confirm"],
+  });
 
 function ResetPasswordPage() {
   const nav = useNavigate();
@@ -60,18 +60,38 @@ function ResetPasswordPage() {
           <span className="font-display text-xl text-primary">Fidelity</span>
         </div>
         <h1 className="font-display text-3xl text-primary">Set a new password</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Choose a strong password you haven't used before.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Choose a strong password you haven't used before.
+        </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
             <Label htmlFor="password">New password</Label>
-            <Input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+            />
           </div>
           <div>
             <Label htmlFor="confirm">Confirm password</Label>
-            <Input id="confirm" name="confirm" type="password" required minLength={8} autoComplete="new-password" />
+            <Input
+              id="confirm"
+              name="confirm"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+            />
           </div>
-          <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
+          <Button
+            type="submit"
+            disabled={busy}
+            className="w-full bg-primary text-primary-foreground hover:opacity-90"
+          >
             {busy ? "Saving…" : "Update password"}
           </Button>
         </form>

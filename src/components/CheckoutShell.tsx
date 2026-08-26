@@ -30,7 +30,10 @@ export function CheckoutShell({
           </div>
         </div>
         <div className="h-1 w-full bg-muted">
-          <div className="h-1 bg-primary transition-all" style={{ width: `${(step / total) * 100}%` }} />
+          <div
+            className="h-1 bg-primary transition-all"
+            style={{ width: `${(step / total) * 100}%` }}
+          />
         </div>
       </header>
 

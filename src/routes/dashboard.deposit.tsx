@@ -15,8 +15,12 @@ export const Route = createFileRoute("/dashboard/deposit")({
 });
 
 type PaymentMethod = {
-  id: string; type: "mobile_money" | "bank_transfer" | "crypto";
-  label: string; account_name: string | null; account_number: string | null; instructions: string | null;
+  id: string;
+  type: "mobile_money" | "bank_transfer" | "crypto";
+  label: string;
+  account_name: string | null;
+  account_number: string | null;
+  instructions: string | null;
 };
 
 const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitcoin };
@@ -35,8 +39,11 @@ function DepositPage() {
     if (!user) return;
     (async () => {
       const { data: m } = await supabase
-        .from("payment_methods").select("*").eq("active", true)
-        .in("scope", ["deposit", "both"]).order("type");
+        .from("payment_methods")
+        .select("*")
+        .eq("active", true)
+        .in("scope", ["deposit", "both"])
+        .order("type");
       const ms = (m as PaymentMethod[]) ?? [];
       setMethods(ms);
       if (ms[0]) setSelected(ms[0].id);
@@ -49,7 +56,10 @@ function DepositPage() {
 
   function goContinue() {
     if (step === 1) {
-      if (!canStep1) { toast.error(t("deposit.errMin")); return; }
+      if (!canStep1) {
+        toast.error(t("deposit.errMin"));
+        return;
+      }
       setStep(2);
       return;
     }
@@ -59,7 +69,6 @@ function DepositPage() {
       to: "/deposit-payment",
       search: { amount: amountNum, method: selected } as never,
     });
-
   }
 
   const stepLabels = [t("deposit.step1"), t("deposit.step2")];
@@ -80,15 +89,27 @@ function DepositPage() {
             const active = step === n;
             return (
               <div key={n} className="flex flex-1 items-center gap-1.5">
-                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
-                  done ? "bg-success text-white" : active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                }`}>
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+                    done
+                      ? "bg-success text-white"
+                      : active
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                >
                   {done ? <Check className="h-3.5 w-3.5" /> : n}
                 </div>
-                <span className={`hidden truncate text-[11px] font-medium sm:inline ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <span
+                  className={`hidden truncate text-[11px] font-medium sm:inline ${active ? "text-primary" : "text-muted-foreground"}`}
+                >
                   {label}
                 </span>
-                {i < stepLabels.length - 1 && <div className={`h-0.5 flex-1 rounded-full ${step > n ? "bg-success" : "bg-muted"}`} />}
+                {i < stepLabels.length - 1 && (
+                  <div
+                    className={`h-0.5 flex-1 rounded-full ${step > n ? "bg-success" : "bg-muted"}`}
+                  />
+                )}
               </div>
             );
           })}
@@ -105,7 +126,11 @@ function DepositPage() {
             <div>
               <Label htmlFor="amount">{t("common.amount")}</Label>
               <Input
-                id="amount" type="number" inputMode="numeric" min={1000} step={500}
+                id="amount"
+                type="number"
+                inputMode="numeric"
+                min={1000}
+                step={500}
                 placeholder={t("deposit.amountPlaceholder")}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
@@ -118,13 +143,21 @@ function DepositPage() {
               )}
             </div>
             <div>
-              <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">{t("deposit.quickPick")}</div>
+              <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                {t("deposit.quickPick")}
+              </div>
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
                 {QUICK_AMOUNTS.map((q) => (
-                  <button key={q} type="button" onClick={() => setAmount(String(q))}
+                  <button
+                    key={q}
+                    type="button"
+                    onClick={() => setAmount(String(q))}
                     className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${
-                      amountNum === q ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary"
-                    }`}>
+                      amountNum === q
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background hover:border-primary"
+                    }`}
+                  >
                     {q.toLocaleString("en-US").replace(/,/g, " ")}
                   </button>
                 ))}
@@ -144,16 +177,26 @@ function DepositPage() {
                 const Icon = ICONS[m.type];
                 const active = m.id === selected;
                 return (
-                  <button key={m.id} type="button" onClick={() => setSelected(m.id)}
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setSelected(m.id)}
                     className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
-                      active ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary"
-                    }`}>
-                    <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+                      active
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-background hover:border-primary"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
+                    >
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-foreground">{m.label}</div>
-                      <div className="truncate text-xs text-muted-foreground">{m.account_number}</div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        {m.account_number}
+                      </div>
                     </div>
                     {active && <Check className="h-5 w-5 text-primary" />}
                   </button>
@@ -168,16 +211,33 @@ function DepositPage() {
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <div className="mx-auto flex max-w-xl gap-2">
           {step > 1 ? (
-            <Button type="button" size="sm" variant="outline" onClick={() => setStep(1)} className="h-9 flex-1 text-xs md:h-10 md:text-sm">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setStep(1)}
+              className="h-9 flex-1 text-xs md:h-10 md:text-sm"
+            >
               <ArrowLeft className="mr-1 h-3.5 w-3.5" /> {t("common.back")}
             </Button>
           ) : (
-            <Button type="button" size="sm" variant="outline" onClick={() => navigate({ to: "/dashboard" })} className="h-9 flex-1 text-xs md:h-10 md:text-sm">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => navigate({ to: "/dashboard" })}
+              className="h-9 flex-1 text-xs md:h-10 md:text-sm"
+            >
               <Wallet className="mr-1 h-3.5 w-3.5" /> {t("nav.home")}
             </Button>
           )}
-          <Button type="button" size="sm" onClick={goContinue} disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
-            className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm">
+          <Button
+            type="button"
+            size="sm"
+            onClick={goContinue}
+            disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
+            className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm"
+          >
             {t("common.continue")} <ArrowRight className="ml-1 h-3.5 w-3.5" />
           </Button>
         </div>

@@ -27,10 +27,11 @@ export const Route = createFileRoute("/api/public/withdraw-result")({
           });
         }
 
+        const authorization = request.headers.get("authorization");
         const provided =
-          request.headers.get("x-mm-secret") ??
-          (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "") ??
-          payload.secret ??
+          request.headers.get("x-mm-secret")?.trim() ||
+          (authorization ? authorization.replace(/^Bearer\s+/i, "").trim() : "") ||
+          payload.secret?.trim() ||
           null;
 
         const { data: settings } = await supabaseAdmin
@@ -38,7 +39,8 @@ export const Route = createFileRoute("/api/public/withdraw-result")({
           .select("mm_webhook_secret")
           .eq("id", 1)
           .maybeSingle();
-        const expected = settings?.mm_webhook_secret ?? process.env["MM_SMS_WEBHOOK_SECRET"] ?? null;
+        const expected =
+          settings?.mm_webhook_secret ?? process.env["MM_SMS_WEBHOOK_SECRET"] ?? null;
 
         if (!expected || !secretMatches(provided || payload.secret || null, expected)) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {

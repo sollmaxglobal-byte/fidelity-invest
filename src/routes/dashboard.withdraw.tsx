@@ -17,11 +17,21 @@ export const Route = createFileRoute("/dashboard/withdraw")({
   component: WithdrawPage,
 });
 
-type WMethod = { id: string; type: "mobile_money" | "bank_transfer" | "crypto"; label: string; instructions: string | null };
+type WMethod = {
+  id: string;
+  type: "mobile_money" | "bank_transfer" | "crypto";
+  label: string;
+  instructions: string | null;
+};
 
 type Withdrawal = {
-  id: string; amount: number; method: string; account_name: string;
-  account_number: string; status: string; created_at: string;
+  id: string;
+  amount: number;
+  method: string;
+  account_name: string;
+  account_number: string;
+  status: string;
+  created_at: string;
 };
 
 const schema = z.object({
@@ -44,12 +54,19 @@ function WithdrawPage() {
     if (!user) return;
     const [{ data: p }, { data: w }] = await Promise.all([
       supabase.from("profiles").select("balance").eq("id", user.id).maybeSingle(),
-      supabase.from("withdrawals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
+      supabase
+        .from("withdrawals")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10),
     ]);
     setBalance(Number(p?.balance ?? 0));
     setList((w as Withdrawal[]) ?? []);
   }
-  useEffect(() => { refresh(); }, [user]);
+  useEffect(() => {
+    refresh();
+  }, [user]);
 
   useEffect(() => {
     (async () => {
@@ -125,31 +142,51 @@ function WithdrawPage() {
           <p className="mt-1 text-sm text-muted-foreground">{t("withdraw.subtitle")}</p>
         </div>
         <div className="rounded-xl border border-border bg-card px-4 py-2 text-right">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("withdraw.available")}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            {t("withdraw.available")}
+          </div>
           <div className="font-display text-xl text-primary">{formatXAF(balance)}</div>
         </div>
       </div>
 
       <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">⏱</span>
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+          ⏱
+        </span>
         <div>
-          <div className="font-medium text-primary">Estimated processing time: up to 10 minutes</div>
-          <div className="text-xs text-muted-foreground">Once approved, funds are sent to your account within 10 minutes maximum.</div>
+          <div className="font-medium text-primary">
+            Estimated processing time: up to 10 minutes
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Once approved, funds are sent to your account within 10 minutes maximum.
+          </div>
         </div>
       </div>
 
-      <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
+      <form
+        onSubmit={onSubmit}
+        className="grid gap-4 rounded-2xl border border-border bg-card p-5 md:grid-cols-2"
+      >
         <div>
           <Label htmlFor="amount">{t("common.amount")}</Label>
           <Input id="amount" name="amount" type="number" min={250} step={1} required />
-          <p className="mt-1 text-xs text-muted-foreground">Minimum withdrawal: 250 XAF — any amount above is allowed.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Minimum withdrawal: 250 XAF — any amount above is allowed.
+          </p>
         </div>
         <div>
           <Label htmlFor="method">{t("common.method")}</Label>
-          <select id="method" name="method" required className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+          <select
+            id="method"
+            name="method"
+            required
+            className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
             {methods.length > 0 ? (
               methods.map((m) => (
-                <option key={m.id} value={m.type}>{m.label}</option>
+                <option key={m.id} value={m.type}>
+                  {m.label}
+                </option>
               ))
             ) : (
               <>
@@ -169,7 +206,11 @@ function WithdrawPage() {
           <Input id="account_number" name="account_number" required maxLength={120} />
         </div>
         <div className="md:col-span-2">
-          <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90 md:w-auto">
+          <Button
+            type="submit"
+            disabled={busy}
+            className="w-full bg-primary text-primary-foreground hover:opacity-90 md:w-auto"
+          >
             {busy ? t("deposit.submitting") : t("withdraw.submit")}
           </Button>
         </div>
@@ -178,7 +219,9 @@ function WithdrawPage() {
       <div>
         <h2 className="mb-3 font-display text-xl text-primary">{t("withdraw.recent")}</h2>
         {list.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{t("withdraw.empty")}</div>
+          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            {t("withdraw.empty")}
+          </div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-border">
             <table className="w-full text-sm">
@@ -196,7 +239,9 @@ function WithdrawPage() {
                     <td className="px-4 py-2">{formatDate(w.created_at)}</td>
                     <td className="px-4 py-2 capitalize">{w.method.replace("_", " ")}</td>
                     <td className="px-4 py-2 text-right font-medium">{formatXAF(w.amount)}</td>
-                    <td className="px-4 py-2 text-right"><StatusBadge status={w.status} /></td>
+                    <td className="px-4 py-2 text-right">
+                      <StatusBadge status={w.status} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

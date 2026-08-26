@@ -25,7 +25,8 @@ export function Countdown({ to, compact = false }: { to: string | Date; compact?
   if (compact) {
     return (
       <span className="font-mono text-sm font-semibold tabular-nums text-primary">
-        {t.days}d {String(t.hours).padStart(2, "0")}:{String(t.minutes).padStart(2, "0")}:{String(t.seconds).padStart(2, "0")}
+        {t.days}d {String(t.hours).padStart(2, "0")}:{String(t.minutes).padStart(2, "0")}:
+        {String(t.seconds).padStart(2, "0")}
       </span>
     );
   }

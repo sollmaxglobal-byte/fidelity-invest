@@ -19,13 +19,20 @@ export function AuthShell({ children }: { children: ReactNode }) {
             <span className="font-display text-2xl tracking-tight">Fidelity</span>
           </div>
           <div className="relative max-w-md">
-            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/60">Secure investing, made simple</p>
+            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/60">
+              Secure investing, made simple
+            </p>
             <h2 className="font-display text-5xl leading-[1.05] lg:text-6xl">
-              {t("auth.heroLine1")} <em className="not-italic text-accent">{t("auth.heroLine2")}</em>.
+              {t("auth.heroLine1")}{" "}
+              <em className="not-italic text-accent">{t("auth.heroLine2")}</em>.
             </h2>
-            <p className="mt-6 max-w-sm text-sm leading-6 text-primary-foreground/75">{t("auth.heroSub")}</p>
+            <p className="mt-6 max-w-sm text-sm leading-6 text-primary-foreground/75">
+              {t("auth.heroSub")}
+            </p>
           </div>
-          <p className="relative text-xs text-primary-foreground/50">© Fidelity 2026 · Your financial journey starts here.</p>
+          <p className="relative text-xs text-primary-foreground/50">
+            © Fidelity 2026 · Your financial journey starts here.
+          </p>
         </aside>
 
         <main className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 md:px-12 lg:px-20">
@@ -37,7 +44,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
                 </div>
                 <span className="font-display text-xl text-primary">Fidelity</span>
               </Link>
-              <div className="ml-auto"><LanguageToggle /></div>
+              <div className="ml-auto">
+                <LanguageToggle />
+              </div>
             </div>
             <div className="rounded-3xl border border-border/70 bg-card p-6 shadow-elegant sm:p-9">
               {children}

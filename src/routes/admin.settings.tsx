@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, MessageCircle, Mail, Share2, Megaphone, Send, Eye, EyeOff, Copy } from "lucide-react";
+import {
+  Save,
+  MessageCircle,
+  Mail,
+  Share2,
+  Megaphone,
+  Send,
+  Eye,
+  EyeOff,
+  Copy,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,8 +61,13 @@ function CopyField({ label, value }: { label: string; value: string }) {
       <div className="flex gap-2">
         <Input readOnly value={value} className="font-mono text-xs" />
         <Button
-          type="button" size="sm" variant="outline"
-          onClick={() => { navigator.clipboard.writeText(value); toast.success(`${label} copied`); }}
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            navigator.clipboard.writeText(value);
+            toast.success(`${label} copied`);
+          }}
         >
           <Copy className="h-4 w-4" />
         </Button>
@@ -74,46 +89,53 @@ function AdminSettings() {
     const row = Array.isArray(data) ? data[0] : data;
     setS((row as Settings) ?? ({ id: 1 } as Settings));
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function save() {
     if (!s) return;
     setBusy(true);
     try {
-      const { error } = await supabase.from("app_settings").update({
-        site_name: s.site_name ?? "Fidelity",
-        site_url: s.site_url,
-        tidio_public_key: s.tidio_public_key,
-        sendpulse_chat_id: s.sendpulse_chat_id,
-        sendpulse_embed_html: s.sendpulse_embed_html,
-        tawk_property_id: s.tawk_property_id,
-        tawk_widget_id: s.tawk_widget_id,
-        referral_percent: s.referral_percent ?? 5,
-        smtp_host: s.smtp_host,
-        smtp_port: s.smtp_port,
-        smtp_secure: s.smtp_secure,
-        smtp_user: s.smtp_user,
-        smtp_password: s.smtp_password,
-        smtp_from_name: s.smtp_from_name,
-        smtp_from_email: s.smtp_from_email,
-        announcement_enabled: !!s.announcement_enabled,
-        announcement_title: s.announcement_title,
-        announcement_message: s.announcement_message,
-        announcement_link: s.announcement_link,
-        announcement_link_label: s.announcement_link_label,
-        announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
-        auto_approve_enabled: s.auto_approve_enabled ?? true,
-        auto_approve_max_amount: s.auto_approve_max_amount,
-        auto_withdraw_enabled: !!s.auto_withdraw_enabled,
-        auto_withdraw_max_amount: s.auto_withdraw_max_amount,
-        auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any).eq("id", 1);
+      const { error } = await supabase
+        .from("app_settings")
+        .update({
+          site_name: s.site_name ?? "Fidelity",
+          site_url: s.site_url,
+          tidio_public_key: s.tidio_public_key,
+          sendpulse_chat_id: s.sendpulse_chat_id,
+          sendpulse_embed_html: s.sendpulse_embed_html,
+          tawk_property_id: s.tawk_property_id,
+          tawk_widget_id: s.tawk_widget_id,
+          referral_percent: s.referral_percent ?? 5,
+          smtp_host: s.smtp_host,
+          smtp_port: s.smtp_port,
+          smtp_secure: s.smtp_secure,
+          smtp_user: s.smtp_user,
+          smtp_password: s.smtp_password,
+          smtp_from_name: s.smtp_from_name,
+          smtp_from_email: s.smtp_from_email,
+          announcement_enabled: !!s.announcement_enabled,
+          announcement_title: s.announcement_title,
+          announcement_message: s.announcement_message,
+          announcement_link: s.announcement_link,
+          announcement_link_label: s.announcement_link_label,
+          announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
+          auto_approve_enabled: s.auto_approve_enabled ?? true,
+          auto_approve_max_amount: s.auto_approve_max_amount,
+          auto_withdraw_enabled: !!s.auto_withdraw_enabled,
+          auto_withdraw_max_amount: s.auto_withdraw_max_amount,
+          auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
+        .eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
     } catch (e) {
       toast.error((e as Error).message);
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!s) return <div className="text-muted-foreground">Loading…</div>;
@@ -134,8 +156,18 @@ function AdminSettings() {
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <h2 className="font-display text-lg text-primary">Branding</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div><Label>Site name</Label><Input value={s.site_name ?? ""} onChange={(e) => set("site_name", e.target.value)} /></div>
-          <div><Label>Site URL</Label><Input value={s.site_url ?? ""} onChange={(e) => set("site_url", e.target.value)} placeholder="https://..." /></div>
+          <div>
+            <Label>Site name</Label>
+            <Input value={s.site_name ?? ""} onChange={(e) => set("site_name", e.target.value)} />
+          </div>
+          <div>
+            <Label>Site URL</Label>
+            <Input
+              value={s.site_url ?? ""}
+              onChange={(e) => set("site_url", e.target.value)}
+              placeholder="https://..."
+            />
+          </div>
         </div>
       </section>
 
@@ -147,7 +179,8 @@ function AdminSettings() {
           <div>
             <div className="text-sm font-medium">Enable auto-approval</div>
             <p className="text-xs text-muted-foreground">
-              Approves a deposit only when the screenshot transaction ID matches a received mobile-money message and the amounts are identical.
+              Approves a deposit only when the screenshot transaction ID matches a received
+              mobile-money message and the amounts are identical.
             </p>
           </div>
           <Switch
@@ -158,27 +191,44 @@ function AdminSettings() {
         <div className="max-w-xs">
           <Label>Maximum auto-approved amount (XAF)</Label>
           <Input
-            type="number" min={0} step={500}
+            type="number"
+            min={0}
+            step={500}
             value={s.auto_approve_max_amount ?? ""}
-            onChange={(e) => set("auto_approve_max_amount", e.target.value === "" ? null : Number(e.target.value))}
+            onChange={(e) =>
+              set("auto_approve_max_amount", e.target.value === "" ? null : Number(e.target.value))
+            }
             placeholder="No limit"
           />
-          <p className="mt-1 text-xs text-muted-foreground">Bigger deposits always wait for your manual review.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Bigger deposits always wait for your manual review.
+          </p>
         </div>
         <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">Phone setup (SMS forwarder)</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">
+            Phone setup (SMS forwarder)
+          </h3>
           <p className="text-xs text-muted-foreground">
-            Install <span className="font-medium">SMS to URL Forwarder</span> (by Bogomolov) on the Android phone that
-            receives your MTN / Orange Money confirmations, then copy the values below into it.
+            Install <span className="font-medium">SMS to URL Forwarder</span> (by Bogomolov) on the
+            Android phone that receives your MTN / Orange Money confirmations, then copy the values
+            below into it.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" variant="outline">
-              <a href="https://play.google.com/store/apps/details?id=tech.bogomolov.incomingsmsgateway" target="_blank" rel="noreferrer">
+              <a
+                href="https://play.google.com/store/apps/details?id=tech.bogomolov.incomingsmsgateway"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Get it on Google Play
               </a>
             </Button>
             <Button asChild size="sm" variant="ghost">
-              <a href="https://f-droid.org/en/packages/tech.bogomolov.incomingsmsgateway/" target="_blank" rel="noreferrer">
+              <a
+                href="https://f-droid.org/en/packages/tech.bogomolov.incomingsmsgateway/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 F-Droid fallback
               </a>
             </Button>
@@ -191,24 +241,48 @@ function AdminSettings() {
             <div>
               <Label>Header value (forwarder secret)</Label>
               <div className="flex gap-2">
-                <Input readOnly type={showSecret ? "text" : "password"} value={s.mm_webhook_secret ?? ""} />
-                <Button type="button" size="sm" variant="outline" onClick={() => setShowSecret((v) => !v)}>
+                <Input
+                  readOnly
+                  type={showSecret ? "text" : "password"}
+                  value={s.mm_webhook_secret ?? ""}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowSecret((v) => !v)}
+                >
                   {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
                 <Button
-                  type="button" size="sm" variant="outline"
-                  onClick={() => { navigator.clipboard.writeText(s.mm_webhook_secret ?? ""); toast.success("Secret copied"); }}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(s.mm_webhook_secret ?? "");
+                    toast.success("Secret copied");
+                  }}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
               <Button
-                type="button" size="sm" variant="ghost" className="mt-2 px-0 text-xs"
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="mt-2 px-0 text-xs"
                 onClick={async () => {
-                  const next = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
-                  const { error } = await supabase.from("app_settings").update({ mm_webhook_secret: next }).eq("id", 1);
+                  const next =
+                    crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+                  const { error } = await supabase
+                    .from("app_settings")
+                    .update({ mm_webhook_secret: next })
+                    .eq("id", 1);
                   if (error) toast.error(error.message);
-                  else { set("mm_webhook_secret", next); toast.success("New secret generated — update it in the phone app"); }
+                  else {
+                    set("mm_webhook_secret", next);
+                    toast.success("New secret generated — update it in the phone app");
+                  }
                 }}
               >
                 Regenerate secret
@@ -217,14 +291,26 @@ function AdminSettings() {
           </div>
 
           <ol className="list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
-            <li>Open the app, tap “+”, set Sender to <span className="font-mono">MTN Mobile Money</span> (add a second rule for <span className="font-mono">Orange Money</span>, or use <span className="font-mono">*</span> for all).</li>
+            <li>
+              Open the app, tap “+”, set Sender to{" "}
+              <span className="font-mono">MTN Mobile Money</span> (add a second rule for{" "}
+              <span className="font-mono">Orange Money</span>, or use{" "}
+              <span className="font-mono">*</span> for all).
+            </li>
             <li>Paste the endpoint URL above.</li>
-            <li>Paste the JSON body template, and add the header <span className="font-mono">x-mm-secret</span> with the secret value.</li>
-            <li>Save, then send yourself a test mobile-money message and check Admin → Deposits for the received message.</li>
+            <li>
+              Paste the JSON body template, and add the header{" "}
+              <span className="font-mono">x-mm-secret</span> with the secret value.
+            </li>
+            <li>
+              Save, then send yourself a test mobile-money message and check Admin → Deposits for
+              the received message.
+            </li>
           </ol>
           <p className="text-xs text-amber-500">
-            Important: turn off battery optimisation for the forwarder app (Settings → Apps → SMS to URL Forwarder →
-            Battery → Unrestricted), otherwise Android will stop it in the background.
+            Important: turn off battery optimisation for the forwarder app (Settings → Apps → SMS to
+            URL Forwarder → Battery → Unrestricted), otherwise Android will stop it in the
+            background.
           </p>
         </div>
       </section>
@@ -237,8 +323,9 @@ function AdminSettings() {
           <div>
             <div className="text-sm font-medium">Enable automatic payouts</div>
             <p className="text-xs text-muted-foreground">
-              Only pending mobile-money withdrawals sent to an MTN number are paid automatically. Everything else — and
-              any failure such as insufficient float — stays pending for your manual approval.
+              Only pending mobile-money withdrawals sent to an MTN number are paid automatically.
+              Everything else — and any failure such as insufficient float — stays pending for your
+              manual approval.
             </p>
           </div>
           <Switch
@@ -250,9 +337,16 @@ function AdminSettings() {
           <div>
             <Label>Maximum auto-paid amount (XAF)</Label>
             <Input
-              type="number" min={0} step={500}
+              type="number"
+              min={0}
+              step={500}
               value={s.auto_withdraw_max_amount ?? ""}
-              onChange={(e) => set("auto_withdraw_max_amount", e.target.value === "" ? null : Number(e.target.value))}
+              onChange={(e) =>
+                set(
+                  "auto_withdraw_max_amount",
+                  e.target.value === "" ? null : Number(e.target.value),
+                )
+              }
               placeholder="No limit"
             />
           </div>
@@ -264,13 +358,16 @@ function AdminSettings() {
               className="font-mono text-xs"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              <span className="font-mono">{"{phone}"}</span> and <span className="font-mono">{"{amount}"}</span> are replaced automatically.
+              <span className="font-mono">{"{phone}"}</span> and{" "}
+              <span className="font-mono">{"{amount}"}</span> are replaced automatically.
             </p>
           </div>
         </div>
 
         <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">MacroDroid setup</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">
+            MacroDroid setup
+          </h3>
           <div className="grid gap-3">
             <CopyField label="1. Queue URL (HTTP GET, every 1 minute)" value={queueUrl} />
             <CopyField label="Header name" value="x-mm-secret" />
@@ -279,21 +376,47 @@ function AdminSettings() {
             <CopyField label="Result JSON body" value={'{"id":"{lv=wid}","status":"success"}'} />
           </div>
           <ol className="list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
-            <li>Macro 1 — Trigger: <span className="font-mono">Regular Interval, 1 minute</span>.</li>
-            <li>Action: <span className="font-mono">HTTP Request → GET</span> the Queue URL with the header above, save response to variable <span className="font-mono">resp</span>.</li>
-            <li>Action: JSON parse <span className="font-mono">resp</span> → store <span className="font-mono">claimed</span>, <span className="font-mono">code</span>, <span className="font-mono">id</span> (as <span className="font-mono">wid</span>).</li>
-            <li>Condition: if <span className="font-mono">claimed = true</span> → Action <span className="font-mono">Make Call / USSD</span> with <span className="font-mono">{"{lv=code}"}</span> (already built as <span className="font-mono">*126*9*number*amount#</span>).</li>
-            <li>Action: UI Interaction → wait for the PIN screen, <span className="font-mono">Input Text</span> your Mobile Money PIN, then click <span className="font-mono">Send / OK</span> (grant MacroDroid the Accessibility permission).</li>
-            <li>Macro 2 — Trigger: SMS received from <span className="font-mono">MTN Mobile Money</span> → HTTP POST it to the SMS endpoint above; the confirmation closes the withdrawal and notifies the user automatically.</li>
-            <li>Optional fallback: after the USSD screen closes, POST the Result URL with the JSON body above (use <span className="font-mono">status: "failed"</span> when the transfer did not go through).</li>
+            <li>
+              Macro 1 — Trigger: <span className="font-mono">Regular Interval, 1 minute</span>.
+            </li>
+            <li>
+              Action: <span className="font-mono">HTTP Request → GET</span> the Queue URL with the
+              header above, save response to variable <span className="font-mono">resp</span>.
+            </li>
+            <li>
+              Action: JSON parse <span className="font-mono">resp</span> → store{" "}
+              <span className="font-mono">claimed</span>, <span className="font-mono">code</span>,{" "}
+              <span className="font-mono">id</span> (as <span className="font-mono">wid</span>).
+            </li>
+            <li>
+              Condition: if <span className="font-mono">claimed = true</span> → Action{" "}
+              <span className="font-mono">Make Call / USSD</span> with{" "}
+              <span className="font-mono">{"{lv=code}"}</span> (already built as{" "}
+              <span className="font-mono">*126*9*number*amount#</span>).
+            </li>
+            <li>
+              Action: UI Interaction → wait for the PIN screen,{" "}
+              <span className="font-mono">Input Text</span> your Mobile Money PIN, then click{" "}
+              <span className="font-mono">Send / OK</span> (grant MacroDroid the Accessibility
+              permission).
+            </li>
+            <li>
+              Macro 2 — Trigger: SMS received from{" "}
+              <span className="font-mono">MTN Mobile Money</span> → HTTP POST it to the SMS endpoint
+              above; the confirmation closes the withdrawal and notifies the user automatically.
+            </li>
+            <li>
+              Optional fallback: after the USSD screen closes, POST the Result URL with the JSON
+              body above (use <span className="font-mono">status: "failed"</span> when the transfer
+              did not go through).
+            </li>
           </ol>
           <p className="text-xs text-amber-500">
-            If the SIM has insufficient balance or the transfer fails, the request simply stays pending — approve or
-            reject it yourself in Admin → Withdrawals.
+            If the SIM has insufficient balance or the transfer fails, the request simply stays
+            pending — approve or reject it yourself in Admin → Withdrawals.
           </p>
         </div>
       </section>
-
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 font-display text-lg text-primary">
@@ -302,7 +425,10 @@ function AdminSettings() {
         <div className="max-w-xs">
           <Label>Referral commission (%)</Label>
           <Input
-            type="number" min={0} max={100} step={0.5}
+            type="number"
+            min={0}
+            max={100}
+            step={0.5}
             value={s.referral_percent ?? 5}
             onChange={(e) => set("referral_percent", Number(e.target.value))}
           />
@@ -324,28 +450,46 @@ function AdminSettings() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label>Tawk Property ID</Label>
-                <Input value={s.tawk_property_id ?? ""} onChange={(e) => set("tawk_property_id", e.target.value)}
-                  placeholder="e.g. 65abc123def456…" />
-                <p className="mt-1 text-xs text-muted-foreground">Tawk.to → Admin → Chat Widget → Property ID.</p>
+                <Input
+                  value={s.tawk_property_id ?? ""}
+                  onChange={(e) => set("tawk_property_id", e.target.value)}
+                  placeholder="e.g. 65abc123def456…"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Tawk.to → Admin → Chat Widget → Property ID.
+                </p>
               </div>
               <div>
                 <Label>Tawk Widget ID</Label>
-                <Input value={s.tawk_widget_id ?? ""} onChange={(e) => set("tawk_widget_id", e.target.value)}
-                  placeholder="default" />
-                <p className="mt-1 text-xs text-muted-foreground">Leave as "default" unless you have multiple widgets.</p>
+                <Input
+                  value={s.tawk_widget_id ?? ""}
+                  onChange={(e) => set("tawk_widget_id", e.target.value)}
+                  placeholder="default"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Leave as "default" unless you have multiple widgets.
+                </p>
               </div>
             </div>
           </div>
           <div>
             <Label>SendPulse Chat ID</Label>
-            <Input value={s.sendpulse_chat_id ?? ""} onChange={(e) => set("sendpulse_chat_id", e.target.value)}
-              placeholder="e.g. abc123…" />
-            <p className="mt-1 text-xs text-muted-foreground">From SendPulse → Live Chat → Install.</p>
+            <Input
+              value={s.sendpulse_chat_id ?? ""}
+              onChange={(e) => set("sendpulse_chat_id", e.target.value)}
+              placeholder="e.g. abc123…"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              From SendPulse → Live Chat → Install.
+            </p>
           </div>
           <div>
             <Label>Tidio public key</Label>
-            <Input value={s.tidio_public_key ?? ""} onChange={(e) => set("tidio_public_key", e.target.value)}
-              placeholder="Optional" />
+            <Input
+              value={s.tidio_public_key ?? ""}
+              onChange={(e) => set("tidio_public_key", e.target.value)}
+              placeholder="Optional"
+            />
             <p className="mt-1 text-xs text-muted-foreground">Leave empty to disable Tidio.</p>
           </div>
           <div className="sm:col-span-2">
@@ -357,7 +501,8 @@ function AdminSettings() {
               placeholder="<script ...></script>  — paste the exact code from SendPulse → Live Chat → Install"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              If filled, this is used instead of the Chat ID. Paste it exactly as SendPulse provides.
+              If filled, this is used instead of the Chat ID. Paste it exactly as SendPulse
+              provides.
             </p>
           </div>
         </div>
@@ -368,12 +513,44 @@ function AdminSettings() {
           <Mail className="h-5 w-5" /> SMTP (transactional email)
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div><Label>Host</Label><Input value={s.smtp_host ?? ""} onChange={(e) => set("smtp_host", e.target.value)} /></div>
-          <div><Label>Port</Label><Input type="number" value={s.smtp_port ?? 465} onChange={(e) => set("smtp_port", Number(e.target.value))} /></div>
-          <div><Label>Username</Label><Input value={s.smtp_user ?? ""} onChange={(e) => set("smtp_user", e.target.value)} /></div>
-          <div><Label>Password</Label><Input type="password" value={s.smtp_password ?? ""} onChange={(e) => set("smtp_password", e.target.value)} /></div>
-          <div><Label>From name</Label><Input value={s.smtp_from_name ?? ""} onChange={(e) => set("smtp_from_name", e.target.value)} /></div>
-          <div><Label>From email</Label><Input value={s.smtp_from_email ?? ""} onChange={(e) => set("smtp_from_email", e.target.value)} /></div>
+          <div>
+            <Label>Host</Label>
+            <Input value={s.smtp_host ?? ""} onChange={(e) => set("smtp_host", e.target.value)} />
+          </div>
+          <div>
+            <Label>Port</Label>
+            <Input
+              type="number"
+              value={s.smtp_port ?? 465}
+              onChange={(e) => set("smtp_port", Number(e.target.value))}
+            />
+          </div>
+          <div>
+            <Label>Username</Label>
+            <Input value={s.smtp_user ?? ""} onChange={(e) => set("smtp_user", e.target.value)} />
+          </div>
+          <div>
+            <Label>Password</Label>
+            <Input
+              type="password"
+              value={s.smtp_password ?? ""}
+              onChange={(e) => set("smtp_password", e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>From name</Label>
+            <Input
+              value={s.smtp_from_name ?? ""}
+              onChange={(e) => set("smtp_from_name", e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>From email</Label>
+            <Input
+              value={s.smtp_from_email ?? ""}
+              onChange={(e) => set("smtp_from_email", e.target.value)}
+            />
+          </div>
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch checked={!!s.smtp_secure} onCheckedChange={(v) => set("smtp_secure", v)} />
             <span className="text-sm">Use TLS/SSL</span>
@@ -386,7 +563,8 @@ function AdminSettings() {
           <Megaphone className="h-5 w-5" /> Popup notification
         </h2>
         <p className="text-xs text-muted-foreground">
-          Shown once to every user. Save with “Show to everyone again” checked to re-display it after editing.
+          Shown once to every user. Save with “Show to everyone again” checked to re-display it
+          after editing.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex items-center gap-2 sm:col-span-2">
@@ -398,24 +576,36 @@ function AdminSettings() {
           </div>
           <div>
             <Label>Title</Label>
-            <Input value={s.announcement_title ?? ""} onChange={(e) => set("announcement_title", e.target.value)}
-              placeholder="Join our official group" />
+            <Input
+              value={s.announcement_title ?? ""}
+              onChange={(e) => set("announcement_title", e.target.value)}
+              placeholder="Join our official group"
+            />
           </div>
           <div>
             <Label>Button label</Label>
-            <Input value={s.announcement_link_label ?? ""} onChange={(e) => set("announcement_link_label", e.target.value)}
-              placeholder="Join now" />
+            <Input
+              value={s.announcement_link_label ?? ""}
+              onChange={(e) => set("announcement_link_label", e.target.value)}
+              placeholder="Join now"
+            />
           </div>
           <div className="sm:col-span-2">
             <Label>Message</Label>
-            <Textarea className="min-h-[100px]" value={s.announcement_message ?? ""}
+            <Textarea
+              className="min-h-[100px]"
+              value={s.announcement_message ?? ""}
               onChange={(e) => set("announcement_message", e.target.value)}
-              placeholder="Write the announcement your users will see…" />
+              placeholder="Write the announcement your users will see…"
+            />
           </div>
           <div className="sm:col-span-2">
             <Label>Link (WhatsApp / Telegram / any URL)</Label>
-            <Input value={s.announcement_link ?? ""} onChange={(e) => set("announcement_link", e.target.value)}
-              placeholder="https://chat.whatsapp.com/…" />
+            <Input
+              value={s.announcement_link ?? ""}
+              onChange={(e) => set("announcement_link", e.target.value)}
+              placeholder="https://chat.whatsapp.com/…"
+            />
           </div>
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch checked={reshow} onCheckedChange={setReshow} />
@@ -425,7 +615,11 @@ function AdminSettings() {
       </section>
 
       <div className="sticky bottom-20 z-10 md:bottom-4">
-        <Button onClick={save} disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
+        <Button
+          onClick={save}
+          disabled={busy}
+          className="w-full bg-primary text-primary-foreground hover:opacity-90"
+        >
           <Save className="mr-2 h-4 w-4" /> {busy ? "Saving…" : "Save settings"}
         </Button>
       </div>

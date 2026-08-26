@@ -121,7 +121,8 @@ function AdminEmails() {
       <div>
         <h1 className="font-display text-3xl text-primary md:text-4xl">Email templates</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Edit subject and HTML body. Use variables like {"{{name}}, {{amount}}, {{status}}, {{site_name}}"}.
+          Edit subject and HTML body. Use variables like{" "}
+          {"{{name}}, {{amount}}, {{status}}, {{site_name}}"}.
         </p>
       </div>
 
@@ -177,7 +178,10 @@ function AdminEmails() {
 
               <div>
                 <Label>Display name</Label>
-                <Input value={active.name} onChange={(e) => setActive({ ...active, name: e.target.value })} />
+                <Input
+                  value={active.name}
+                  onChange={(e) => setActive({ ...active, name: e.target.value })}
+                />
               </div>
               <div className="inline-flex rounded-xl border border-border bg-background p-1">
                 {(["en", "fr"] as const).map((l) => (
@@ -196,7 +200,10 @@ function AdminEmails() {
                 <>
                   <div>
                     <Label>Subject</Label>
-                    <Input value={active.subject} onChange={(e) => setActive({ ...active, subject: e.target.value })} />
+                    <Input
+                      value={active.subject}
+                      onChange={(e) => setActive({ ...active, subject: e.target.value })}
+                    />
                   </div>
                   <div>
                     <Label>HTML body</Label>
@@ -211,7 +218,8 @@ function AdminEmails() {
                 <>
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-xs text-muted-foreground">
-                      Sent automatically to users whose language is French. Falls back to English when empty.
+                      Sent automatically to users whose language is French. Falls back to English
+                      when empty.
                     </p>
                     <Button size="sm" variant="outline" onClick={translateToFrench} disabled={busy}>
                       <Languages className="mr-2 h-4 w-4" /> Translate from English
@@ -236,7 +244,11 @@ function AdminEmails() {
               )}
 
               <div className="flex flex-wrap items-center gap-2">
-                <Button onClick={save} disabled={busy} className="bg-primary text-primary-foreground hover:opacity-90">
+                <Button
+                  onClick={save}
+                  disabled={busy}
+                  className="bg-primary text-primary-foreground hover:opacity-90"
+                >
                   <Save className="mr-2 h-4 w-4" /> {busy ? "Saving…" : "Save changes"}
                 </Button>
                 <div className="ml-auto flex items-end gap-2">

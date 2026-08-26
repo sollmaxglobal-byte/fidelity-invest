@@ -36,9 +36,14 @@ async function compressImage(file: File): Promise<File> {
     const context = canvas.getContext("2d");
     if (!context) return file;
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.82),
+    );
     if (!blob) return file;
-    return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+    return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
   } catch {
     return file;
   }
@@ -55,12 +60,19 @@ function DepositProofPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.from("payment_methods").select("id,label").eq("id", method).maybeSingle()
+    supabase
+      .from("payment_methods")
+      .select("id,label")
+      .eq("id", method)
+      .maybeSingle()
       .then(({ data }) => setPaymentMethod(data as PaymentMethod | null));
   }, [method]);
 
   useEffect(() => {
-    if (!file) { setPreview(null); return; }
+    if (!file) {
+      setPreview(null);
+      return;
+    }
     const url = URL.createObjectURL(file);
     setPreview(url);
     return () => URL.revokeObjectURL(url);
@@ -68,25 +80,34 @@ function DepositProofPage() {
 
   async function submitDeposit() {
     if (!user || !paymentMethod) return;
-    if (!file) { toast.error(t("deposit.errNoFile")); return; }
+    if (!file) {
+      toast.error(t("deposit.errNoFile"));
+      return;
+    }
     setBusy(true);
     try {
       const upload = await compressImage(file);
       const safeName = upload.name.replace(/[^\w.-]+/g, "_");
       const path = `${user.id}/${Date.now()}-${safeName}`;
-      const { error: uploadError } = await supabase.storage.from("payment-proofs").upload(path, upload, {
-        upsert: false,
-        cacheControl: "3600",
-      });
+      const { error: uploadError } = await supabase.storage
+        .from("payment-proofs")
+        .upload(path, upload, {
+          upsert: false,
+          cacheControl: "3600",
+        });
       if (uploadError) throw uploadError;
 
-      const { data, error } = await supabase.from("deposits").insert({
-        user_id: user.id,
-        amount,
-        payment_method_id: method,
-        proof_url: path,
-        status: "pending",
-      }).select("id").single();
+      const { data, error } = await supabase
+        .from("deposits")
+        .insert({
+          user_id: user.id,
+          amount,
+          payment_method_id: method,
+          proof_url: path,
+          status: "pending",
+        })
+        .select("id")
+        .single();
       if (error) throw error;
 
       if (user.email) {
@@ -115,9 +136,11 @@ function DepositProofPage() {
       navigate({ to: "/deposit-pending/$id", params: { id: data.id } });
     } catch (error) {
       const message = (error as Error).message || "Unable to submit deposit";
-      toast.error(/fetch|network|load failed|timeout/i.test(message)
-        ? "Upload failed. Check your connection and try again."
-        : message);
+      toast.error(
+        /fetch|network|load failed|timeout/i.test(message)
+          ? "Upload failed. Check your connection and try again."
+          : message,
+      );
     } finally {
       setBusy(false);
     }
@@ -130,45 +153,73 @@ function DepositProofPage() {
           <ShieldCheck className="h-4 w-4" /> Payment confirmed · Step 3 of 3
         </div>
         <h1 className="font-display text-3xl text-primary">Upload payment proof</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Upload a clear screenshot or photo showing your completed transfer.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Upload a clear screenshot or photo showing your completed transfer.
+        </p>
       </header>
 
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
         <div>
-          <div className="text-[10px] font-semibold uppercase text-muted-foreground">Payment summary</div>
-          <div className="mt-1 text-sm font-medium text-foreground">{paymentMethod?.label ?? "Loading…"}</div>
+          <div className="text-[10px] font-semibold uppercase text-muted-foreground">
+            Payment summary
+          </div>
+          <div className="mt-1 text-sm font-medium text-foreground">
+            {paymentMethod?.label ?? "Loading…"}
+          </div>
         </div>
-        <div className="text-right text-lg font-bold uppercase tabular-nums text-primary">{formatXAF(amount)}</div>
+        <div className="text-right text-lg font-bold uppercase tabular-nums text-primary">
+          {formatXAF(amount)}
+        </div>
       </div>
 
       <label className="block cursor-pointer rounded-lg border-2 border-dashed border-border bg-card p-4 transition hover:border-primary">
         {preview ? (
           <div className="space-y-3">
-            <img src={preview} alt="Selected payment proof" className="mx-auto max-h-72 rounded-md object-contain" />
+            <img
+              src={preview}
+              alt="Selected payment proof"
+              className="mx-auto max-h-72 rounded-md object-contain"
+            />
             <div className="flex items-center justify-center gap-2 text-sm font-medium text-success">
               <Check className="h-4 w-4" /> {file?.name}
             </div>
           </div>
         ) : (
           <div className="flex min-h-52 flex-col items-center justify-center text-center">
-            <span className="mb-3 grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary"><Upload className="h-7 w-7" /></span>
+            <span className="mb-3 grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary">
+              <Upload className="h-7 w-7" />
+            </span>
             <div className="font-semibold text-foreground">Select payment proof</div>
-            <div className="mt-1 text-xs text-muted-foreground">JPG, PNG or a screenshot from your payment app</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              JPG, PNG or a screenshot from your payment app
+            </div>
           </div>
         )}
-        <input type="file" accept="image/*" className="hidden" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+        />
       </label>
 
       <div className="rounded-lg bg-secondary p-3 text-xs leading-relaxed text-muted-foreground">
-        <FileImage className="mr-1 inline h-4 w-4 text-primary" /> Ensure the amount, receiver and transaction reference are visible before submitting.
+        <FileImage className="mr-1 inline h-4 w-4 text-primary" /> Ensure the amount, receiver and
+        transaction reference are visible before submitting.
       </div>
 
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-2 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <div className="mx-auto flex max-w-xl gap-2">
           <Button asChild variant="outline" className="h-10 flex-1">
-            <Link to="/deposit-payment" search={{ amount, method }}><ArrowLeft className="mr-1 h-4 w-4" /> Back</Link>
+            <Link to="/deposit-payment" search={{ amount, method }}>
+              <ArrowLeft className="mr-1 h-4 w-4" /> Back
+            </Link>
           </Button>
-          <Button onClick={submitDeposit} disabled={!file || busy || !paymentMethod} className="h-10 flex-[2] bg-primary text-primary-foreground">
+          <Button
+            onClick={submitDeposit}
+            disabled={!file || busy || !paymentMethod}
+            className="h-10 flex-[2] bg-primary text-primary-foreground"
+          >
             {busy ? t("deposit.submitting") : t("deposit.submit")}
           </Button>
         </div>

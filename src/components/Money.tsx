@@ -11,7 +11,9 @@ export function Money({
   // Use a non-breaking-space thousands separator so the number never wraps mid-value on small screens.
   const formatted = formatXAF(value).replace(/ /g, "\u00A0");
   return (
-    <span className={`font-sans font-bold uppercase tracking-wide tabular-nums whitespace-nowrap ${className}`}>
+    <span
+      className={`font-sans font-bold uppercase tracking-wide tabular-nums whitespace-nowrap ${className}`}
+    >
       {formatted}
     </span>
   );

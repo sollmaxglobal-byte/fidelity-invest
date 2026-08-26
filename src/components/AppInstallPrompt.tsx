@@ -15,7 +15,8 @@ function isStandalone() {
   if (typeof window === "undefined") return true;
   const displayModes = ["standalone", "fullscreen", "minimal-ui", "window-controls-overlay"];
   const matched = displayModes.some((m) => window.matchMedia(`(display-mode: ${m})`).matches);
-  const iosStandalone = (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+  const iosStandalone =
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true;
   return matched || iosStandalone;
 }
 
@@ -23,7 +24,9 @@ function isIos() {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent;
   const iOS = /iPad|iPhone|iPod/.test(ua);
-  const iPadOS = navigator.platform === "MacIntel" && (navigator as unknown as { maxTouchPoints: number }).maxTouchPoints > 1;
+  const iPadOS =
+    navigator.platform === "MacIntel" &&
+    (navigator as unknown as { maxTouchPoints: number }).maxTouchPoints > 1;
   return iOS || iPadOS;
 }
 
@@ -95,9 +98,17 @@ export function AppInstallPrompt() {
 
   return (
     <aside className="fixed inset-x-3 bottom-20 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-border bg-card p-3 text-card-foreground shadow-elegant md:bottom-5">
-      <img src="/fidelity-app-icon-192.png" alt="" width={48} height={48} className="h-12 w-12 rounded-xl" />
+      <img
+        src="/fidelity-app-icon-192.png"
+        alt=""
+        width={48}
+        height={48}
+        className="h-12 w-12 rounded-xl"
+      />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold">{lang === "fr" ? "Installer Fidelity" : "Install Fidelity"}</p>
+        <p className="text-sm font-bold">
+          {lang === "fr" ? "Installer Fidelity" : "Install Fidelity"}
+        </p>
         <p className="text-xs font-medium text-muted-foreground">
           {showIosHint
             ? lang === "fr"
@@ -111,11 +122,20 @@ export function AppInstallPrompt() {
       {showIosHint ? (
         <Share className="h-5 w-5 shrink-0 text-primary" aria-hidden />
       ) : (
-        <Button size="icon" aria-label={lang === "fr" ? "Installer l’application" : "Install app"} onClick={install}>
+        <Button
+          size="icon"
+          aria-label={lang === "fr" ? "Installer l’application" : "Install app"}
+          onClick={install}
+        >
           <Download className="h-4 w-4" />
         </Button>
       )}
-      <Button size="icon" variant="ghost" aria-label={lang === "fr" ? "Fermer" : "Dismiss"} onClick={close}>
+      <Button
+        size="icon"
+        variant="ghost"
+        aria-label={lang === "fr" ? "Fermer" : "Dismiss"}
+        onClick={close}
+      >
         <X className="h-4 w-4" />
       </Button>
     </aside>

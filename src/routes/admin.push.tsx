@@ -14,7 +14,14 @@ export const Route = createFileRoute("/admin/push")({
   component: AdminPush,
 });
 
-type Broadcast = { id: string; title: string; body: string; url: string | null; sent_count: number; created_at: string };
+type Broadcast = {
+  id: string;
+  title: string;
+  body: string;
+  url: string | null;
+  sent_count: number;
+  created_at: string;
+};
 
 function AdminPush() {
   const [devices, setDevices] = useState(0);
@@ -24,12 +31,18 @@ function AdminPush() {
   async function load() {
     const [{ count }, { data }] = await Promise.all([
       supabase.from("push_subscriptions").select("id", { count: "exact", head: true }),
-      supabase.from("push_broadcasts").select("*").order("created_at", { ascending: false }).limit(20),
+      supabase
+        .from("push_broadcasts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20),
     ]);
     setDevices(count ?? 0);
     setHistory((data ?? []) as Broadcast[]);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,25 +80,48 @@ function AdminPush() {
         </span>
         <div>
           <div className="font-display text-2xl text-primary">{devices}</div>
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">Subscribed devices</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">
+            Subscribed devices
+          </div>
         </div>
       </div>
 
       <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-border bg-card p-5">
         <div>
           <Label htmlFor="title">Title</Label>
-          <Input id="title" name="title" maxLength={80} required placeholder="New investment plan available" />
+          <Input
+            id="title"
+            name="title"
+            maxLength={80}
+            required
+            placeholder="New investment plan available"
+          />
         </div>
         <div>
           <Label htmlFor="body">Message</Label>
-          <Textarea id="body" name="body" maxLength={300} required rows={3} placeholder="Join our group for daily updates…" />
+          <Textarea
+            id="body"
+            name="body"
+            maxLength={300}
+            required
+            rows={3}
+            placeholder="Join our group for daily updates…"
+          />
         </div>
         <div>
           <Label htmlFor="url">Link (optional)</Label>
-          <Input id="url" name="url" placeholder="https://chat.whatsapp.com/… or /dashboard/invest" />
+          <Input
+            id="url"
+            name="url"
+            placeholder="https://chat.whatsapp.com/… or /dashboard/invest"
+          />
         </div>
         <div>
-          <Button type="submit" disabled={busy} className="bg-primary text-primary-foreground hover:opacity-90">
+          <Button
+            type="submit"
+            disabled={busy}
+            className="bg-primary text-primary-foreground hover:opacity-90"
+          >
             <BellRing className="mr-2 h-4 w-4" /> {busy ? "Sending…" : "Send push notification"}
           </Button>
         </div>

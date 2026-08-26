@@ -16,9 +16,15 @@ export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
       { title: "Create your account — Fidelity" },
-      { name: "description", content: "Register a free Fidelity account in under a minute and start investing in XAF." },
+      {
+        name: "description",
+        content: "Register a free Fidelity account in under a minute and start investing in XAF.",
+      },
       { property: "og:title", content: "Create your account — Fidelity" },
-      { property: "og:description", content: "Register a free Fidelity account in under a minute." },
+      {
+        property: "og:description",
+        content: "Register a free Fidelity account in under a minute.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -51,12 +57,10 @@ function RegisterPage() {
     if (!code) return;
 
     setRefCode(code);
-    supabase
-      .rpc("referrer_name", { _code: code })
-      .then(({ data, error }) => {
-        if (cancelled || error) return;
-        setRefName(typeof data === "string" && data.trim() ? data.trim() : null);
-      });
+    supabase.rpc("referrer_name", { _code: code }).then(({ data, error }) => {
+      if (cancelled || error) return;
+      setRefName(typeof data === "string" && data.trim() ? data.trim() : null);
+    });
 
     return () => {
       cancelled = true;
@@ -108,8 +112,12 @@ function RegisterPage() {
       )}
 
       <div className="mb-7">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">Get started</p>
-        <h1 className="font-display text-4xl leading-tight text-foreground">{t("auth.registerTitle")}</h1>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+          Get started
+        </p>
+        <h1 className="font-display text-4xl leading-tight text-foreground">
+          {t("auth.registerTitle")}
+        </h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("auth.signUpSub")}</p>
       </div>
 
@@ -128,7 +136,13 @@ function RegisterPage() {
         </div>
         <div>
           <Label htmlFor="password">{t("auth.password")}</Label>
-          <Input id="password" name="password" type="password" required autoComplete="new-password" />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autoComplete="new-password"
+          />
         </div>
         {refCode && (
           <div>
@@ -136,7 +150,11 @@ function RegisterPage() {
             <Input id="ref" value={refCode} readOnly className="uppercase" />
           </div>
         )}
-        <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
+        <Button
+          type="submit"
+          disabled={busy}
+          className="w-full bg-primary text-primary-foreground hover:opacity-90"
+        >
           {busy ? t("common.pleaseWait") : t("auth.signUp")}
         </Button>
       </form>

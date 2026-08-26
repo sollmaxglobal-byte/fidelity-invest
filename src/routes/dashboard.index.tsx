@@ -105,7 +105,10 @@ function DashboardHome() {
           .select("full_name,balance,referral_code,referral_earnings")
           .eq("id", user.id)
           .maybeSingle(),
-        supabase.from("profiles").select("*", { count: "exact", head: true }).eq("referred_by", user.id),
+        supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .eq("referred_by", user.id),
         supabase
           .from("investments")
           .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
@@ -160,11 +163,18 @@ function DashboardHome() {
   const up = windowGain >= 0;
 
   return (
-    <motion.div className="space-y-4 pb-4" variants={containerVariants} initial="hidden" animate="show">
+    <motion.div
+      className="space-y-4 pb-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Greeting */}
       <motion.div variants={itemVariants} className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("home.welcomeBack")}</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            {t("home.welcomeBack")}
+          </p>
           <h1 className="font-display text-xl text-primary md:text-2xl">
             {profile?.full_name ?? t("home.investor")}
           </h1>
@@ -330,7 +340,9 @@ function InvestmentCard({ inv }: { inv: ActiveInvestment }) {
     <motion.div whileTap={{ scale: 0.99 }} className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="font-display text-base text-primary">{inv.plans?.name ?? "Investment plan"}</div>
+          <div className="font-display text-base text-primary">
+            {inv.plans?.name ?? "Investment plan"}
+          </div>
           <div className="mt-0.5 text-xs text-muted-foreground">
             <Money value={Number(inv.amount)} /> ·{" "}
             <span className="text-success">
@@ -406,7 +418,10 @@ function ActionSheet({
           {icon} {label}
         </button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="rounded-t-3xl pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
+      <SheetContent
+        side="bottom"
+        className="rounded-t-3xl pb-[calc(env(safe-area-inset-bottom)+1.25rem)]"
+      >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-border" />
         <SheetHeader className="text-left">
           <SheetTitle className="font-display text-primary">{title}</SheetTitle>
@@ -422,7 +437,15 @@ function ActionSheet({
   );
 }
 
-function ReferralCard({ code, earnings, count }: { code: string | null; earnings: number; count: number }) {
+function ReferralCard({
+  code,
+  earnings,
+  count,
+}: {
+  code: string | null;
+  earnings: number;
+  count: number;
+}) {
   const link = useMemo(
     () =>
       code && typeof window !== "undefined"
@@ -461,24 +484,35 @@ function ReferralCard({ code, earnings, count }: { code: string | null; earnings
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
             <Users className="h-3 w-3" /> Total referrals
           </div>
-          <div className="mt-1 font-display text-xl font-bold uppercase tabular-nums text-primary">{count}</div>
+          <div className="mt-1 font-display text-xl font-bold uppercase tabular-nums text-primary">
+            {count}
+          </div>
         </div>
         <div className="rounded-xl bg-secondary p-3">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Commissions</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            Commissions
+          </div>
           <div className="mt-1 font-display text-xl text-success">
             <Money value={earnings} />
           </div>
         </div>
       </div>
       <div className="mt-3 rounded-xl border border-border bg-secondary/50 p-2.5">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Your referral link</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          Your referral link
+        </div>
         <div className="mt-1 truncate font-mono text-xs">{link || "—"}</div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Button variant="outline" size="sm" onClick={copy} disabled={!link}>
           <Copy className="mr-1 h-4 w-4" /> Copy
         </Button>
-        <Button size="sm" onClick={share} disabled={!link} className="bg-primary text-primary-foreground hover:opacity-90">
+        <Button
+          size="sm"
+          onClick={share}
+          disabled={!link}
+          className="bg-primary text-primary-foreground hover:opacity-90"
+        >
           <Share2 className="mr-1 h-4 w-4" /> Share
         </Button>
       </div>

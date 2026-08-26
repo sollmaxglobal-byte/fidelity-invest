@@ -19,7 +19,10 @@ export const Route = createFileRoute("/deposit-payment")({
   head: () => ({
     meta: [
       { title: "Complete your payment — Fidelity" },
-      { name: "description", content: "Send your deposit to the Fidelity payment account and confirm the transfer." },
+      {
+        name: "description",
+        content: "Send your deposit to the Fidelity payment account and confirm the transfer.",
+      },
       { property: "og:title", content: "Complete your payment — Fidelity" },
       { property: "og:description", content: "Send your deposit to the Fidelity payment account." },
       { property: "og:type", content: "website" },
@@ -30,8 +33,12 @@ export const Route = createFileRoute("/deposit-payment")({
 });
 
 type PaymentMethod = {
-  id: string; type: "mobile_money" | "bank_transfer" | "crypto";
-  label: string; account_name: string | null; account_number: string | null; instructions: string | null;
+  id: string;
+  type: "mobile_money" | "bank_transfer" | "crypto";
+  label: string;
+  account_name: string | null;
+  account_number: string | null;
+  instructions: string | null;
 };
 
 const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitcoin };
@@ -44,7 +51,11 @@ function DepositPaymentPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("payment_methods").select("*").eq("id", method).maybeSingle();
+      const { data } = await supabase
+        .from("payment_methods")
+        .select("*")
+        .eq("id", method)
+        .maybeSingle();
       setSel(data as PaymentMethod | null);
     })();
   }, [method]);
@@ -58,8 +69,12 @@ function DepositPaymentPage() {
       ) : (
         <>
           <div className="rounded-2xl bg-hero p-6 text-primary-foreground shadow-elegant">
-            <div className="text-[10px] uppercase tracking-widest opacity-80">{t("deposit.amountToSend")}</div>
-            <div className="mt-1 font-display text-3xl font-bold uppercase tabular-nums">{formatXAF(amount)}</div>
+            <div className="text-[10px] uppercase tracking-widest opacity-80">
+              {t("deposit.amountToSend")}
+            </div>
+            <div className="mt-1 font-display text-3xl font-bold uppercase tabular-nums">
+              {formatXAF(amount)}
+            </div>
           </div>
 
           <div className="space-y-5 rounded-2xl border border-border bg-card p-5">
@@ -68,27 +83,51 @@ function DepositPaymentPage() {
                 <Icon className="h-5 w-5" />
               </span>
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("deposit.sendTo")}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {t("deposit.sendTo")}
+                </div>
                 <div className="font-semibold text-foreground">{sel.label}</div>
               </div>
             </div>
 
             <div className="space-y-2">
-              {sel.account_name && <CopyRow label={t("deposit.accountName")} value={sel.account_name} copied={t("common.copied")} />}
-              {sel.account_number && <CopyRow label={t("deposit.accountNumber")} value={sel.account_number} copied={t("common.copied")} />}
+              {sel.account_name && (
+                <CopyRow
+                  label={t("deposit.accountName")}
+                  value={sel.account_name}
+                  copied={t("common.copied")}
+                />
+              )}
+              {sel.account_number && (
+                <CopyRow
+                  label={t("deposit.accountNumber")}
+                  value={sel.account_number}
+                  copied={t("common.copied")}
+                />
+              )}
             </div>
 
             {sel.instructions && (
               <div className="rounded-xl bg-secondary p-4 text-sm leading-relaxed">
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-accent">{t("deposit.instructions")}</div>
+                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-accent">
+                  {t("deposit.instructions")}
+                </div>
                 {sel.instructions}
               </div>
             )}
 
-            <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${confirmed ? "border-success bg-success/10" : "border-border bg-background"}`}>
-              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 h-4 w-4" />
+            <label
+              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${confirmed ? "border-success bg-success/10" : "border-border bg-background"}`}
+            >
+              <input
+                type="checkbox"
+                checked={confirmed}
+                onChange={(e) => setConfirmed(e.target.checked)}
+                className="mt-0.5 h-4 w-4"
+              />
               <span className="text-sm leading-relaxed text-foreground">
-                {t("deposit.iConfirmPaid")} <span className="font-bold uppercase">{formatXAF(amount)}</span>
+                {t("deposit.iConfirmPaid")}{" "}
+                <span className="font-bold uppercase">{formatXAF(amount)}</span>
               </span>
             </label>
           </div>
@@ -96,14 +135,22 @@ function DepositPaymentPage() {
           <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
             <div className="mx-auto flex max-w-xl gap-2">
               <Button asChild variant="outline" className="h-11 flex-1">
-                <Link to="/dashboard/deposit"><ArrowLeft className="mr-1 h-4 w-4" /> {t("common.back")}</Link>
+                <Link to="/dashboard/deposit">
+                  <ArrowLeft className="mr-1 h-4 w-4" /> {t("common.back")}
+                </Link>
               </Button>
-              <Button asChild={confirmed} disabled={!confirmed} className="h-11 flex-[2] bg-primary text-primary-foreground">
+              <Button
+                asChild={confirmed}
+                disabled={!confirmed}
+                className="h-11 flex-[2] bg-primary text-primary-foreground"
+              >
                 {confirmed ? (
                   <Link to="/deposit-proof" search={{ amount, method }}>
                     {t("common.continue")} <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
-                ) : <span>{t("deposit.tickConfirm")}</span>}
+                ) : (
+                  <span>{t("deposit.tickConfirm")}</span>
+                )}
               </Button>
             </div>
           </div>
@@ -122,7 +169,10 @@ function CopyRow({ label, value, copied }: { label: string; value: string; copie
       </div>
       <button
         type="button"
-        onClick={() => { navigator.clipboard.writeText(value); toast.success(copied); }}
+        onClick={() => {
+          navigator.clipboard.writeText(value);
+          toast.success(copied);
+        }}
         className="rounded-md p-2 text-muted-foreground hover:bg-muted"
       >
         <Copy className="h-4 w-4" />

@@ -38,7 +38,8 @@ const DICT = {
     "landing.badge": "Trusted by Cameroonian investors",
     "landing.heroTitle1": "Grow your money",
     "landing.heroTitle2": "safely",
-    "landing.heroSubtitle": "Pick a plan, fund it with Mobile Money, and receive your capital plus profit at the end of the term — all in XAF.",
+    "landing.heroSubtitle":
+      "Pick a plan, fund it with Mobile Money, and receive your capital plus profit at the end of the term — all in XAF.",
     "landing.startInvesting": "Start investing",
     "landing.viewPlans": "View plans",
     "landing.plansEyebrow": "Investment plans",
@@ -63,28 +64,35 @@ const DICT = {
     "landing.how4.d": "Capital + profit hit your wallet at end of term.",
     "landing.faqTitle": "Frequently asked questions",
     "landing.faq1.q": "How are payments processed?",
-    "landing.faq1.a": "Manually. You send money via MTN Mobile Money or Orange Money to our official number, upload your screenshot, and our team approves it within 24 hours.",
+    "landing.faq1.a":
+      "Manually. You send money via MTN Mobile Money or Orange Money to our official number, upload your screenshot, and our team approves it within 24 hours.",
     "landing.faq2.q": "When do I receive my profit?",
-    "landing.faq2.a": "Both your capital and your profit are credited to your wallet at the end of the plan's term (14, 30, or 60 days depending on the plan).",
+    "landing.faq2.a":
+      "Both your capital and your profit are credited to your wallet at the end of the plan's term (14, 30, or 60 days depending on the plan).",
     "landing.faq3.q": "Can I withdraw any time?",
-    "landing.faq3.a": "Your wallet balance is always available to withdraw. Funds locked in an active plan are released at the end of the term.",
+    "landing.faq3.a":
+      "Your wallet balance is always available to withdraw. Funds locked in an active plan are released at the end of the term.",
     "landing.faq4.q": "Is there any fee?",
-    "landing.faq4.a": "No deposit or withdrawal fees. The amount you deposit is the amount that earns.",
+    "landing.faq4.a":
+      "No deposit or withdrawal fees. The amount you deposit is the amount that earns.",
     "landing.faq5.q": "Is this safe?",
-    "landing.faq5.a": "We are not a licensed financial institution and all investments carry risk. Only invest what you can afford to lose.",
+    "landing.faq5.a":
+      "We are not a licensed financial institution and all investments carry risk. Only invest what you can afford to lose.",
     "landing.ctaTitle": "Ready to grow your money?",
     "landing.ctaSubtitle": "Open your free account in under a minute.",
     "landing.ctaButton": "Create account",
 
     // Footer
-    "footer.tagline": "Grow your money safely with transparent, time-locked investment plans paid in XAF.",
+    "footer.tagline":
+      "Grow your money safely with transparent, time-locked investment plans paid in XAF.",
     "footer.platform": "Platform",
     "footer.account": "Account",
     "footer.contact": "Contact",
     "footer.investmentPlans": "Investment plans",
     "footer.aboutUs": "About us",
     "footer.location": "Douala, Cameroon",
-    "footer.disclaimer": "Risk disclosure: Not a licensed financial institution. Investments carry risk. Only invest what you can afford to lose.",
+    "footer.disclaimer":
+      "Risk disclosure: Not a licensed financial institution. Investments carry risk. Only invest what you can afford to lose.",
     "footer.rights": "All rights reserved.",
 
     // Auth
@@ -102,10 +110,12 @@ const DICT = {
     "auth.newHere": "New to Fidelity?",
     "auth.haveAccount": "Already have an account?",
     "auth.createOne": "Create one",
-    "auth.disclaimer": "Not a licensed financial institution. Investments carry risk. Only invest what you can afford to lose.",
+    "auth.disclaimer":
+      "Not a licensed financial institution. Investments carry risk. Only invest what you can afford to lose.",
     "auth.heroLine1": "Grow your money",
     "auth.heroLine2": "safely",
-    "auth.heroSub": "Capital + profit paid at the end of every plan. Manual verification. Real Cameroonian support.",
+    "auth.heroSub":
+      "Capital + profit paid at the end of every plan. Manual verification. Real Cameroonian support.",
     "auth.welcomeToast": "Welcome back",
     "auth.created": "Account created — welcome to Fidelity!",
     "auth.loginTitle": "Sign in to your account",
@@ -115,7 +125,8 @@ const DICT = {
     "auth.sendReset": "Send reset link",
     "auth.sending": "Sending…",
     "auth.resetSent": "Reset link sent — check your inbox",
-    "auth.resetSentBody": "We've sent a reset link. Click it from your inbox to set a new password.",
+    "auth.resetSentBody":
+      "We've sent a reset link. Click it from your inbox to set a new password.",
     "auth.backToSignIn": "Back to sign in",
     "auth.invitedBy": "You were invited by",
     "auth.invitedSub": "Create your account to join their team.",
@@ -123,7 +134,6 @@ const DICT = {
     "auth.noAccount": "Don't have an account?",
     "auth.registerLink": "Register",
     "auth.loginLink": "Sign in",
-
 
     // Dashboard home
     "home.welcomeBack": "Welcome back",
@@ -191,7 +201,8 @@ const DICT = {
     "deposit.errNoFile": "Please upload your payment screenshot",
     "deposit.errMin": "Minimum 1,000 XAF",
     "deposit.successTitle": "Deposit submitted successfully",
-    "deposit.successDesc": "Your deposit is awaiting admin approval. You'll be notified once it's confirmed.",
+    "deposit.successDesc":
+      "Your deposit is awaiting admin approval. You'll be notified once it's confirmed.",
     "deposit.returnHome": "Return to dashboard",
     "deposit.viewHistory": "View deposit history",
     "status.pending": "Pending",
@@ -255,7 +266,8 @@ const DICT = {
     "landing.badge": "La confiance des investisseurs camerounais",
     "landing.heroTitle1": "Faites fructifier votre argent",
     "landing.heroTitle2": "en toute sécurité",
-    "landing.heroSubtitle": "Choisissez un plan, financez-le avec Mobile Money, et recevez votre capital plus profit à la fin du terme — entièrement en XAF.",
+    "landing.heroSubtitle":
+      "Choisissez un plan, financez-le avec Mobile Money, et recevez votre capital plus profit à la fin du terme — entièrement en XAF.",
     "landing.startInvesting": "Commencer à investir",
     "landing.viewPlans": "Voir les plans",
     "landing.plansEyebrow": "Plans d'investissement",
@@ -268,7 +280,8 @@ const DICT = {
     "landing.momoFunding": "Financement Mobile Money",
     "landing.activate": "Activer le plan",
     "landing.popular": "Populaire",
-    "landing.planCapital": "Capital + profit versés à la fin du terme. Tout investissement comporte des risques.",
+    "landing.planCapital":
+      "Capital + profit versés à la fin du terme. Tout investissement comporte des risques.",
     "landing.howTitle": "Comment ça marche",
     "landing.how1.t": "Ouvrir un compte",
     "landing.how1.d": "Inscrivez-vous en moins d'une minute avec votre téléphone et votre email.",
@@ -280,28 +293,35 @@ const DICT = {
     "landing.how4.d": "Capital + profit versés au portefeuille à la fin du terme.",
     "landing.faqTitle": "Questions fréquentes",
     "landing.faq1.q": "Comment les paiements sont-ils traités ?",
-    "landing.faq1.a": "Manuellement. Vous envoyez l'argent via MTN Mobile Money ou Orange Money à notre numéro officiel, téléversez votre capture, et notre équipe valide sous 24 heures.",
+    "landing.faq1.a":
+      "Manuellement. Vous envoyez l'argent via MTN Mobile Money ou Orange Money à notre numéro officiel, téléversez votre capture, et notre équipe valide sous 24 heures.",
     "landing.faq2.q": "Quand est-ce que je reçois mon profit ?",
-    "landing.faq2.a": "Le capital et le profit sont crédités sur votre portefeuille à la fin du terme du plan (14, 30 ou 60 jours selon le plan).",
+    "landing.faq2.a":
+      "Le capital et le profit sont crédités sur votre portefeuille à la fin du terme du plan (14, 30 ou 60 jours selon le plan).",
     "landing.faq3.q": "Puis-je retirer à tout moment ?",
-    "landing.faq3.a": "Le solde de votre portefeuille est toujours disponible. Les fonds bloqués dans un plan actif sont libérés à la fin du terme.",
+    "landing.faq3.a":
+      "Le solde de votre portefeuille est toujours disponible. Les fonds bloqués dans un plan actif sont libérés à la fin du terme.",
     "landing.faq4.q": "Y a-t-il des frais ?",
-    "landing.faq4.a": "Aucun frais de dépôt ou de retrait. Le montant que vous déposez est celui qui rapporte.",
+    "landing.faq4.a":
+      "Aucun frais de dépôt ou de retrait. Le montant que vous déposez est celui qui rapporte.",
     "landing.faq5.q": "Est-ce sûr ?",
-    "landing.faq5.a": "Nous ne sommes pas une institution financière agréée et tout investissement comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.",
+    "landing.faq5.a":
+      "Nous ne sommes pas une institution financière agréée et tout investissement comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.",
     "landing.ctaTitle": "Prêt à faire fructifier votre argent ?",
     "landing.ctaSubtitle": "Ouvrez votre compte gratuit en moins d'une minute.",
     "landing.ctaButton": "Créer un compte",
 
     // Footer
-    "footer.tagline": "Faites fructifier votre argent en toute sécurité avec des plans d'investissement transparents et verrouillés dans le temps, payés en XAF.",
+    "footer.tagline":
+      "Faites fructifier votre argent en toute sécurité avec des plans d'investissement transparents et verrouillés dans le temps, payés en XAF.",
     "footer.platform": "Plateforme",
     "footer.account": "Compte",
     "footer.contact": "Contact",
     "footer.investmentPlans": "Plans d'investissement",
     "footer.aboutUs": "À propos",
     "footer.location": "Douala, Cameroun",
-    "footer.disclaimer": "Avertissement de risque : Pas une institution financière agréée. Tout investissement comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.",
+    "footer.disclaimer":
+      "Avertissement de risque : Pas une institution financière agréée. Tout investissement comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.",
     "footer.rights": "Tous droits réservés.",
 
     // Auth
@@ -319,20 +339,24 @@ const DICT = {
     "auth.newHere": "Nouveau sur Fidelity ?",
     "auth.haveAccount": "Vous avez déjà un compte ?",
     "auth.createOne": "Créer un compte",
-    "auth.disclaimer": "Pas une institution financière agréée. Tout investissement comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.",
+    "auth.disclaimer":
+      "Pas une institution financière agréée. Tout investissement comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.",
     "auth.heroLine1": "Faites fructifier votre argent",
     "auth.heroLine2": "en toute sécurité",
-    "auth.heroSub": "Capital + profit versés à la fin de chaque plan. Vérification manuelle. Support camerounais réel.",
+    "auth.heroSub":
+      "Capital + profit versés à la fin de chaque plan. Vérification manuelle. Support camerounais réel.",
     "auth.welcomeToast": "Bon retour",
     "auth.created": "Compte créé — bienvenue sur Fidelity !",
     "auth.loginTitle": "Connexion à votre compte",
     "auth.registerTitle": "Créer votre compte",
     "auth.forgotTitle": "Réinitialiser votre mot de passe",
-    "auth.forgotSub": "Entrez l'email utilisé lors de l'inscription et nous vous enverrons un lien de réinitialisation.",
+    "auth.forgotSub":
+      "Entrez l'email utilisé lors de l'inscription et nous vous enverrons un lien de réinitialisation.",
     "auth.sendReset": "Envoyer le lien",
     "auth.sending": "Envoi…",
     "auth.resetSent": "Lien envoyé — vérifiez votre boîte mail",
-    "auth.resetSentBody": "Nous avons envoyé un lien de réinitialisation. Cliquez dessus depuis votre boîte mail pour définir un nouveau mot de passe.",
+    "auth.resetSentBody":
+      "Nous avons envoyé un lien de réinitialisation. Cliquez dessus depuis votre boîte mail pour définir un nouveau mot de passe.",
     "auth.backToSignIn": "Retour à la connexion",
     "auth.invitedBy": "Vous avez été invité par",
     "auth.invitedSub": "Créez votre compte pour rejoindre son équipe.",
@@ -340,7 +364,6 @@ const DICT = {
     "auth.noAccount": "Pas encore de compte ?",
     "auth.registerLink": "S'inscrire",
     "auth.loginLink": "Se connecter",
-
 
     // Dashboard home
     "home.welcomeBack": "Bon retour",
@@ -408,7 +431,8 @@ const DICT = {
     "deposit.errNoFile": "Veuillez téléverser votre capture de paiement",
     "deposit.errMin": "Minimum 1 000 XAF",
     "deposit.successTitle": "Dépôt soumis avec succès",
-    "deposit.successDesc": "Votre dépôt est en attente d'approbation. Vous serez notifié dès sa confirmation.",
+    "deposit.successDesc":
+      "Votre dépôt est en attente d'approbation. Vous serez notifié dès sa confirmation.",
     "deposit.returnHome": "Retour au tableau de bord",
     "deposit.viewHistory": "Voir l'historique des dépôts",
     "status.pending": "En attente",
@@ -447,7 +471,8 @@ const EXTRA = {
     "deposit.proofStepSub": "Upload a clear screenshot showing your completed transfer.",
     "deposit.selectProof": "Select payment proof",
     "deposit.proofHint": "JPG, PNG or a screenshot from your payment app",
-    "deposit.proofTip": "Make sure the amount, receiver and reference are visible before submitting.",
+    "deposit.proofTip":
+      "Make sure the amount, receiver and reference are visible before submitting.",
     "deposit.summary": "Payment summary",
     "receipt.title": "Official transaction receipt",
     "receipt.download": "Download receipt",
@@ -464,7 +489,8 @@ const EXTRA = {
     "deposit.proofStepSub": "Téléversez une capture claire de votre transfert effectué.",
     "deposit.selectProof": "Choisir la preuve de paiement",
     "deposit.proofHint": "JPG, PNG ou une capture de votre application de paiement",
-    "deposit.proofTip": "Vérifiez que le montant, le bénéficiaire et la référence sont visibles avant d'envoyer.",
+    "deposit.proofTip":
+      "Vérifiez que le montant, le bénéficiaire et la référence sont visibles avant d'envoyer.",
     "deposit.summary": "Récapitulatif du paiement",
     "receipt.title": "Reçu officiel de transaction",
     "receipt.download": "Télécharger le reçu",
@@ -481,8 +507,7 @@ const MERGED = {
   fr: { ...DICT.fr, ...EXTRA.fr },
 };
 
-type Key = keyof typeof MERGED["en"];
-
+type Key = keyof (typeof MERGED)["en"];
 
 const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: Key) => string }>({
   lang: "en",
@@ -497,7 +522,10 @@ async function persistLang(l: Lang) {
     const { data } = await supabase.auth.getSession();
     const uid = data.session?.user?.id;
     if (!uid) return;
-    const { error } = await supabase.from("profiles").update({ preferred_language: l }).eq("id", uid);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ preferred_language: l })
+      .eq("id", uid);
     if (error) console.error("Could not save email language preference", error.message);
   } catch (error) {
     console.error("Could not save email language preference", error);
@@ -505,13 +533,17 @@ async function persistLang(l: Lang) {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-
   // Always start with "en" so SSR and first client render match.
   const [lang, setLangState] = useState<Lang>("en");
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && (localStorage.getItem("safegrow-lang") as Lang | null)) || null;
-    const browser = typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en";
+    const stored =
+      (typeof window !== "undefined" && (localStorage.getItem("safegrow-lang") as Lang | null)) ||
+      null;
+    const browser =
+      typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("fr")
+        ? "fr"
+        : "en";
     const next = stored ?? (browser as Lang);
     if (next !== lang) setLangState(next);
     if (typeof document !== "undefined") document.documentElement.lang = next;
@@ -521,13 +553,17 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const setLang = (l: Lang) => {
     setLangState(l);
-    try { localStorage.setItem("safegrow-lang", l); } catch (_) { /* ignore */ }
+    try {
+      localStorage.setItem("safegrow-lang", l);
+    } catch (_) {
+      /* ignore */
+    }
     if (typeof document !== "undefined") document.documentElement.lang = l;
     void persistLang(l);
   };
 
-  const t = (k: Key) => (MERGED[lang] as Record<string, string>)[k] ?? (MERGED.en as Record<string, string>)[k] ?? k;
-
+  const t = (k: Key) =>
+    (MERGED[lang] as Record<string, string>)[k] ?? (MERGED.en as Record<string, string>)[k] ?? k;
 
   return <Ctx.Provider value={{ lang, setLang, t }}>{children}</Ctx.Provider>;
 }

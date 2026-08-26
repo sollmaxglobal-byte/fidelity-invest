@@ -22,8 +22,12 @@ export const Route = createFileRoute("/invest/success/$id")({
 });
 
 type Details = {
-  amount: number; duration_days: number; end_date: string; start_date: string;
-  plan_name: string; tx_id: string | null;
+  amount: number;
+  duration_days: number;
+  end_date: string;
+  start_date: string;
+  plan_name: string;
+  tx_id: string | null;
 };
 
 function InvestSuccess() {
@@ -43,7 +47,12 @@ function InvestSuccess() {
       if (inv) {
         const [{ data: plan }, { data: tx }] = await Promise.all([
           supabase.from("plans").select("name").eq("id", inv.plan_id).maybeSingle(),
-          supabase.from("transactions").select("id").eq("ref_id", id).eq("type", "investment").maybeSingle(),
+          supabase
+            .from("transactions")
+            .select("id")
+            .eq("ref_id", id)
+            .eq("type", "investment")
+            .maybeSingle(),
         ]);
         setD({
           amount: Number(inv.amount),
@@ -74,7 +83,9 @@ function InvestSuccess() {
         <div className="mx-auto flex h-16 w-16 animate-in zoom-in items-center justify-center rounded-full bg-success/15">
           <CheckCircle2 className="h-9 w-9 text-success" />
         </div>
-        <h1 className="mt-4 font-display text-2xl text-primary">Investment plan purchased successfully</h1>
+        <h1 className="mt-4 font-display text-2xl text-primary">
+          Investment plan purchased successfully
+        </h1>
         <p className="mt-1 text-xs text-muted-foreground">
           Your plan is now active and profit will be credited automatically.
         </p>
@@ -90,7 +101,10 @@ function InvestSuccess() {
               <span className="text-muted-foreground">Transaction ID</span>
               <button
                 className="flex items-center gap-1 font-bold uppercase tabular-nums text-primary"
-                onClick={() => { navigator.clipboard.writeText(ref); toast.success("Transaction ID copied"); }}
+                onClick={() => {
+                  navigator.clipboard.writeText(ref);
+                  toast.success("Transaction ID copied");
+                }}
               >
                 #{ref} <Copy className="h-3.5 w-3.5" />
               </button>

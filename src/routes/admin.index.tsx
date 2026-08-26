@@ -19,17 +19,30 @@ type Stats = {
 
 function AdminOverview() {
   const [s, setS] = useState<Stats>({
-    users: 0, pendingDeposits: 0, pendingWithdrawals: 0,
-    activeInvestments: 0, totalDeposited: 0, totalWithdrawn: 0,
+    users: 0,
+    pendingDeposits: 0,
+    pendingWithdrawals: 0,
+    activeInvestments: 0,
+    totalDeposited: 0,
+    totalWithdrawn: 0,
   });
 
   useEffect(() => {
     (async () => {
       const [u, pd, pw, ai, td, tw] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
-        supabase.from("deposits").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("withdrawals").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("investments").select("*", { count: "exact", head: true }).eq("status", "active"),
+        supabase
+          .from("deposits")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabase
+          .from("withdrawals")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabase
+          .from("investments")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "active"),
         supabase.from("deposits").select("amount").eq("status", "approved"),
         supabase.from("withdrawals").select("amount").in("status", ["approved", "paid"]),
       ]);
@@ -47,8 +60,18 @@ function AdminOverview() {
   const cards = [
     { i: Users, l: "Total users", v: String(s.users) },
     { i: TrendingUp, l: "Active investments", v: String(s.activeInvestments) },
-    { i: Clock, l: "Pending deposits", v: String(s.pendingDeposits), accent: s.pendingDeposits > 0 },
-    { i: Clock, l: "Pending withdrawals", v: String(s.pendingWithdrawals), accent: s.pendingWithdrawals > 0 },
+    {
+      i: Clock,
+      l: "Pending deposits",
+      v: String(s.pendingDeposits),
+      accent: s.pendingDeposits > 0,
+    },
+    {
+      i: Clock,
+      l: "Pending withdrawals",
+      v: String(s.pendingWithdrawals),
+      accent: s.pendingWithdrawals > 0,
+    },
     { i: ArrowDownToLine, l: "Total deposited", v: formatXAF(s.totalDeposited) },
     { i: ArrowUpFromLine, l: "Total withdrawn", v: formatXAF(s.totalWithdrawn) },
   ];
@@ -62,7 +85,10 @@ function AdminOverview() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
-          <div key={c.l} className={`rounded-2xl border p-5 ${c.accent ? "border-warning bg-warning/5" : "border-border bg-card"}`}>
+          <div
+            key={c.l}
+            className={`rounded-2xl border p-5 ${c.accent ? "border-warning bg-warning/5" : "border-border bg-card"}`}
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase tracking-wider text-muted-foreground">{c.l}</span>
               <c.i className={`h-4 w-4 ${c.accent ? "text-warning" : "text-muted-foreground"}`} />

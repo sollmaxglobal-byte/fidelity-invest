@@ -9,98 +9,48 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as PlansRouteImport } from './routes/plans'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as DepositProofRouteImport } from './routes/deposit-proof'
-import { Route as DepositPaymentRouteImport } from './routes/deposit-payment'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DepositPaymentRouteImport } from './routes/deposit-payment'
+import { Route as DepositProofRouteImport } from './routes/deposit-proof'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PlansRouteImport } from './routes/plans'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as DepositPendingIdRouteImport } from './routes/deposit-pending.$id'
-import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdraw'
-import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
-import { Route as DashboardReferralsRouteImport } from './routes/dashboard.referrals'
-import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
-import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
-import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
-import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
-import { Route as AdminPushRouteImport } from './routes/admin.push'
-import { Route as AdminPlansRouteImport } from './routes/admin.plans'
-import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
-import { Route as AdminInvestmentsRouteImport } from './routes/admin.investments'
-import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
 import { Route as AdminDepositsRouteImport } from './routes/admin.deposits'
-import { Route as InvestSuccessIdRouteImport } from './routes/invest.success.$id'
-import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm.$planId'
-import { Route as ApiPublicWithdrawResultRouteImport } from './routes/api/public/withdraw-result'
-import { Route as ApiPublicWithdrawQueueRouteImport } from './routes/api/public/withdraw-queue'
-import { Route as ApiPublicProcessReceiptEmailsRouteImport } from './routes/api/public/process-receipt-emails'
+import { Route as AdminEmailsRouteImport } from './routes/admin.emails'
+import { Route as AdminInvestmentsRouteImport } from './routes/admin.investments'
+import { Route as AdminMethodsRouteImport } from './routes/admin.methods'
+import { Route as AdminPlansRouteImport } from './routes/admin.plans'
+import { Route as AdminPushRouteImport } from './routes/admin.push'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardDepositRouteImport } from './routes/dashboard.deposit'
+import { Route as DashboardInvestRouteImport } from './routes/dashboard.invest'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardReferralsRouteImport } from './routes/dashboard.referrals'
+import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
+import { Route as DashboardWithdrawRouteImport } from './routes/dashboard.withdraw'
+import { Route as DepositPendingIdRouteImport } from './routes/deposit-pending.$id'
 import { Route as ApiPublicMmSmsRouteImport } from './routes/api/public/mm-sms'
+import { Route as ApiPublicProcessReceiptEmailsRouteImport } from './routes/api/public/process-receipt-emails'
+import { Route as ApiPublicWithdrawQueueRouteImport } from './routes/api/public/withdraw-queue'
+import { Route as ApiPublicWithdrawResultRouteImport } from './routes/api/public/withdraw-result'
+import { Route as InvestConfirmPlanIdRouteImport } from './routes/invest.confirm.$planId'
+import { Route as InvestSuccessIdRouteImport } from './routes/invest.success.$id'
 import { Route as DashboardReceiptKindIdRouteImport } from './routes/dashboard.receipt.$kind.$id'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlansRoute = PlansRouteImport.update({
-  id: '/plans',
-  path: '/plans',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DepositProofRoute = DepositProofRouteImport.update({
-  id: '/deposit-proof',
-  path: '/deposit-proof',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DepositPaymentRoute = DepositPaymentRouteImport.update({
-  id: '/deposit-payment',
-  path: '/deposit-payment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -108,94 +58,64 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRoute,
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DepositPaymentRoute = DepositPaymentRouteImport.update({
+  id: '/deposit-payment',
+  path: '/deposit-payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DepositProofRoute = DepositProofRouteImport.update({
+  id: '/deposit-proof',
+  path: '/deposit-proof',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansRoute = PlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const DepositPendingIdRoute = DepositPendingIdRouteImport.update({
-  id: '/deposit-pending/$id',
-  path: '/deposit-pending/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardWithdrawRoute = DashboardWithdrawRouteImport.update({
-  id: '/withdraw',
-  path: '/withdraw',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardWalletRoute = DashboardWalletRouteImport.update({
-  id: '/wallet',
-  path: '/wallet',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardReferralsRoute = DashboardReferralsRouteImport.update({
-  id: '/referrals',
-  path: '/referrals',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardProfileRoute = DashboardProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardInvestRoute = DashboardInvestRouteImport.update({
-  id: '/invest',
-  path: '/invest',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardDepositRoute = DashboardDepositRouteImport.update({
-  id: '/deposit',
-  path: '/deposit',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
-  id: '/withdrawals',
-  path: '/withdrawals',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPushRoute = AdminPushRouteImport.update({
-  id: '/push',
-  path: '/push',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPlansRoute = AdminPlansRouteImport.update({
-  id: '/plans',
-  path: '/plans',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminMethodsRoute = AdminMethodsRouteImport.update({
-  id: '/methods',
-  path: '/methods',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminInvestmentsRoute = AdminInvestmentsRouteImport.update({
-  id: '/investments',
-  path: '/investments',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminEmailsRoute = AdminEmailsRouteImport.update({
-  id: '/emails',
-  path: '/emails',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDepositsRoute = AdminDepositsRouteImport.update({
@@ -203,24 +123,89 @@ const AdminDepositsRoute = AdminDepositsRouteImport.update({
   path: '/deposits',
   getParentRoute: () => AdminRoute,
 } as any)
-const InvestSuccessIdRoute = InvestSuccessIdRouteImport.update({
-  id: '/invest/success/$id',
-  path: '/invest/success/$id',
+const AdminEmailsRoute = AdminEmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInvestmentsRoute = AdminInvestmentsRouteImport.update({
+  id: '/investments',
+  path: '/investments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMethodsRoute = AdminMethodsRouteImport.update({
+  id: '/methods',
+  path: '/methods',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPlansRoute = AdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPushRoute = AdminPushRouteImport.update({
+  id: '/push',
+  path: '/push',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => AdminRoute,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDepositRoute = DashboardDepositRouteImport.update({
+  id: '/deposit',
+  path: '/deposit',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardInvestRoute = DashboardInvestRouteImport.update({
+  id: '/invest',
+  path: '/invest',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardReferralsRoute = DashboardReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardWalletRoute = DashboardWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardWithdrawRoute = DashboardWithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DepositPendingIdRoute = DepositPendingIdRouteImport.update({
+  id: '/deposit-pending/$id',
+  path: '/deposit-pending/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InvestConfirmPlanIdRoute = InvestConfirmPlanIdRouteImport.update({
-  id: '/invest/confirm/$planId',
-  path: '/invest/confirm/$planId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWithdrawResultRoute = ApiPublicWithdrawResultRouteImport.update({
-  id: '/api/public/withdraw-result',
-  path: '/api/public/withdraw-result',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWithdrawQueueRoute = ApiPublicWithdrawQueueRouteImport.update({
-  id: '/api/public/withdraw-queue',
-  path: '/api/public/withdraw-queue',
+const ApiPublicMmSmsRoute = ApiPublicMmSmsRouteImport.update({
+  id: '/api/public/mm-sms',
+  path: '/api/public/mm-sms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicProcessReceiptEmailsRoute =
@@ -229,9 +214,24 @@ const ApiPublicProcessReceiptEmailsRoute =
     path: '/api/public/process-receipt-emails',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicMmSmsRoute = ApiPublicMmSmsRouteImport.update({
-  id: '/api/public/mm-sms',
-  path: '/api/public/mm-sms',
+const ApiPublicWithdrawQueueRoute = ApiPublicWithdrawQueueRouteImport.update({
+  id: '/api/public/withdraw-queue',
+  path: '/api/public/withdraw-queue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWithdrawResultRoute = ApiPublicWithdrawResultRouteImport.update({
+  id: '/api/public/withdraw-result',
+  path: '/api/public/withdraw-result',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestConfirmPlanIdRoute = InvestConfirmPlanIdRouteImport.update({
+  id: '/invest/confirm/$planId',
+  path: '/invest/confirm/$planId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestSuccessIdRoute = InvestSuccessIdRouteImport.update({
+  id: '/invest/success/$id',
+  path: '/invest/success/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardReceiptKindIdRoute = DashboardReceiptKindIdRouteImport.update({
@@ -505,81 +505,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plans': {
-      id: '/plans'
-      path: '/plans'
-      fullPath: '/plans'
-      preLoaderRoute: typeof PlansRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deposit-proof': {
-      id: '/deposit-proof'
-      path: '/deposit-proof'
-      fullPath: '/deposit-proof'
-      preLoaderRoute: typeof DepositProofRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deposit-payment': {
-      id: '/deposit-payment'
-      path: '/deposit-payment'
-      fullPath: '/deposit-payment'
-      preLoaderRoute: typeof DepositPaymentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -589,130 +519,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deposit-payment': {
+      id: '/deposit-payment'
+      path: '/deposit-payment'
+      fullPath: '/deposit-payment'
+      preLoaderRoute: typeof DepositPaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deposit-proof': {
+      id: '/deposit-proof'
+      path: '/deposit-proof'
+      fullPath: '/deposit-proof'
+      preLoaderRoute: typeof DepositProofRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans': {
+      id: '/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/deposit-pending/$id': {
-      id: '/deposit-pending/$id'
-      path: '/deposit-pending/$id'
-      fullPath: '/deposit-pending/$id'
-      preLoaderRoute: typeof DepositPendingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/withdraw': {
-      id: '/dashboard/withdraw'
-      path: '/withdraw'
-      fullPath: '/dashboard/withdraw'
-      preLoaderRoute: typeof DashboardWithdrawRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/wallet': {
-      id: '/dashboard/wallet'
-      path: '/wallet'
-      fullPath: '/dashboard/wallet'
-      preLoaderRoute: typeof DashboardWalletRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/referrals': {
-      id: '/dashboard/referrals'
-      path: '/referrals'
-      fullPath: '/dashboard/referrals'
-      preLoaderRoute: typeof DashboardReferralsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/profile': {
-      id: '/dashboard/profile'
-      path: '/profile'
-      fullPath: '/dashboard/profile'
-      preLoaderRoute: typeof DashboardProfileRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/invest': {
-      id: '/dashboard/invest'
-      path: '/invest'
-      fullPath: '/dashboard/invest'
-      preLoaderRoute: typeof DashboardInvestRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/deposit': {
-      id: '/dashboard/deposit'
-      path: '/deposit'
-      fullPath: '/dashboard/deposit'
-      preLoaderRoute: typeof DashboardDepositRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/admin/withdrawals': {
-      id: '/admin/withdrawals'
-      path: '/withdrawals'
-      fullPath: '/admin/withdrawals'
-      preLoaderRoute: typeof AdminWithdrawalsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/push': {
-      id: '/admin/push'
-      path: '/push'
-      fullPath: '/admin/push'
-      preLoaderRoute: typeof AdminPushRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/plans': {
-      id: '/admin/plans'
-      path: '/plans'
-      fullPath: '/admin/plans'
-      preLoaderRoute: typeof AdminPlansRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/methods': {
-      id: '/admin/methods'
-      path: '/methods'
-      fullPath: '/admin/methods'
-      preLoaderRoute: typeof AdminMethodsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/investments': {
-      id: '/admin/investments'
-      path: '/investments'
-      fullPath: '/admin/investments'
-      preLoaderRoute: typeof AdminInvestmentsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/emails': {
-      id: '/admin/emails'
-      path: '/emails'
-      fullPath: '/admin/emails'
-      preLoaderRoute: typeof AdminEmailsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/deposits': {
@@ -722,32 +610,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDepositsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/invest/success/$id': {
-      id: '/invest/success/$id'
-      path: '/invest/success/$id'
-      fullPath: '/invest/success/$id'
-      preLoaderRoute: typeof InvestSuccessIdRouteImport
+    '/admin/emails': {
+      id: '/admin/emails'
+      path: '/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AdminEmailsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/investments': {
+      id: '/admin/investments'
+      path: '/investments'
+      fullPath: '/admin/investments'
+      preLoaderRoute: typeof AdminInvestmentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/methods': {
+      id: '/admin/methods'
+      path: '/methods'
+      fullPath: '/admin/methods'
+      preLoaderRoute: typeof AdminMethodsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/plans': {
+      id: '/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AdminPlansRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/push': {
+      id: '/admin/push'
+      path: '/push'
+      fullPath: '/admin/push'
+      preLoaderRoute: typeof AdminPushRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/withdrawals': {
+      id: '/admin/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/admin/withdrawals'
+      preLoaderRoute: typeof AdminWithdrawalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/deposit': {
+      id: '/dashboard/deposit'
+      path: '/deposit'
+      fullPath: '/dashboard/deposit'
+      preLoaderRoute: typeof DashboardDepositRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/invest': {
+      id: '/dashboard/invest'
+      path: '/invest'
+      fullPath: '/dashboard/invest'
+      preLoaderRoute: typeof DashboardInvestRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/referrals': {
+      id: '/dashboard/referrals'
+      path: '/referrals'
+      fullPath: '/dashboard/referrals'
+      preLoaderRoute: typeof DashboardReferralsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/wallet': {
+      id: '/dashboard/wallet'
+      path: '/wallet'
+      fullPath: '/dashboard/wallet'
+      preLoaderRoute: typeof DashboardWalletRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/withdraw': {
+      id: '/dashboard/withdraw'
+      path: '/withdraw'
+      fullPath: '/dashboard/withdraw'
+      preLoaderRoute: typeof DashboardWithdrawRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/deposit-pending/$id': {
+      id: '/deposit-pending/$id'
+      path: '/deposit-pending/$id'
+      fullPath: '/deposit-pending/$id'
+      preLoaderRoute: typeof DepositPendingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/invest/confirm/$planId': {
-      id: '/invest/confirm/$planId'
-      path: '/invest/confirm/$planId'
-      fullPath: '/invest/confirm/$planId'
-      preLoaderRoute: typeof InvestConfirmPlanIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/withdraw-result': {
-      id: '/api/public/withdraw-result'
-      path: '/api/public/withdraw-result'
-      fullPath: '/api/public/withdraw-result'
-      preLoaderRoute: typeof ApiPublicWithdrawResultRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/withdraw-queue': {
-      id: '/api/public/withdraw-queue'
-      path: '/api/public/withdraw-queue'
-      fullPath: '/api/public/withdraw-queue'
-      preLoaderRoute: typeof ApiPublicWithdrawQueueRouteImport
+    '/api/public/mm-sms': {
+      id: '/api/public/mm-sms'
+      path: '/api/public/mm-sms'
+      fullPath: '/api/public/mm-sms'
+      preLoaderRoute: typeof ApiPublicMmSmsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/process-receipt-emails': {
@@ -757,11 +736,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProcessReceiptEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mm-sms': {
-      id: '/api/public/mm-sms'
-      path: '/api/public/mm-sms'
-      fullPath: '/api/public/mm-sms'
-      preLoaderRoute: typeof ApiPublicMmSmsRouteImport
+    '/api/public/withdraw-queue': {
+      id: '/api/public/withdraw-queue'
+      path: '/api/public/withdraw-queue'
+      fullPath: '/api/public/withdraw-queue'
+      preLoaderRoute: typeof ApiPublicWithdrawQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/withdraw-result': {
+      id: '/api/public/withdraw-result'
+      path: '/api/public/withdraw-result'
+      fullPath: '/api/public/withdraw-result'
+      preLoaderRoute: typeof ApiPublicWithdrawResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invest/confirm/$planId': {
+      id: '/invest/confirm/$planId'
+      path: '/invest/confirm/$planId'
+      fullPath: '/invest/confirm/$planId'
+      preLoaderRoute: typeof InvestConfirmPlanIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invest/success/$id': {
+      id: '/invest/success/$id'
+      path: '/invest/success/$id'
+      fullPath: '/invest/success/$id'
+      preLoaderRoute: typeof InvestSuccessIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/receipt/$kind/$id': {

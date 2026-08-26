@@ -44,7 +44,9 @@ export function AnnouncementPopup() {
         /* announcement is non-critical */
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function dismiss() {

@@ -10,7 +10,14 @@ async function admin() {
 
 export type ClaimResult =
   | { claimed: false; reason: string }
-  | { claimed: true; id: string; phone: string; amount: number; account_name: string; code: string };
+  | {
+      claimed: true;
+      id: string;
+      phone: string;
+      amount: number;
+      account_name: string;
+      code: string;
+    };
 
 /** Flag pending mobile-money withdrawals going to an MTN number as auto-payable. */
 export async function queueEligible(): Promise<number> {

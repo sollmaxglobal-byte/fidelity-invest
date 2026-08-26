@@ -6,7 +6,11 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — Fidelity" },
-      { name: "description", content: "Fidelity is a Cameroonian investment platform built on transparency, daily ROI and human support." },
+      {
+        name: "description",
+        content:
+          "Fidelity is a Cameroonian investment platform built on transparency, daily ROI and human support.",
+      },
     ],
   }),
   component: AboutPage,
@@ -18,8 +22,12 @@ function AboutPage() {
       <SiteHeader />
       <section className="bg-hero py-20 text-primary-foreground">
         <div className="mx-auto max-w-4xl px-4">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">About Fidelity</div>
-          <h1 className="mt-3 font-display text-5xl md:text-6xl">A new chapter for Cameroonian capital.</h1>
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+            About Fidelity
+          </div>
+          <h1 className="mt-3 font-display text-5xl md:text-6xl">
+            A new chapter for Cameroonian capital.
+          </h1>
         </div>
       </section>
       <section className="mx-auto max-w-3xl px-4 py-16 text-lg leading-relaxed text-foreground/80">
@@ -32,9 +40,7 @@ function AboutPage() {
           deposit is reviewed by a member of our team. Every payout is logged. Every plan is
           designed around flexibility — you choose the amount, you choose the duration.
         </p>
-        <p className="mt-6">
-          Headquartered in Douala, we serve investors across Central Africa.
-        </p>
+        <p className="mt-6">Headquartered in Douala, we serve investors across Central Africa.</p>
       </section>
       <SiteFooter />
     </div>

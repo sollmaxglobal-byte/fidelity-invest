@@ -55,9 +55,12 @@ export async function readProof(imageUrl: string): Promise<OcrResult> {
   if (!res.ok) {
     const detail = await res.text();
     if (res.status === 402 || res.status === 403) {
-      throw new Error("Automatic reading is paused (AI credits unavailable) — approve this deposit manually.");
+      throw new Error(
+        "Automatic reading is paused (AI credits unavailable) — approve this deposit manually.",
+      );
     }
-    if (res.status === 429) throw new Error("Automatic reading is busy — try Re-check in a moment.");
+    if (res.status === 429)
+      throw new Error("Automatic reading is busy — try Re-check in a moment.");
     throw new Error(`AI read failed (${res.status}): ${detail.slice(0, 200)}`);
   }
   const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
@@ -131,7 +134,9 @@ async function notifyApproved(userId: string, amount: number, depositId: string)
  * Try to auto-approve a pending deposit: its screenshot transaction ID must match a
  * received operator message, and both amounts must equal the submitted amount.
  */
-export async function tryMatchDeposit(depositId: string): Promise<{ approved: boolean; reason: string }> {
+export async function tryMatchDeposit(
+  depositId: string,
+): Promise<{ approved: boolean; reason: string }> {
   const db = await admin();
   const { data: deposit } = await db
     .from("deposits")
@@ -146,7 +151,10 @@ export async function tryMatchDeposit(depositId: string): Promise<{ approved: bo
     await setNote(depositId, reason);
     return { approved: false, reason };
   }
-  if (deposit.ocr_amount !== null && Math.trunc(Number(deposit.ocr_amount)) !== Math.trunc(Number(deposit.amount))) {
+  if (
+    deposit.ocr_amount !== null &&
+    Math.trunc(Number(deposit.ocr_amount)) !== Math.trunc(Number(deposit.amount))
+  ) {
     const reason = `Screenshot amount (${deposit.ocr_amount}) does not match submitted amount (${deposit.amount})`;
     await setNote(depositId, reason);
     return { approved: false, reason };
@@ -167,7 +175,10 @@ export async function tryMatchDeposit(depositId: string): Promise<{ approved: bo
     await setNote(depositId, reason);
     return { approved: false, reason };
   }
-  if (message.amount === null || Math.trunc(Number(message.amount)) !== Math.trunc(Number(deposit.amount))) {
+  if (
+    message.amount === null ||
+    Math.trunc(Number(message.amount)) !== Math.trunc(Number(deposit.amount))
+  ) {
     const reason = `Amount mismatch: received ${message.amount ?? "?"} vs submitted ${deposit.amount}`;
     await setNote(depositId, reason);
     return { approved: false, reason };
@@ -204,7 +215,9 @@ export async function verifyDeposit(depositId: string, userId?: string) {
 
   if (!deposit.ocr_txn_id_norm) {
     if (!deposit.proof_url) return { approved: false, reason: "No payment proof uploaded" };
-    const { data: signed } = await db.storage.from("payment-proofs").createSignedUrl(deposit.proof_url, 600);
+    const { data: signed } = await db.storage
+      .from("payment-proofs")
+      .createSignedUrl(deposit.proof_url, 600);
     if (!signed?.signedUrl) return { approved: false, reason: "Could not open the payment proof" };
 
     try {
@@ -251,7 +264,11 @@ export async function ingestMessage(rawText: string, sender?: string | null) {
 
   if (error) {
     if (!txnIdNorm) throw new Error(error.message);
-    const { data: existing } = await db.from("mm_messages").select("id").eq("txn_id_norm", txnIdNorm).maybeSingle();
+    const { data: existing } = await db
+      .from("mm_messages")
+      .select("id")
+      .eq("txn_id_norm", txnIdNorm)
+      .maybeSingle();
     if (!existing) throw new Error(error.message);
     messageId = existing.id;
   } else {
@@ -259,7 +276,12 @@ export async function ingestMessage(rawText: string, sender?: string | null) {
   }
 
   if (!txnIdNorm) {
-    return { stored: true, messageId, matched: false, reason: "No transaction ID found in the message" };
+    return {
+      stored: true,
+      messageId,
+      matched: false,
+      reason: "No transaction ID found in the message",
+    };
   }
 
   const { data: deposit } = await db
@@ -270,16 +292,29 @@ export async function ingestMessage(rawText: string, sender?: string | null) {
     .order("created_at", { ascending: false })
     .maybeSingle();
 
-  if (!deposit) return { stored: true, messageId, matched: false, reason: "No pending deposit with this transaction ID" };
+  if (!deposit)
+    return {
+      stored: true,
+      messageId,
+      matched: false,
+      reason: "No pending deposit with this transaction ID",
+    };
 
   const outcome = await tryMatchDeposit(deposit.id);
-  return { stored: true, messageId, matched: outcome.approved, reason: outcome.reason, depositId: deposit.id };
+  return {
+    stored: true,
+    messageId,
+    matched: outcome.approved,
+    reason: outcome.reason,
+    depositId: deposit.id,
+  };
 }
 
 /** Timing-safe-ish comparison of the forwarder secret. */
 export function secretMatches(provided: string | null, expected: string | null | undefined) {
   if (!provided || !expected || provided.length !== expected.length) return false;
   let diff = 0;
-  for (let i = 0; i < provided.length; i += 1) diff |= provided.charCodeAt(i) ^ expected.charCodeAt(i);
+  for (let i = 0; i < provided.length; i += 1)
+    diff |= provided.charCodeAt(i) ^ expected.charCodeAt(i);
   return diff === 0;
 }

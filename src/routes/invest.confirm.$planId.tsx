@@ -19,7 +19,10 @@ export const Route = createFileRoute("/invest/confirm/$planId")({
       { title: "Confirm your investment — Fidelity" },
       { name: "description", content: "Review and confirm your investment plan activation." },
       { property: "og:title", content: "Confirm your investment — Fidelity" },
-      { property: "og:description", content: "Review and confirm your investment plan activation." },
+      {
+        property: "og:description",
+        content: "Review and confirm your investment plan activation.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -28,10 +31,18 @@ export const Route = createFileRoute("/invest/confirm/$planId")({
 });
 
 type Plan = {
-  id: string; name: string; description: string | null;
-  min_amount: number; max_amount: number; daily_roi_percent: number; duration_days: number;
-  profit_type: "percent" | "fixed"; fixed_daily_profit: number;
-  payout_frequency: string; amount_type: "range" | "fixed"; fixed_amount: number;
+  id: string;
+  name: string;
+  description: string | null;
+  min_amount: number;
+  max_amount: number;
+  daily_roi_percent: number;
+  duration_days: number;
+  profit_type: "percent" | "fixed";
+  fixed_daily_profit: number;
+  payout_frequency: string;
+  amount_type: "range" | "fixed";
+  fixed_amount: number;
 };
 
 function ConfirmInvestment() {
@@ -46,7 +57,10 @@ function ConfirmInvestment() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) { navigate({ to: "/login" }); return; }
+    if (!user) {
+      navigate({ to: "/login" });
+      return;
+    }
     (async () => {
       const [{ data: p }, { data: prof }] = await Promise.all([
         supabase.from("plans").select("*").eq("id", planId).maybeSingle(),
@@ -114,7 +128,9 @@ function ConfirmInvestment() {
       <div className="flex min-h-screen items-center justify-center bg-background p-6 text-center">
         <div>
           <h1 className="font-display text-2xl text-primary">Plan not found</h1>
-          <Button className="mt-4" onClick={() => navigate({ to: "/dashboard/invest" })}>Back to plans</Button>
+          <Button className="mt-4" onClick={() => navigate({ to: "/dashboard/invest" })}>
+            Back to plans
+          </Button>
         </div>
       </div>
     );
@@ -132,19 +148,26 @@ function ConfirmInvestment() {
             <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
           <h1 className="mt-3 font-display text-2xl text-primary">Confirm your investment</h1>
-          <p className="mt-1 text-xs text-muted-foreground">Review the details below before activating.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Review the details below before activating.
+          </p>
         </div>
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <div className="font-display text-xl text-primary">{plan.name}</div>
-          {plan.description && <div className="text-xs text-muted-foreground">{plan.description}</div>}
+          {plan.description && (
+            <div className="text-xs text-muted-foreground">{plan.description}</div>
+          )}
 
           {plan.amount_type !== "fixed" && (
             <div className="mt-4">
               <Label htmlFor="amount">Amount to invest (XAF)</Label>
               <Input
-                id="amount" type="number" step={500}
-                min={plan.min_amount} max={plan.max_amount}
+                id="amount"
+                type="number"
+                step={500}
+                min={plan.min_amount}
+                max={plan.max_amount}
                 value={amountInput ?? plan.min_amount}
                 onChange={(e) => setAmountInput(Number(e.target.value))}
               />
@@ -159,7 +182,11 @@ function ConfirmInvestment() {
             <Row label="Daily profit" value={formatXAF(dailyProfit)} accent />
             <Row label="Duration" value={`${plan.duration_days} days`} />
             <Row label="Payout" value={(plan.payout_frequency ?? "daily").replace("_", " ")} />
-            <Row label={`Total profit (${plan.duration_days} days)`} value={formatXAF(totalProfit)} accent />
+            <Row
+              label={`Total profit (${plan.duration_days} days)`}
+              value={formatXAF(totalProfit)}
+              accent
+            />
             <div className="flex justify-between border-t border-border pt-2">
               <span className="text-muted-foreground">Wallet balance</span>
               <span className="font-bold uppercase tabular-nums">{formatXAF(balance)}</span>
@@ -179,7 +206,11 @@ function ConfirmInvestment() {
           >
             {busy ? "Processing…" : "Confirm investment"}
           </Button>
-          <Button variant="outline" className="mt-2 w-full" onClick={() => navigate({ to: "/dashboard/invest" })}>
+          <Button
+            variant="outline"
+            className="mt-2 w-full"
+            onClick={() => navigate({ to: "/dashboard/invest" })}
+          >
             Cancel
           </Button>
         </div>
@@ -192,7 +223,9 @@ function Row({ label, value, accent }: { label: string; value: string; accent?: 
   return (
     <div className="flex justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className={`font-bold uppercase tabular-nums ${accent ? "text-success" : ""}`}>{value}</span>
+      <span className={`font-bold uppercase tabular-nums ${accent ? "text-success" : ""}`}>
+        {value}
+      </span>
     </div>
   );
 }

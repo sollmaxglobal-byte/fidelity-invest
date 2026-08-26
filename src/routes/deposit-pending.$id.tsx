@@ -53,7 +53,10 @@ function PendingDepositPage() {
       timer = setTimeout(fetchOnce, POLL_MS);
     };
     fetchOnce();
-    return () => { cancelled = true; if (timer) clearTimeout(timer); };
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [id, user]);
 
   // Elapsed timer
@@ -112,20 +115,29 @@ function PendingDepositPage() {
         </motion.div>
         <h1 className="font-display text-2xl text-primary">Deposit approved successfully</h1>
         <p className="text-sm text-muted-foreground">
-          Your deposit has been confirmed and credited to your wallet. Redirecting to your deposit history…
+          Your deposit has been confirmed and credited to your wallet. Redirecting to your deposit
+          history…
         </p>
         <div className="rounded-2xl border border-border bg-card p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">Amount credited</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">
+              Amount credited
+            </span>
             <Money value={deposit.amount} className="font-display text-xl text-success" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Button asChild className="bg-primary text-primary-foreground hover:opacity-90">
-            <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}><History className="mr-2 h-4 w-4" />History</Link>
+            <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
+              <History className="mr-2 h-4 w-4" />
+              History
+            </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/dashboard"><Home className="mr-2 h-4 w-4" />Dashboard</Link>
+            <Link to="/dashboard">
+              <Home className="mr-2 h-4 w-4" />
+              Dashboard
+            </Link>
           </Button>
         </div>
       </motion.div>
@@ -145,7 +157,8 @@ function PendingDepositPage() {
         <div className="grid grid-cols-2 gap-2">
           <Button asChild variant="outline">
             <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
-              <History className="mr-2 h-4 w-4" />History
+              <History className="mr-2 h-4 w-4" />
+              History
             </Link>
           </Button>
           <Button asChild className="bg-primary text-primary-foreground hover:opacity-90">
@@ -254,7 +267,9 @@ function PendingDepositPage() {
         <div className="mt-5">
           <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
             <span>Time remaining</span>
-            <span className="font-mono text-foreground">{mm}:{ss}</span>
+            <span className="font-mono text-foreground">
+              {mm}:{ss}
+            </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
             <motion.div
@@ -265,8 +280,8 @@ function PendingDepositPage() {
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
             You'll be automatically redirected to your dashboard as soon as the payment is approved.
-            If it isn't approved within 15 minutes, you'll be taken to your deposit history — pending
-            deposits stay safe and will be credited once our team confirms them.
+            If it isn't approved within 15 minutes, you'll be taken to your deposit history —
+            pending deposits stay safe and will be credited once our team confirms them.
           </p>
         </div>
       </div>
@@ -274,11 +289,15 @@ function PendingDepositPage() {
       <div className="grid grid-cols-2 gap-2">
         <Button asChild variant="outline">
           <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
-            <History className="mr-2 h-4 w-4" />History
+            <History className="mr-2 h-4 w-4" />
+            History
           </Link>
         </Button>
         <Button asChild className="bg-primary text-primary-foreground hover:opacity-90">
-          <Link to="/dashboard"><Home className="mr-2 h-4 w-4" />Dashboard</Link>
+          <Link to="/dashboard">
+            <Home className="mr-2 h-4 w-4" />
+            Dashboard
+          </Link>
         </Button>
       </div>
     </motion.div>

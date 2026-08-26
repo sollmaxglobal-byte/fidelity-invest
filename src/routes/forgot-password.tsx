@@ -14,7 +14,10 @@ export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
       { title: "Forgot password — Fidelity" },
-      { name: "description", content: "Request a secure reset link to regain access to your Fidelity account." },
+      {
+        name: "description",
+        content: "Request a secure reset link to regain access to your Fidelity account.",
+      },
       { property: "og:title", content: "Forgot password — Fidelity" },
       { property: "og:description", content: "Request a secure password reset link." },
       { property: "og:type", content: "website" },
@@ -53,7 +56,10 @@ function ForgotPasswordPage() {
 
   return (
     <AuthShell>
-      <Link to="/login" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+      <Link
+        to="/login"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+      >
         <ArrowLeft className="h-4 w-4" /> {t("auth.backToSignIn")}
       </Link>
       <h1 className="font-display text-3xl text-primary">{t("auth.forgotTitle")}</h1>
@@ -69,7 +75,11 @@ function ForgotPasswordPage() {
             <Label htmlFor="email">{t("auth.email")}</Label>
             <Input id="email" name="email" type="email" required autoComplete="email" />
           </div>
-          <Button type="submit" disabled={busy} className="w-full bg-primary text-primary-foreground hover:opacity-90">
+          <Button
+            type="submit"
+            disabled={busy}
+            className="w-full bg-primary text-primary-foreground hover:opacity-90"
+          >
             {busy ? t("auth.sending") : t("auth.sendReset")}
           </Button>
         </form>
