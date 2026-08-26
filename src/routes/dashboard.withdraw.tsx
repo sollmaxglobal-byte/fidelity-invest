@@ -118,7 +118,7 @@ function WithdrawPage() {
           "Withdrawals are unavailable for this account. An active investment may be required.",
         );
       // Funds are held (debited) atomically on the server; refunded if rejected.
-      const { data: newId, error } = await supabase.rpc("request_withdrawal", {
+      const { data: newId, error } = await supabase.rpc("create_withdrawal", {
         _amount: v.amount,
         _method: v.method,
         _account_name: v.account_name,
