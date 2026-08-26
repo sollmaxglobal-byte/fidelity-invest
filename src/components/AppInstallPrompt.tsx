@@ -72,7 +72,8 @@ export function AppInstallAction({ compact = false }: AppInstallActionProps) {
     );
   };
 
-  if (!mounted || isStandalone()) return null;
+  if (!mounted) return null;
+  if (isStandalone()) return null;
   return (
     <Button
       type="button"
@@ -111,8 +112,10 @@ export function AppInstallPrompt() {
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
   const [dismissed, setDismissed] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Register the worker on every supported visit so installability and push events work
     // even before the user opts into notifications.
     void registerPushWorker().catch((error) => {
@@ -161,7 +164,7 @@ export function AppInstallPrompt() {
     setDismissed(true);
   };
 
-  if (dismissed || (!prompt && !showIosHint)) return null;
+  if (!mounted || dismissed || (!prompt && !showIosHint)) return null;
 
   const install = async () => {
     if (!prompt) return;
