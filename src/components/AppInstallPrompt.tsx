@@ -38,8 +38,10 @@ export function AppInstallAction({ compact = false }: AppInstallActionProps) {
   const { lang } = useI18n();
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     void registerPushWorker().catch((error) =>
       console.warn("[v0] Service worker registration failed", error),
     );
@@ -70,7 +72,7 @@ export function AppInstallAction({ compact = false }: AppInstallActionProps) {
     );
   };
 
-  if (isStandalone()) return null;
+  if (!mounted || isStandalone()) return null;
   return (
     <Button
       type="button"
