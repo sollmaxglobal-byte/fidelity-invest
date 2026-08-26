@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Download, X, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/hooks/useI18n";
+import { registerPushWorker } from "@/lib/push-client";
 
 interface InstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -33,6 +34,12 @@ export function AppInstallPrompt() {
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
+    // Register the worker on every supported visit so installability and push events work
+    // even before the user opts into notifications.
+    void registerPushWorker().catch((error) => {
+      console.warn("[v0] Service worker registration failed", error);
+    });
+
     // Never show inside the installed app, or once the user dismissed / installed it.
     if (isStandalone()) return;
     if (localStorage.getItem(DISMISS_KEY) === "1") return;
