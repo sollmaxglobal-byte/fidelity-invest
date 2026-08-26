@@ -33,19 +33,13 @@ function AdminUsers() {
   );
 
   async function load() {
-    const { data: profs } = await supabase
-      .from("profiles")
-      .select(
-        "id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended,withdrawal_disabled",
-      )
-      .order("created_at", { ascending: false })
-      .limit(200);
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("user_id,role")
-      .eq("role", "admin");
-    const adminSet = new Set((roles ?? []).map((r) => r.user_id));
-    setRows((profs ?? []).map((p) => ({ ...p, is_admin: adminSet.has(p.id) }) as Row));
+    const { data, error } = await supabase.rpc("admin_list_users");
+    if (error) {
+      console.error("[v0] Failed to load admin users", error);
+      toast.error("Unable to load registered users");
+      return;
+    }
+    setRows((data ?? []) as unknown as Row[]);
   }
   useEffect(() => {
     load();
