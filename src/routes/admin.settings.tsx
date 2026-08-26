@@ -11,6 +11,7 @@ import {
   Eye,
   EyeOff,
   Copy,
+  Download,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -375,9 +376,21 @@ function AdminSettings() {
         </div>
 
         <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">
-            MacroDroid setup
-          </h3>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">
+              MacroDroid setup
+            </h3>
+            <Button asChild size="sm" variant="outline">
+              <a
+                href="/automatic-withdrawal-safe.macro.json"
+                download="automatic-withdrawal-safe.macro.json"
+                type="application/json"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download safe macro
+              </a>
+            </Button>
+          </div>
           <div className="grid gap-3">
             <CopyField label="1. Queue URL (HTTP GET, every 1 minute)" value={queueUrl} />
             <CopyField label="Header name" value="x-mm-secret" />
