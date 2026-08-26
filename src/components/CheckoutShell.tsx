@@ -1,4 +1,3 @@
-import { ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
 /** Full-page shell used by the standalone deposit checkout steps (outside the dashboard). */
@@ -19,11 +18,8 @@ export function CheckoutShell({
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-xl items-center gap-2 px-4 py-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <ShieldCheck className="h-5 w-5" />
-          </span>
+          <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-9 w-auto object-contain" />
           <div className="min-w-0">
-            <div className="font-display text-lg leading-tight text-primary">Fidelity</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
               Secure checkout · {step}/{total}
             </div>

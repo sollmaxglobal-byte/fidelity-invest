@@ -13,10 +13,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <aside className="relative hidden overflow-hidden bg-primary p-10 text-primary-foreground md:flex md:flex-col md:justify-between lg:p-14">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full border border-primary-foreground/10" />
           <div className="relative flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-foreground/10 ring-1 ring-primary-foreground/20">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <span className="font-display text-2xl tracking-tight">Fidelity</span>
+            <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-12 w-auto object-contain" />
           </div>
           <div className="relative max-w-md">
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/60">
@@ -38,11 +35,8 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <main className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 md:px-12 lg:px-20">
           <div className="w-full max-w-md">
             <div className="mb-10 flex items-center justify-between">
-              <Link to="/login" className="inline-flex items-center gap-2 md:hidden">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-                  <ShieldCheck className="h-4 w-4" />
-                </div>
-                <span className="font-display text-xl text-primary">Fidelity</span>
+              <Link to="/login" className="inline-flex items-center">
+                <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-10 w-auto object-contain" />
               </Link>
               <div className="ml-auto">
                 <LanguageToggle />

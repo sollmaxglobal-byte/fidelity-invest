@@ -10,7 +10,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <div className="font-display text-2xl">Fidelity</div>
+            <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-11 w-auto object-contain" />
             <p className="mt-3 text-sm opacity-80">{t("footer.tagline")}</p>
           </div>
           <div>

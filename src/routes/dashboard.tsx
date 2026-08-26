@@ -83,11 +83,8 @@ function DashboardLayout() {
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
-            <span className="font-display text-lg font-semibold text-primary">Fidelity</span>
+          <Link to="/" className="flex items-center">
+            <img src="/fidelity-logo.png" alt="Fidelity Invest" className="h-9 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-1.5">
             <LanguageToggle />
