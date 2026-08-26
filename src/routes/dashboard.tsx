@@ -12,6 +12,7 @@ import {
   Layers,
   FileText,
   LogOut,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
@@ -85,14 +86,27 @@ function DashboardLayout() {
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="app-header mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link to="/" className="flex items-center">
-            <img
-              src="/fidelity-logo.png"
-              alt="Fidelity Invest"
-              className="h-9 w-auto object-contain"
-            />
-          </Link>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground md:block">
+              Private wealth
+            </span>
+            <Link to="/" className="flex items-center">
+              <img
+                src="/fidelity-logo.png"
+                alt="Fidelity Invest"
+                className="h-9 w-auto object-contain"
+              />
+            </Link>
+          </div>
           <div className="flex items-center gap-1.5">
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Open notifications"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              <Bell className="h-4 w-4" />
+            </Button>
             <LanguageToggle />
             <ThemeToggle />
             {isAdmin && (

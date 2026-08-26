@@ -12,6 +12,10 @@ import {
   Wallet,
   PiggyBank,
   ChevronRight,
+  Bell,
+  ShieldCheck,
+  ArrowUpRight,
+  CircleDollarSign,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { Countdown } from "@/components/Countdown";
@@ -261,6 +265,36 @@ function DashboardHome() {
         </div>
       </motion.div>
 
+      {/* Private banking summary */}
+      <motion.div variants={itemVariants} className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-4 sm:col-span-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Portfolio health
+            </div>
+            <span className="text-xs font-semibold text-success">On track</span>
+          </div>
+          <div className="mt-4 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-2xl font-semibold tracking-tight text-foreground">
+                {totalInvested > 0 ? "Balanced growth" : "Ready to invest"}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Your account is protected with secure transaction monitoring.
+              </p>
+            </div>
+            <ArrowUpRight className="h-8 w-8 shrink-0 text-primary" aria-hidden="true" />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-border bg-primary p-4 text-primary-foreground">
+          <CircleDollarSign className="h-5 w-5 opacity-80" />
+          <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider opacity-70">
+            Total positions
+          </p>
+          <p className="mt-1 text-2xl font-semibold">{investments.length}</p>
+        </div>
+      </motion.div>
+
       {/* Quick actions — bottom sheets */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <ActionSheet
@@ -280,6 +314,48 @@ function DashboardHome() {
           to="/dashboard/withdraw"
           cta={t("common.withdraw")}
         />
+      </motion.div>
+
+      {/* Investment allocation */}
+      <motion.div variants={itemVariants} className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Investment weight
+            </p>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+              Portfolio allocation
+            </h2>
+          </div>
+          <TrendingUp className="h-5 w-5 text-primary" aria-hidden="true" />
+        </div>
+        <div className="mt-5 space-y-4">
+          {investments.length === 0 ? (
+            <div className="rounded-xl bg-secondary/60 p-4 text-sm text-muted-foreground">
+              Your allocation will appear after you activate an investment plan.
+            </div>
+          ) : (
+            investments.slice(0, 3).map((inv, index) => {
+              const share = totalInvested ? (Number(inv.amount) / totalInvested) * 100 : 0;
+              return (
+                <div key={inv.id}>
+                  <div className="mb-2 flex items-center justify-between text-xs">
+                    <span className="font-medium text-foreground">
+                      {inv.plans?.name ?? "Investment plan"}
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">{Math.round(share)}%</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className={`h-full rounded-full ${index === 0 ? "bg-primary" : index === 1 ? "bg-accent" : "bg-success"}`}
+                      style={{ width: `${share}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </motion.div>
 
       {/* Stats cards */}
