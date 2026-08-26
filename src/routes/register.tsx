@@ -46,12 +46,21 @@ function RegisterPage() {
   }, [user, loading, nav]);
 
   useEffect(() => {
+    let cancelled = false;
     const code = new URLSearchParams(window.location.search).get("ref")?.trim() ?? "";
     if (!code) return;
+
     setRefCode(code);
     supabase
       .rpc("referrer_name", { _code: code })
-      .then(({ data }) => setRefName((data as string | null) ?? null));
+      .then(({ data, error }) => {
+        if (cancelled || error) return;
+        setRefName(typeof data === "string" && data.trim() ? data.trim() : null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
