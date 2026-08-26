@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
+import { notifyAdminOfRequest, requestName } from "@/lib/admin-request-notifications";
 import { txRef } from "@/lib/format";
 import { verifyDepositProof } from "@/lib/deposit-verify.functions";
 import { formatXAF } from "@/lib/format";
@@ -100,6 +101,13 @@ function DepositProofPage() {
           },
         });
       }
+      void notifyAdminOfRequest("deposit", {
+        id: data.id,
+        name: requestName(user),
+        email: user.email ?? "Not provided",
+        amount: formatXAF(amount),
+        method: paymentMethod.label,
+      });
       // Kick off automatic verification (reads the screenshot, matches the operator message).
       void verifyDepositProof({ data: { depositId: data.id } }).catch(() => {});
 

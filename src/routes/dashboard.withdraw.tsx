@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { sendEmail } from "@/lib/email-client";
+import { notifyAdminOfRequest, requestName } from "@/lib/admin-request-notifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,6 +85,14 @@ function WithdrawPage() {
       } as never);
       if (error) throw error;
       const withdrawalId = newId as unknown as string;
+      void notifyAdminOfRequest("withdrawal", {
+        id: withdrawalId,
+        name: requestName(user),
+        email: user.email ?? "Not provided",
+        amount: formatXAF(v.amount),
+        method: v.method.replace("_", " "),
+        account: `${v.account_name} (${v.account_number})`,
+      });
       if (user.email) {
         sendEmail({
           to: user.email,
