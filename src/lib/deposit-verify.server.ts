@@ -1,7 +1,7 @@
 // Server-only helpers for automatic deposit verification.
 import { normalizeTxnId, parseAmount, parseMmMessage } from "@/lib/mm-parse";
 
-const AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const AI_URL = "https://ai-gateway.vercel.sh/v1/chat/completions";
 const MODEL = "google/gemini-2.5-flash";
 
 export type OcrResult = {
@@ -14,7 +14,7 @@ export type OcrResult = {
 };
 
 async function aiFetch(body: unknown, attempt = 0): Promise<Response> {
-  const key = process.env["LOVABLE_API_KEY"];
+  const key = process.env["AI_GATEWAY_API_KEY"] ?? process.env["LOVABLE_API_KEY"];
   if (!key) throw new Error("AI is not configured");
   const res = await fetch(AI_URL, {
     method: "POST",
@@ -27,6 +27,25 @@ async function aiFetch(body: unknown, attempt = 0): Promise<Response> {
     return aiFetch(body, attempt + 1);
   }
   return res;
+}
+
+/** Extract a transaction reference and amount from a forwarded mobile-money SMS. */
+async function readSms(rawText: string): Promise<{ transaction_id: string | null; amount: number | null }> {
+  const res = await aiFetch({
+    model: MODEL,
+    temperature: 0,
+    max_tokens: 160,
+    messages: [
+      { role: "system", content: "Extract payment data from Cameroon mobile-money SMS. Return JSON only with keys transaction_id and amount. Use the operator transaction/reference ID, never a platform ID. Amount must be a plain number." },
+      { role: "user", content: rawText.slice(0, 4000) },
+    ],
+  });
+  if (!res.ok) throw new Error(`AI SMS extraction failed (${res.status})`);
+  const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const match = (body.choices?.[0]?.message?.content ?? "").match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("AI SMS extraction returned no JSON");
+  const parsed = JSON.parse(match[0]) as { transaction_id?: unknown; amount?: unknown };
+  return { transaction_id: typeof parsed.transaction_id === "string" ? parsed.transaction_id : null, amount: parseAmount(typeof parsed.amount === "number" || typeof parsed.amount === "string" ? parsed.amount : null) };
 }
 
 /** Read a payment screenshot and extract the transaction details. */
@@ -152,10 +171,10 @@ export async function tryMatchDeposit(
     return { approved: false, reason };
   }
   if (
-    deposit.ocr_amount !== null &&
+    deposit.ocr_amount === null ||
     Math.trunc(Number(deposit.ocr_amount)) !== Math.trunc(Number(deposit.amount))
   ) {
-    const reason = `Screenshot amount (${deposit.ocr_amount}) does not match submitted amount (${deposit.amount})`;
+    const reason = `Screenshot amount (${deposit.ocr_amount ?? "unreadable"}) does not match submitted amount (${deposit.amount})`;
     await setNote(depositId, reason);
     return { approved: false, reason };
   }
@@ -246,7 +265,15 @@ export async function verifyDeposit(depositId: string, userId?: string) {
 export async function ingestMessage(rawText: string, sender?: string | null) {
   const db = await admin();
   const parsed = parseMmMessage(rawText);
-  const txnIdNorm = normalizeTxnId(parsed.txnId);
+  let aiParsed: { transaction_id: string | null; amount: number | null } | null = null;
+  try {
+    aiParsed = await readSms(rawText);
+  } catch (error) {
+    console.warn("[auto-deposit] AI SMS extraction unavailable; using deterministic parser", error);
+  }
+  const extractedTxnId = aiParsed?.transaction_id ?? parsed.txnId;
+  const extractedAmount = aiParsed?.amount ?? parsed.amount;
+  const txnIdNorm = normalizeTxnId(extractedTxnId);
 
   let messageId: string | null = null;
   const { data: inserted, error } = await db
@@ -255,9 +282,9 @@ export async function ingestMessage(rawText: string, sender?: string | null) {
       raw_text: rawText.slice(0, 4000),
       received_at: new Date().toISOString(),
       sender: sender ?? null,
-      txn_id: parsed.txnId,
+      txn_id: extractedTxnId,
       txn_id_norm: txnIdNorm,
-      amount: parsed.amount,
+      amount: extractedAmount,
       payer_number: parsed.payerNumber,
     })
     .select("id")
