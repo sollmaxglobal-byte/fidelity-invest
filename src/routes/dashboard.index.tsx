@@ -18,7 +18,6 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { Countdown } from "@/components/Countdown";
 import { formatDate, formatXAF } from "@/lib/format";
 import { toast } from "sonner";
@@ -82,8 +81,6 @@ type ActiveInvestment = {
   plans: { name: string } | null;
 };
 
-type ProfitTx = { amount: number; created_at: string };
-
 const RANGES = [
   { key: "1D", hours: 24, points: 12 },
   { key: "1W", hours: 24 * 7, points: 14 },
@@ -97,8 +94,6 @@ function DashboardHome() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [referralCount, setReferralCount] = useState(0);
   const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
-  const [profits, setProfits] = useState<ProfitTx[]>([]);
-  const [range, setRange] = useState<RangeKey>("1W");
   const [balanceVisible, setBalanceVisible] = useState(false);
 
   const toggleBalance = () => setBalanceVisible((visible) => !visible);
@@ -106,8 +101,7 @@ function DashboardHome() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const since = new Date(Date.now() - 31 * 24 * 3600 * 1000).toISOString();
-      const [{ data: p }, { count: refCount }, { data: inv }, { data: tx }] = await Promise.all([
+      const [{ data: p }, { count: refCount }, { data: inv }] = await Promise.all([
         supabase
           .from("profiles")
           .select("full_name,balance,referral_code,referral_earnings")
@@ -123,18 +117,10 @@ function DashboardHome() {
           .eq("user_id", user.id)
           .eq("status", "active")
           .order("end_date", { ascending: true }),
-        supabase
-          .from("transactions")
-          .select("amount,created_at")
-          .eq("user_id", user.id)
-          .in("type", ["profit", "referral"])
-          .gte("created_at", since)
-          .order("created_at", { ascending: true }),
       ]);
       setProfile(p as Profile);
       setReferralCount(refCount ?? 0);
       setInvestments((inv as unknown as ActiveInvestment[]) ?? []);
-      setProfits((tx as ProfitTx[]) ?? []);
     })();
   }, [user]);
 
@@ -146,29 +132,6 @@ function DashboardHome() {
     () => investments.reduce((s, i) => s + Number(i.total_earned), 0),
     [investments],
   );
-
-  // Cumulative P/L series for the selected window.
-  const { series, windowGain } = useMemo(() => {
-    const cfg = RANGES.find((r) => r.key === range)!;
-    const end = Date.now();
-    const start = end - cfg.hours * 3600 * 1000;
-    const step = (end - start) / cfg.points;
-    const pts: { t: number; v: number }[] = [];
-    let cum = 0;
-    let idx = 0;
-    const inWindow = profits.filter((p) => new Date(p.created_at).getTime() >= start);
-    for (let i = 0; i <= cfg.points; i++) {
-      const cut = start + i * step;
-      while (idx < inWindow.length && new Date(inWindow[idx]!.created_at).getTime() <= cut) {
-        cum += Number(inWindow[idx]!.amount);
-        idx++;
-      }
-      pts.push({ t: cut, v: Math.round(cum) });
-    }
-    return { series: pts, windowGain: cum };
-  }, [profits, range]);
-
-  const up = windowGain >= 0;
 
   return (
     <motion.div
@@ -231,57 +194,25 @@ function DashboardHome() {
           </div>
         </div>
 
-        {/* P/L chart */}
-        <div className="mt-3 h-40 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={series} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-              <defs>
-                <linearGradient id="plFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--success)" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="var(--success)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <YAxis hide domain={["dataMin", (max: number) => (max === 0 ? 1 : max * 1.15)]} />
-              <Tooltip
-                cursor={{ stroke: "var(--border)" }}
-                contentStyle={{
-                  background: "var(--popover)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 12,
-                  fontSize: 12,
-                  color: "var(--popover-foreground)",
-                }}
-                labelFormatter={() => ""}
-                formatter={(v: number) => [formatXAF(v), "P/L"]}
-              />
-              <Area
-                type="monotone"
-                dataKey="v"
-                stroke="var(--success)"
-                strokeWidth={2.5}
-                fill="url(#plFill)"
-                isAnimationActive
-                animationDuration={700}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Range filters */}
-        <div className="flex items-center gap-2 px-5 pb-4 pt-1">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setRange(r.key)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
-                range === r.key
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {r.key}
-            </button>
-          ))}
+        <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4">
+          <div className="rounded-2xl bg-secondary/60 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Main wallet
+            </p>
+            <p className="mt-2 text-lg font-semibold text-foreground">
+              {balanceVisible ? <Money value={Number(profile?.balance ?? 0)} /> : "••••••"}
+            </p>
+            <p className="mt-1 text-[10px] text-muted-foreground">Available balance</p>
+          </div>
+          <div className="rounded-2xl bg-primary/10 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Total profit
+            </p>
+            <p className="mt-2 text-lg font-semibold text-success">
+              {balanceVisible ? <Money value={totalProfit} /> : "••••••"}
+            </p>
+            <p className="mt-1 text-[10px] text-muted-foreground">Lifetime earnings</p>
+          </div>
         </div>
       </motion.div>
 
@@ -319,7 +250,7 @@ function DashboardHome() {
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <ActionSheet
           label={t("common.deposit")}
-          icon={<ArrowDownToLine className="h-6 w-6" />}
+          icon={<ArrowDownToLine className="h-5 w-5" />}
           title={t("common.deposit")}
           description="Fund your account with Mobile Money or bank transfer. Funds appear once approved."
           to="/dashboard/deposit"
@@ -328,7 +259,7 @@ function DashboardHome() {
         />
         <ActionSheet
           label={t("common.withdraw")}
-          icon={<ArrowUpFromLine className="h-6 w-6" />}
+          icon={<ArrowUpFromLine className="h-5 w-5" />}
           title={t("common.withdraw")}
           description="Minimum withdrawal is 250 XAF. Payouts are processed within 10 minutes."
           to="/dashboard/withdraw"
@@ -486,7 +417,7 @@ function ActionSheet({
     <Sheet>
       <SheetTrigger asChild>
         <button
-          className={`flex min-h-28 flex-col items-start justify-between gap-4 rounded-3xl px-4 py-4 text-sm font-semibold transition active:scale-95 ${
+          className={`flex min-h-20 flex-col items-start justify-between gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition active:scale-95 ${
             primary
               ? "bg-primary text-primary-foreground shadow-elegant"
               : "border border-border bg-card text-foreground"
