@@ -13,14 +13,39 @@
   vertical-align: middle;
 }
 
-.brand-logo img {
-  position: absolute;
-  top: -78px;
-  left: 0;
-  width: 220px;
-  height: 220px;
-  max-width: none;
-  object-fit: contain;
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  overflow: visible;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+}
+
+.brand-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid hsl(var(--primary));
+  border-radius: 0.7rem;
+  color: hsl(var(--primary));
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+  transform: rotate(-12deg);
+}
+
+.brand-logo-wordmark {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.brand-logo-wordmark strong {
+  color: hsl(var(--primary));
+  font-weight: 800;
 }
 
 @media (max-width: 640px) {
@@ -28,10 +53,14 @@
     width: 176px;
     height: 52px;
   }
-  .brand-logo img {
-    top: -62px;
-    width: 176px;
-    height: 176px;
+  .brand-logo-wordmark {
+    font-size: 1.1rem;
+  }
+
+  .brand-logo-mark {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 1.2rem;
   }
 }
 
