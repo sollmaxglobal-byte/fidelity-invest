@@ -2,7 +2,20 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { User, Mail, Phone, ShieldCheck, Copy, LogOut, KeyRound, Share2, Leaf } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  ShieldCheck,
+  Copy,
+  LogOut,
+  KeyRound,
+  Share2,
+  Leaf,
+  CreditCard,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -21,10 +34,20 @@ type Profile = {
   referral_code: string | null;
 };
 
+type PayoutAccount = {
+  id: string;
+  method: "mobile_money" | "bank_transfer" | "crypto";
+  account_name: string;
+  account_number: string;
+  is_default: boolean;
+};
+
 function ProfilePage() {
   const { user, signOut } = useAuth();
   const nav = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [accounts, setAccounts] = useState<PayoutAccount[]>([]);
+  const [accountBusy, setAccountBusy] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -35,7 +58,44 @@ function ProfilePage() {
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data as Profile));
+    supabase
+      .from("payout_accounts")
+      .select("id,method,account_name,account_number,is_default")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setAccounts((data as PayoutAccount[]) ?? []));
   }, [user]);
+
+  async function saveAccount(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!user) return;
+    setAccountBusy(true);
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      user_id: user.id,
+      method: String(fd.get("payout_method")),
+      account_name: String(fd.get("payout_name")),
+      account_number: String(fd.get("payout_number")),
+      is_default: accounts.length === 0,
+    };
+    const { data, error } = await supabase
+      .from("payout_accounts")
+      .insert(payload)
+      .select("id,method,account_name,account_number,is_default")
+      .single();
+    setAccountBusy(false);
+    if (error) return toast.error(error.message);
+    setAccounts((prev) => [data as PayoutAccount, ...prev]);
+    e.currentTarget.reset();
+    toast.success("Payout account added");
+  }
+
+  async function removeAccount(id: string) {
+    const { error } = await supabase.from("payout_accounts").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    setAccounts((prev) => prev.filter((a) => a.id !== id));
+    toast.success("Payout account removed");
+  }
 
   const referralLink = profile?.referral_code
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${profile.referral_code}`
@@ -166,6 +226,58 @@ function ProfilePage() {
           </Button>
         </div>
       </div>
+
+      <section className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2">
+          <CreditCard className="h-4 w-4 text-primary" />
+          <span className="font-display text-base text-primary">Payout accounts</span>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Add an account where approved withdrawals should be sent.
+        </p>
+        <div className="mt-3 space-y-2">
+          {accounts.map((account) => (
+            <div
+              key={account.id}
+              className="flex items-center justify-between gap-3 rounded-lg bg-secondary p-3"
+            >
+              <div>
+                <div className="text-sm font-medium">{account.account_name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {account.method.replace("_", " ")} · {account.account_number}
+                  {account.is_default ? " · Default" : ""}
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Remove payout account"
+                onClick={() => removeAccount(account.id)}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={saveAccount} className="mt-4 grid gap-3 md:grid-cols-3">
+          <select
+            name="payout_method"
+            required
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="mobile_money">Mobile money</option>
+            <option value="bank_transfer">Bank transfer</option>
+            <option value="crypto">Crypto</option>
+          </select>
+          <Input name="payout_name" placeholder="Account name" required maxLength={120} />
+          <Input name="payout_number" placeholder="Account number" required maxLength={120} />
+          <Button type="submit" disabled={accountBusy} className="md:col-span-3">
+            <Plus className="mr-2 h-4 w-4" />
+            {accountBusy ? "Adding…" : "Add payout account"}
+          </Button>
+        </form>
+      </section>
 
       <PushToggle />
 

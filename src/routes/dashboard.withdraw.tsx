@@ -33,6 +33,13 @@ type Withdrawal = {
   status: string;
   created_at: string;
 };
+type PayoutAccount = {
+  id: string;
+  method: WMethod["type"];
+  account_name: string;
+  account_number: string;
+  is_default: boolean;
+};
 
 const schema = z.object({
   amount: z.number().min(250, "Minimum 250 XAF").max(50_000_000),
@@ -48,6 +55,7 @@ function WithdrawPage() {
   const [balance, setBalance] = useState(0);
   const [list, setList] = useState<Withdrawal[]>([]);
   const [methods, setMethods] = useState<WMethod[]>([]);
+  const [accounts, setAccounts] = useState<PayoutAccount[]>([]);
   const [busy, setBusy] = useState(false);
 
   async function refresh() {
@@ -63,6 +71,12 @@ function WithdrawPage() {
     ]);
     setBalance(Number(p?.balance ?? 0));
     setList((w as Withdrawal[]) ?? []);
+    const { data: payoutAccounts } = await supabase
+      .from("payout_accounts")
+      .select("id,method,account_name,account_number,is_default")
+      .eq("user_id", user.id)
+      .order("is_default", { ascending: false });
+    setAccounts((payoutAccounts as PayoutAccount[]) ?? []);
   }
   useEffect(() => {
     refresh();
@@ -197,6 +211,34 @@ function WithdrawPage() {
             )}
           </select>
         </div>
+        {accounts.length > 0 && (
+          <div className="md:col-span-2">
+            <Label htmlFor="saved_account">Saved payout account</Label>
+            <select
+              id="saved_account"
+              className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              defaultValue=""
+              onChange={(e) => {
+                const account = accounts.find((item) => item.id === e.target.value);
+                if (!account) return;
+                const form = e.currentTarget.form;
+                if (!form) return;
+                (form.elements.namedItem("method") as HTMLSelectElement).value = account.method;
+                (form.elements.namedItem("account_name") as HTMLInputElement).value =
+                  account.account_name;
+                (form.elements.namedItem("account_number") as HTMLInputElement).value =
+                  account.account_number;
+              }}
+            >
+              <option value="">Choose a saved account</option>
+              {accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.account_name} · {account.account_number}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <Label htmlFor="account_name">{t("withdraw.accountName")}</Label>
           <Input id="account_name" name="account_name" required maxLength={120} />
