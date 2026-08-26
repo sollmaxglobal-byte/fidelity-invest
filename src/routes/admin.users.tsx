@@ -33,13 +33,14 @@ function AdminUsers() {
   );
 
   async function load() {
-    const { data, error } = await supabase.rpc("admin_list_users");
+    const { data, error } = await supabase.rpc("admin_list_users_v2");
     if (error) {
       console.error("[v0] Failed to load admin users", error);
-      toast.error("Unable to load registered users. Please refresh and try again.");
+      toast.error(`Unable to load registered users: ${error.message}`);
       return;
     }
-    setRows((data ?? []) as unknown as Row[]);
+    const users = Array.isArray(data) ? data : [];
+    setRows(users as unknown as Row[]);
   }
   useEffect(() => {
     load();
