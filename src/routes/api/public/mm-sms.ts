@@ -65,7 +65,7 @@ export const Route = createFileRoute("/api/public/mm-sms")({
           let withdrawalId: string | null = null;
           try {
             const { tryConfirmWithdrawalFromSms } = await import("@/lib/withdraw-auto.server");
-            withdrawalId = await tryConfirmWithdrawalFromSms(payload.text);
+            withdrawalId = await tryConfirmWithdrawalFromSms(text);
           } catch (err) {
             console.error("[mm-sms] withdrawal match failed", err);
           }
