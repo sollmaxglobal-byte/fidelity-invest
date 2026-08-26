@@ -33,30 +33,13 @@ function AdminUsers() {
   );
 
   async function load() {
-    const { data: profiles, error: profilesError } = await supabase
-      .from("profiles")
-      .select(
-        "id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended,withdrawal_disabled",
-      )
-      .order("created_at", { ascending: false });
-
-    if (profilesError) {
-      console.error("[v0] Failed to load registered users", profilesError);
+    const { data, error } = await supabase.rpc("admin_list_users");
+    if (error) {
+      console.error("[v0] Failed to load admin users", error);
       toast.error("Unable to load registered users. Please refresh and try again.");
       return;
     }
-
-    const { data: roles, error: rolesError } = await supabase
-      .from("user_roles")
-      .select("user_id,role")
-      .eq("role", "admin");
-
-    if (rolesError) {
-      console.error("[v0] Failed to load user roles", rolesError);
-    }
-
-    const adminSet = new Set((roles ?? []).map((role) => role.user_id));
-    setRows((profiles ?? []).map((profile) => ({ ...profile, is_admin: adminSet.has(profile.id) }) as Row));
+    setRows((data ?? []) as unknown as Row[]);
   }
   useEffect(() => {
     load();
