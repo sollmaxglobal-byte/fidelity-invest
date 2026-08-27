@@ -53,7 +53,6 @@ type Settings = {
   auto_withdraw_enabled: boolean | null;
   auto_withdraw_max_amount: number | null;
   auto_withdraw_ussd_template: string | null;
-  withdrawals_require_active_investment: boolean | null;
 };
 
 function CopyField({ label, value }: { label: string; value: string }) {
@@ -137,8 +136,7 @@ function AdminSettings() {
           auto_withdraw_enabled: !!s.auto_withdraw_enabled,
           auto_withdraw_max_amount: s.auto_withdraw_max_amount,
           auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
-          withdrawals_require_active_investment: !!s.withdrawals_require_active_investment,
-        })
+                })
         .eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
@@ -452,10 +450,9 @@ function AdminSettings() {
               When enabled, users without an active plan cannot submit withdrawals.
             </p>
           </div>
-          <Switch
-            checked={!!s.withdrawals_require_active_investment}
-            onCheckedChange={(v) => set("withdrawals_require_active_investment", v)}
-          />
+  <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+    Active-investment withdrawal enforcement is temporarily unavailable until the database migration is applied.
+  </p>
         </div>
         <p className="text-xs text-muted-foreground">
           Use the Users page to disable withdrawals for an individual account.
