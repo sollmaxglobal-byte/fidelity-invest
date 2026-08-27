@@ -102,12 +102,9 @@ function AdminEmails() {
       return toast.error("Add a subject and message first");
     setBroadcastBusy(true);
     try {
-      const { data: users, error: directoryError } = await supabase
-        .from("profiles")
-        .select("id")
-        .limit(1000);
+      const { data: users, error: directoryError } = await supabase.rpc("get_admin_user_emails");
       if (directoryError) throw directoryError;
-      const recipients = (users ?? []).map(() => "").filter(Boolean);
+      const recipients = (users as { email: string }[]).map((item) => item.email).filter(Boolean);
       if (!recipients.length) throw new Error("No users found");
       const { data, error } = await supabase.functions.invoke("send-email", {
         body: { to: recipients, subject: broadcast.subject.trim(), html: broadcast.html },
