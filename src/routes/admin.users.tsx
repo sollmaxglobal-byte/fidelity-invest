@@ -21,7 +21,7 @@ type Row = {
   created_at: string;
   is_admin: boolean;
   is_suspended: boolean;
-  withdrawal_disabled: boolean;
+  withdrawal_disabled?: boolean;
 };
 
 function AdminUsers() {
@@ -35,7 +35,7 @@ function AdminUsers() {
   async function load() {
     const { data: profiles, error } = await supabase
       .from("profiles")
-      .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended,withdrawal_disabled")
+      .select("id,full_name,phone,balance,total_invested,total_earned,created_at,is_suspended")
       .order("created_at", { ascending: false });
     if (error) {
       console.error("[v0] Failed to load registered users", error);
@@ -44,7 +44,7 @@ function AdminUsers() {
     }
     const { data: roles } = await supabase.from("user_roles").select("user_id,role").eq("role", "admin");
     const adminIds = new Set((roles ?? []).map((role) => role.user_id));
-    setRows((profiles ?? []).map((profile) => ({ ...profile, is_admin: adminIds.has(profile.id) })) as Row[]);
+    setRows((profiles ?? []).map((profile) => ({ ...profile, is_admin: adminIds.has(profile.id), withdrawal_disabled: false })) as Row[]);
   }
   useEffect(() => {
     load();
@@ -90,14 +90,7 @@ function AdminUsers() {
   }
 
   async function toggleWithdrawal(r: Row) {
-    const next = !r.withdrawal_disabled;
-    const { error } = await supabase
-      .from("profiles")
-      .update({ withdrawal_disabled: next })
-      .eq("id", r.id);
-    if (error) return toast.error(error.message);
-    toast.success(next ? "Withdrawals disabled" : "Withdrawals enabled");
-    load();
+    toast.error("Withdrawal controls require the latest profiles database migration.");
   }
 
   async function toggleSuspend(r: Row) {
