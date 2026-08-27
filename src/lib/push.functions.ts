@@ -13,7 +13,7 @@ export const getPushPublicKey = createServerFn({ method: "GET" })
 
 export const savePushSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: SubInput) => data)
+  .validator((data: SubInput) => data)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("push_subscriptions").upsert(
@@ -32,7 +32,7 @@ export const savePushSubscription = createServerFn({ method: "POST" })
 
 export const removePushSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { endpoint: string }) => data)
+  .validator((data: { endpoint: string }) => data)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin
@@ -45,7 +45,7 @@ export const removePushSubscription = createServerFn({ method: "POST" })
 
 export const sendPushBroadcast = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { title: string; body: string; url?: string }) => data)
+  .validator((data: { title: string; body: string; url?: string }) => data)
   .handler(async ({ data, context }) => {
     const { deliver, assertAdmin } = await import("@/lib/push.server");
     await assertAdmin(context as never);
@@ -71,7 +71,7 @@ export const sendPushBroadcast = createServerFn({ method: "POST" })
 
 export const sendPushToUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: { userId: string; title: string; body: string; url?: string; tag?: string }) => data,
   )
   .handler(async ({ data, context }) => {
