@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { formatXAF, formatDate } from "@/lib/format";
 import { Money } from "@/components/Money";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const searchSchema = z.object({
   filter: z.enum(["All", "Deposits", "Withdrawals", "Profits"]).optional(),
@@ -51,6 +52,8 @@ function WalletPage() {
   const [balance, setBalance] = useState(0);
   const [transferBusy, setTransferBusy] = useState(false);
   const [pinBusy, setPinBusy] = useState(false);
+  const [transferDraft, setTransferDraft] = useState<{ email: string; amount: number; note: string | null } | null>(null);
+  const [confirmPin, setConfirmPin] = useState("");
 
   useEffect(() => {
     if (search.filter) setFilter(search.filter);
@@ -105,17 +108,8 @@ function WalletPage() {
     setTransferBusy(true);
     const values = new FormData(e.currentTarget);
     const amount = Number(values.get("transfer_amount"));
-    const { error } = await supabase.rpc("create_transfer", {
-      _recipient_email: String(values.get("recipient_email") ?? "").trim(),
-      _amount: amount,
-      _pin: String(values.get("transfer_pin") ?? ""),
-      _note: String(values.get("transfer_note") ?? "").trim() || null,
-    });
+    setTransferDraft({ email: String(values.get("recipient_email") ?? "").trim(), amount, note: String(values.get("transfer_note") ?? "").trim() || null });
     setTransferBusy(false);
-    if (error) return toast.error(error.message);
-    e.currentTarget.reset();
-    setBalance((current) => current - amount);
-    toast.success("Transfer sent securely");
   }
 
   // Merge deposits/withdrawals (all statuses, receipt-linked) + profit/investment transactions
@@ -255,19 +249,6 @@ function WalletPage() {
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="transfer_pin">Transfer PIN</Label>
-              <Input
-                id="transfer_pin"
-                name="transfer_pin"
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]{4,6}"
-                minLength={4}
-                maxLength={6}
-                required
-              />
-            </div>
             <Input name="transfer_note" placeholder="Note (optional)" maxLength={160} />
             <Button type="submit" disabled={transferBusy} className="w-full">
               <Send className="mr-2 h-4 w-4" />
@@ -300,6 +281,15 @@ function WalletPage() {
           </form>
         </div>
       </section>
+
+      <Dialog open={Boolean(transferDraft)} onOpenChange={(open) => { if (!open && !transferBusy) { setTransferDraft(null); setTransferPin(""); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Confirm transfer</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Enter your transfer PIN to send {transferDraft ? formatXAF(transferDraft.amount) : ""}.</p>
+          <Input value={confirmPin} onChange={(e) => setTransferPin(e.target.value.replace(/\\D/g, "").slice(0, 6))} type="password" inputMode="numeric" autoComplete="off" placeholder="4–6 digit PIN" aria-label="Transfer PIN" />
+          <DialogFooter><Button variant="outline" type="button" onClick={() => { setTransferDraft(null); setTransferPin(""); }}>Cancel</Button><Button type="button" disabled={transferBusy || confirmPin.length < 4} onClick={async () => { if (!transferDraft) return; setTransferBusy(true); const { error } = await supabase.rpc("create_transfer", { _recipient_email: transferDraft.email, _amount: transferDraft.amount, _pin: confirmPin, _note: transferDraft.note }); setTransferBusy(false); if (error) return toast.error(error.message); setBalance((current) => current - transferDraft.amount); setTransferDraft(null); setTransferPin(""); toast.success("Transfer sent securely"); }}> {transferBusy ? "Sending…" : "Confirm transfer"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Filter tabs */}
       <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">

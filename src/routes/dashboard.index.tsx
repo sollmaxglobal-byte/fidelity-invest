@@ -13,7 +13,6 @@ import {
   Bell,
   ShieldCheck,
   ArrowUpRight,
-  CircleDollarSign,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -92,7 +91,7 @@ function DashboardHome() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [referralCount, setReferralCount] = useState(0);
   const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
-  const [balanceVisible, setBalanceVisible] = useState(false);
+  const [balanceVisible, setBalanceVisible] = useState(true);
 
   const toggleBalance = () => setBalanceVisible((visible) => !visible);
 
@@ -230,13 +229,7 @@ function DashboardHome() {
             <ArrowUpRight className="h-8 w-8 shrink-0 text-primary" aria-hidden="true" />
           </div>
         </div>
-        <div className="rounded-2xl border border-border bg-primary p-4 text-primary-foreground">
-          <CircleDollarSign className="h-5 w-5 opacity-80" />
-          <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider opacity-70">
-            Total positions
-          </p>
-          <p className="mt-1 text-2xl font-semibold">{investments.length}</p>
-        </div>
+
       </motion.div>
 
       {/* Quick actions — bottom sheets */}
