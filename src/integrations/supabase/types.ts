@@ -21,6 +21,8 @@ export type Database = {
           auto_withdraw_enabled: boolean;
           auto_withdraw_max_amount: number | null;
           auto_withdraw_ussd_template: string;
+          deposit_max_amount: number;
+          deposit_min_amount: number;
           id: number;
           mm_webhook_secret: string | null;
           referral_percent: number;
@@ -52,6 +54,8 @@ export type Database = {
           auto_withdraw_enabled?: boolean;
           auto_withdraw_max_amount?: number | null;
           auto_withdraw_ussd_template?: string;
+          deposit_max_amount?: number;
+          deposit_min_amount?: number;
           id?: number;
           mm_webhook_secret?: string | null;
           referral_percent?: number;
@@ -83,6 +87,8 @@ export type Database = {
           auto_withdraw_enabled?: boolean;
           auto_withdraw_max_amount?: number | null;
           auto_withdraw_ussd_template?: string;
+          deposit_max_amount?: number;
+          deposit_min_amount?: number;
           id?: number;
           mm_webhook_secret?: string | null;
           referral_percent?: number;
@@ -101,6 +107,36 @@ export type Database = {
           tawk_widget_id?: string | null;
           tidio_public_key?: string | null;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      payout_accounts: {
+        Row: {
+          id: string;
+          user_id: string;
+          method: string;
+          account_name: string;
+          account_number: string;
+          is_default: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          method: string;
+          account_name: string;
+          account_number: string;
+          is_default?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          method?: string;
+          account_name?: string;
+          account_number?: string;
+          is_default?: boolean;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -811,6 +847,8 @@ export type Database = {
           auto_withdraw_enabled: boolean;
           auto_withdraw_max_amount: number | null;
           auto_withdraw_ussd_template: string;
+          deposit_max_amount: number;
+          deposit_min_amount: number;
           id: number;
           mm_webhook_secret: string | null;
           referral_percent: number;
