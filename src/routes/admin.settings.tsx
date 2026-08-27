@@ -55,6 +55,10 @@ type Settings = {
   auto_withdraw_ussd_template: string | null;
   deposit_min_amount: number | null;
   deposit_max_amount: number | null;
+  mtn_number: string | null;
+  orange_number: string | null;
+  mtn_enabled: boolean | null;
+  orange_enabled: boolean | null;
 };
 
 function CopyField({ label, value }: { label: string; value: string }) {
@@ -138,6 +142,10 @@ function AdminSettings() {
         auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
         deposit_min_amount: Number(s.deposit_min_amount) || 1000,
         deposit_max_amount: Number(s.deposit_max_amount) || 10000000,
+        mtn_number: s.mtn_number,
+        orange_number: s.orange_number,
+        mtn_enabled: !!s.mtn_enabled,
+        orange_enabled: !!s.orange_enabled,
       };
       let { error } = await supabase.from("app_settings").update(settingsPayload).eq("id", 1);
       if (error && /schema cache|column .* does not exist/i.test(error.message)) {
@@ -177,10 +185,18 @@ function AdminSettings() {
           <div><Label>Minimum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_min_amount ?? 1000} onChange={(e) => set("deposit_min_amount", Number(e.target.value))} /></div>
           <div><Label>Maximum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_max_amount ?? 10000000} onChange={(e) => set("deposit_max_amount", Number(e.target.value))} /></div>
         </div>
-      </section>
+  </section>
 
-      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-display text-lg text-primary">Branding</h2>
+  <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
+  <div><h2 className="font-display text-lg text-primary">Deposit methods</h2><p className="text-sm text-muted-foreground">Only enabled methods appear in the deposit flow.</p></div>
+  <div className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-2"><div className="flex items-center justify-between"><Label>Enable MTN</Label><Switch checked={!!s.mtn_enabled} onCheckedChange={(v) => set("mtn_enabled", v)} /></div><Input value={s.mtn_number ?? ""} placeholder="MTN number" onChange={(e) => set("mtn_number", e.target.value)} /></div>
+    <div className="space-y-2"><div className="flex items-center justify-between"><Label>Enable Orange</Label><Switch checked={!!s.orange_enabled} onCheckedChange={(v) => set("orange_enabled", v)} /></div><Input value={s.orange_number ?? ""} placeholder="Orange Money number" onChange={(e) => set("orange_number", e.target.value)} /></div>
+  </div>
+  </section>
+  
+  <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+  <h2 className="font-display text-lg text-primary">Branding</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <Label>Site name</Label>

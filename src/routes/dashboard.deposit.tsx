@@ -1,265 +1,122 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Smartphone, Building2, Bitcoin, ArrowLeft, ArrowRight, Wallet, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clock3, Copy, FileImage, ShieldCheck, Upload, Wallet, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatXAF } from "@/lib/format";
 
-export const Route = createFileRoute("/dashboard/deposit")({
-  component: DepositPage,
-});
+export const Route = createFileRoute("/dashboard/deposit")({ component: DepositPage });
 
-type PaymentMethod = {
-  id: string;
-  type: "mobile_money" | "bank_transfer" | "crypto";
-  label: string;
-  account_name: string | null;
-  account_number: string | null;
-  instructions: string | null;
-};
+type MethodId = "mtn" | "orange";
+type Method = { id: MethodId; name: string; number: string; enabled: boolean; color: string };
+type Settings = { deposit_min_amount?: number; deposit_max_amount?: number; mtn_number?: string; orange_number?: string; mtn_enabled?: boolean; orange_enabled?: boolean };
+const QUICK_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 200000];
+const fallbackSettings: Required<Pick<Settings, "deposit_min_amount" | "deposit_max_amount" | "mtn_enabled" | "orange_enabled">> = { deposit_min_amount: 1000, deposit_max_amount: 10000000, mtn_enabled: false, orange_enabled: false };
 
-const ICONS = { mobile_money: Smartphone, bank_transfer: Building2, crypto: Bitcoin };
-const QUICK_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 250000, 500000];
+function money(value: string | number) { return Number(value || 0).toLocaleString("fr-FR"); }
+function makeReference() { return `FID-${Math.random().toString(36).slice(2, 7).toUpperCase()}`; }
+function methodName(method: Method | undefined) { return method?.name ?? "Mobile Money"; }
 
 function DepositPage() {
   const { user } = useAuth();
-  const { t } = useI18n();
   const navigate = useNavigate();
-  const [methods, setMethods] = useState<PaymentMethod[]>([]);
-  const [selected, setSelected] = useState<string>("");
-  const [step, setStep] = useState<1 | 2>(1);
-  const [amount, setAmount] = useState<string>("");
-  const [limits, setLimits] = useState({ min: 1000, max: 10000000 });
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState<MethodId | null>(null);
+  const [reference] = useState(makeReference);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [settings, setSettings] = useState<Settings>(fallbackSettings);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [remaining, setRemaining] = useState(900);
+  const [depositStatus, setDepositStatus] = useState("pending");
+
+  const activeMethods = useMemo<Method[]>(() => [
+    { id: "mtn", name: "MTN Mobile Money", number: settings.mtn_number ?? "", enabled: !!settings.mtn_enabled, color: "#FFCC00" },
+    { id: "orange", name: "Orange Money", number: settings.orange_number ?? "", enabled: !!settings.orange_enabled, color: "#FF7900" },
+  ].filter((m) => m.enabled && m.number), [settings]);
+  const selectedMethod = activeMethods.find((m) => m.id === method);
+  const amountNumber = Number(amount);
+  const minAmount = Number(settings.deposit_min_amount ?? fallbackSettings.deposit_min_amount);
+  const maxAmount = Number(settings.deposit_max_amount ?? fallbackSettings.deposit_max_amount);
+  const amountError = amount && (amountNumber < minAmount || amountNumber > maxAmount) ? `Enter an amount between ${money(minAmount)} and ${money(maxAmount)} FCFA.` : "";
 
   useEffect(() => {
-    if (!user) return;
+    let mounted = true;
     (async () => {
-      const { data: settings } = await supabase.from("app_settings").select("deposit_min_amount,deposit_max_amount").eq("id", 1).maybeSingle();
-      if (settings) setLimits({ min: Number(settings.deposit_min_amount) || 1000, max: Number(settings.deposit_max_amount) || 10000000 });
-      const { data: m } = await supabase
-        .from("payment_methods")
-        .select("*")
-        .eq("active", true)
-        .in("scope", ["deposit", "both"])
-        .order("type");
-      const ms = (m as PaymentMethod[]) ?? [];
-      setMethods(ms);
-      if (ms[0]) setSelected(ms[0].id);
+      const { data, error } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
+      if (error) toast.error("Could not load deposit settings.");
+      if (mounted && data) setSettings(data as Settings);
+      setLoading(false);
     })();
-  }, [user]);
+    return () => { mounted = false; };
+  }, []);
 
-  const amountNum = Number(amount);
-  const canStep1 = amountNum >= limits.min && amountNum <= limits.max;
-  const canStep2 = !!selected;
+  useEffect(() => {
+    if (step === 2 && activeMethods.length === 1) setMethod(activeMethods[0].id);
+  }, [step, activeMethods]);
 
-  function goContinue() {
-    if (step === 1) {
-      if (!canStep1) {
-        toast.error(t("deposit.errMin"));
-        return;
-      }
-      setStep(2);
-      return;
-    }
-    if (!canStep2) return;
-    // Navigate to a dedicated payment page for the actual transfer + proof upload
-    navigate({
-      to: "/deposit-payment",
-      search: { amount: amountNum, method: selected } as never,
-    });
+  useEffect(() => {
+    if (step !== 3 || remaining <= 0) return;
+    const timer = window.setInterval(() => setRemaining((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [step, remaining]);
+
+  useEffect(() => {
+    if (step !== 5 || !reference) return;
+    const poll = window.setInterval(async () => {
+      const { data } = await supabase.from("deposits").select("status").eq("reference", reference).maybeSingle();
+      if (data?.status) setDepositStatus(data.status);
+    }, 10000);
+    return () => window.clearInterval(poll);
+  }, [step, reference]);
+
+  async function copy(value: string) { await navigator.clipboard.writeText(value); toast.success("Copied to clipboard"); }
+  function next() {
+    if (step === 1) { if (!amount || amountNumber < minAmount || amountNumber > maxAmount) { toast.error(amountError || "Enter a valid amount."); return; } setStep(2); }
+    else if (step === 2) { if (!method) { toast.error("Choose an active payment method."); return; } setStep(3); }
+    else if (step === 3) setStep(4);
+  }
+  async function submitProof() {
+    if (!user || !uploadedFile || !selectedMethod) { toast.error("Upload your payment proof to continue."); return; }
+    setSubmitting(true);
+    try {
+      const path = `${user.id}/${reference}`;
+      const { error: uploadError } = await supabase.storage.from("deposit-proofs").upload(path, uploadedFile, { upsert: true, contentType: uploadedFile.type });
+      if (uploadError) throw uploadError;
+      const { data: publicFile } = supabase.storage.from("deposit-proofs").getPublicUrl(path);
+      const { error } = await supabase.from("deposits").insert({ user_id: user.id, amount: amountNumber, method: method, reference, screenshot_url: publicFile.publicUrl, status: "pending" });
+      if (error) throw error;
+      setStep(5); toast.success("Proof uploaded successfully");
+    } catch (error) { console.error("[v0] Deposit submission failed", error); toast.error(error instanceof Error ? error.message : "Could not submit your deposit."); }
+    finally { setSubmitting(false); }
   }
 
-  const stepLabels = [t("deposit.step1"), t("deposit.step2")];
+  const timer = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+  const steps = ["Amount", "Method", "Payment", "Proof", "Processing"];
+  if (loading) return <div className="mx-auto max-w-xl py-16 text-center text-muted-foreground">Loading deposit options…</div>;
 
-  return (
-    <div className="mx-auto max-w-xl space-y-5 pb-28 md:pb-6">
-      <div>
-        <h1 className="font-display text-2xl text-primary md:text-3xl">{t("deposit.title")}</h1>
-        <p className="mt-0.5 text-xs text-muted-foreground">{t("deposit.subtitle")}</p>
-      </div>
-
-      {/* Stepper */}
-      <div className="rounded-2xl border border-border bg-card p-3">
-        <div className="flex items-center justify-between gap-1.5">
-          {stepLabels.map((label, i) => {
-            const n = (i + 1) as 1 | 2;
-            const done = step > n;
-            const active = step === n;
-            return (
-              <div key={n} className="flex flex-1 items-center gap-1.5">
-                <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
-                    done
-                      ? "bg-success text-white"
-                      : active
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {done ? <Check className="h-3.5 w-3.5" /> : n}
-                </div>
-                <span
-                  className={`hidden truncate text-[11px] font-medium sm:inline ${active ? "text-primary" : "text-muted-foreground"}`}
-                >
-                  {label}
-                </span>
-                {i < stepLabels.length - 1 && (
-                  <div
-                    className={`h-0.5 flex-1 rounded-full ${step > n ? "bg-success" : "bg-muted"}`}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card p-5">
-        {step === 1 && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="font-display text-lg text-primary">{t("deposit.amountTitle")}</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t("deposit.amountSub")}</p>
-            </div>
-            <div>
-              <Label htmlFor="amount">{t("common.amount")}</Label>
-              <Input
-                id="amount"
-                type="number"
-                inputMode="numeric"
-                min={limits.min}
-                max={limits.max}
-                step={500}
-                placeholder={t("deposit.amountPlaceholder")}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="mt-1 h-14 text-2xl font-semibold"
-              />
-              {amountNum > 0 && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  ≈ <span className="font-semibold text-primary">{formatXAF(amountNum)}</span>
-                </div>
-              )}
-            </div>
-            <div>
-              <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-                {t("deposit.quickPick")}
-              </div>
-              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-                {QUICK_AMOUNTS.map((q) => (
-                  <button
-                    key={q}
-                    type="button"
-                    onClick={() => setAmount(String(q))}
-                    className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${
-                      amountNum === q
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background hover:border-primary"
-                    }`}
-                  >
-                    {q.toLocaleString("en-US").replace(/,/g, " ")}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="font-display text-lg text-primary">{t("deposit.methodTitle")}</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t("deposit.methodSub")}</p>
-            </div>
-            <div className="space-y-2">
-              {methods.map((m) => {
-                const Icon = ICONS[m.type];
-                const active = m.id === selected;
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => setSelected(m.id)}
-                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
-                      active
-                        ? "border-primary bg-primary/5"
-                        : "border-border bg-background hover:border-primary"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-foreground">{m.label}</div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        {m.account_number}
-                      </div>
-                    </div>
-                    {active && <Check className="h-5 w-5 text-primary" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-background/95 p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
-        <div className="mx-auto flex max-w-xl gap-2">
-          {step > 1 ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setStep(1)}
-              className="h-9 flex-1 text-xs md:h-10 md:text-sm"
-            >
-              <ArrowLeft className="mr-1 h-3.5 w-3.5" /> {t("common.back")}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => navigate({ to: "/dashboard" })}
-              className="h-9 flex-1 text-xs md:h-10 md:text-sm"
-            >
-              <Wallet className="mr-1 h-3.5 w-3.5" /> {t("nav.home")}
-            </Button>
-          )}
-          <Button
-            type="button"
-            size="sm"
-            onClick={goContinue}
-            disabled={(step === 1 && !canStep1) || (step === 2 && !canStep2)}
-            className="h-9 flex-1 bg-primary text-xs text-primary-foreground hover:opacity-90 md:h-10 md:text-sm"
-          >
-            {t("common.continue")} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  return <main className="mx-auto flex w-full max-w-xl flex-col gap-5 pb-28 md:pb-8">
+    <header className="flex items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Secure deposit</p><h1 className="mt-2 text-balance font-display text-3xl text-foreground">Fund your wallet</h1><p className="mt-1 text-sm text-muted-foreground">Fast, secure mobile-money deposits.</p></div><ShieldCheck className="size-8 text-primary" /></header>
+    <nav aria-label="Deposit progress" className="flex items-center justify-between rounded-2xl border border-border bg-card p-3">{steps.map((label, index) => { const n = index + 1; return <div className="flex flex-1 items-center gap-2" key={label}><div className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${step > n ? "bg-primary text-primary-foreground" : step === n ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{step > n ? <Check className="size-4" /> : n}</div><span className={`hidden text-xs sm:inline ${step === n ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{label}</span>{n < steps.length && <div className={`mx-1 h-px flex-1 ${step > n ? "bg-primary" : "bg-border"}`} />}</div>})}</nav>
+    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7">
+      <AnimatePresence mode="wait">
+        {step === 1 && <motion.div key="amount" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-6"><div><h2 className="font-display text-2xl">How much do you want to deposit?</h2><p className="mt-2 text-sm text-muted-foreground">Choose an amount to add to your wallet.</p></div><div className="flex flex-col gap-2"><Label htmlFor="deposit-amount">Amount in FCFA</Label><div className="relative"><Input id="deposit-amount" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))} placeholder="0" inputMode="numeric" className="h-20 border-border bg-background pr-20 text-[32px] font-bold" aria-invalid={!!amountError} /><span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">FCFA</span></div><p className="text-xs text-muted-foreground">Min: {money(minAmount)} FCFA — Max: {money(maxAmount)} FCFA</p>{amountError && <p className="text-sm text-destructive">{amountError}</p>}</div><div className="flex flex-wrap gap-2">{QUICK_AMOUNTS.map((value) => <Button key={value} type="button" variant={amountNumber === value ? "default" : "outline"} onClick={() => setAmount(String(value))}>{money(value)}</Button>)}</div></motion.div>}
+        {step === 2 && <motion.div key="method" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-5"><div><h2 className="font-display text-2xl">Choose a payment method</h2><p className="mt-2 text-sm text-muted-foreground">You are depositing {money(amount)} FCFA.</p></div>{activeMethods.length === 0 ? <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border p-8 text-center"><Clock3 className="size-8 text-muted-foreground" /><h3 className="font-semibold">No payment methods available</h3><p className="text-sm text-muted-foreground">There are no active deposit methods right now. Please check back shortly.</p></div> : <div className="flex flex-col gap-3">{activeMethods.map((item) => <motion.button whileTap={{ scale: 0.98 }} key={item.id} type="button" onClick={() => setMethod(item.id)} className={`flex items-center gap-4 rounded-2xl border p-4 text-left transition ${method === item.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}><span className="flex size-12 items-center justify-center rounded-xl text-lg font-black text-black" style={{ backgroundColor: item.color }}>{item.id === "mtn" ? "MTN" : "OM"}</span><span className="flex min-w-0 flex-1 flex-col gap-1"><span className="font-semibold">{item.name}</span><span className="flex items-center gap-2 text-xs text-muted-foreground"><span className="rounded-full bg-success/15 px-2 py-0.5 text-success">Instant</span> {item.number}</span></span>{method === item.id && <Check className="size-5 text-primary" />}</motion.button>)}</div>}</motion.div>}
+        {step === 3 && selectedMethod && <motion.div key="payment" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-5"><div><h2 className="font-display text-2xl">Complete your payment</h2><p className="mt-2 text-sm text-muted-foreground">Send exact amount to complete deposit.</p></div><div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 px-4 py-3"><span className="flex items-center gap-2 text-sm"><Clock3 className="size-4 text-primary" /> Payment window</span><strong className="font-mono text-primary">{timer}</strong></div><Detail label="Amount to send" value={`${money(amount)} FCFA`} onCopy={() => copy(amount)} /><Detail label="Send to number" value={selectedMethod.number} onCopy={() => copy(selectedMethod.number)} /><Detail label="Reference" value={reference} onCopy={() => copy(reference)} hint="Add this reference to your MoMo message" /></motion.div>}
+        {step === 4 && <motion.div key="proof" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-5"><div><h2 className="font-display text-2xl">Upload payment proof</h2><p className="mt-2 text-sm text-muted-foreground">Depositing {money(amount)} FCFA via {methodName(selectedMethod)}.</p></div><label htmlFor="proof" className="flex min-h-48 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-6 text-center"><Upload className="size-8 text-primary" /><span className="font-semibold">Upload screenshot</span><span className="text-xs text-muted-foreground">PNG, JPG or WEBP · maximum 5MB</span><Input id="proof" type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { const file = e.target.files?.[0]; if (file && file.size > 5 * 1024 * 1024) toast.error("File must be smaller than 5MB."); else setUploadedFile(file ?? null); }} /></label>{uploadedFile && <div className="flex items-center gap-3 rounded-xl border border-border p-3"><FileImage className="size-5 text-primary" /><span className="min-w-0 flex-1 truncate text-sm">{uploadedFile.name}</span><Button size="icon" variant="ghost" onClick={() => setUploadedFile(null)} aria-label="Remove proof"><X /></Button></div>}</motion.div>}
+        {step === 5 && <motion.div key="processing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-6 text-center"><div className="relative flex size-24 items-center justify-center rounded-full bg-primary/15"><motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }} className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="size-9" /></motion.div>{[0,1,2,3,4].map((i) => <motion.i key={i} initial={{ opacity: 0, y: 0 }} animate={{ opacity: [0,1,0], y: -35 - i * 5, x: (i - 2) * 18 }} transition={{ delay: i * .08, duration: 1.2, repeat: Infinity }} className="absolute size-2 rounded-full bg-primary" />)}</div><div><h2 className="font-display text-2xl">Deposit received</h2><p className="mt-2 text-sm text-muted-foreground">Your proof is being reviewed securely.</p></div><div className="grid w-full gap-3 rounded-2xl border border-border bg-background p-4 text-left text-sm"><Detail label="Amount" value={`${money(amount)} FCFA`} /><Detail label="Reference" value={reference} /><Detail label="Method" value={methodName(selectedMethod)} /></div><div className="flex w-full flex-col gap-4 text-left">{[["Uploaded", true], ["Verifying", depositStatus === "pending"], ["Credited", depositStatus === "approved" || depositStatus === "paid"]].map(([label, done]) => <div key={String(label)} className="flex items-center gap-3"><span className={`flex size-6 items-center justify-center rounded-full ${done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{done ? <Check className="size-3" /> : <span className="size-2 rounded-full bg-muted-foreground" />}</span><span className="text-sm">{label}</span>{label === "Verifying" && done && <span className="ml-auto size-2 animate-pulse rounded-full bg-primary" />}</div>)}</div><div className="w-full rounded-xl bg-primary/10 p-4 text-sm"><strong>Estimated time: 5–15 minutes</strong><p className="mt-1 text-muted-foreground">We’ll notify you when your wallet is credited.</p></div></motion.div>}
+      </AnimatePresence>
+    </section>
+    {step < 5 && <div className="fixed inset-x-0 bottom-16 z-10 border-t border-border bg-background/95 p-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0"><div className="mx-auto flex max-w-xl gap-3">{step > 1 && <Button variant="outline" onClick={() => setStep((step - 1) as 1 | 2 | 3 | 4)} className="flex-1"><ArrowLeft data-icon="inline-start" /> Back</Button>}{step === 1 && <Button variant="outline" onClick={() => navigate({ to: "/dashboard" })} className="flex-1"><Wallet data-icon="inline-start" /> Dashboard</Button>}{step < 4 ? <Button onClick={next} disabled={step === 2 && activeMethods.length === 0} className="flex-1">Continue <ArrowRight data-icon="inline-end" /></Button> : <Button onClick={submitProof} disabled={!uploadedFile || submitting} className="flex-1">{submitting ? "Submitting…" : "Submit proof"} <Check data-icon="inline-end" /></Button>}</div></div>}
+    {step === 5 && <div className="flex flex-col gap-3 sm:flex-row"><Button onClick={() => navigate({ to: "/dashboard" })} className="flex-1">Back to Dashboard</Button><Button variant="outline" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Deposit ${reference}`)}`, "_blank")} className="flex-1">WhatsApp</Button></div>}
+  </main>;
 }
 
-export function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    pending: "bg-warning/15 text-warning",
-    approved: "bg-success/15 text-success",
-    paid: "bg-success/15 text-success",
-    rejected: "bg-destructive/15 text-destructive",
-  };
-  return (
-    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${map[status] ?? "bg-muted"}`}>
-      {status}
-    </span>
-  );
-}
+function Detail({ label, value, onCopy, hint }: { label: string; value: string; onCopy?: () => void; hint?: string }) { return <div className="flex items-center gap-3 rounded-2xl border border-border bg-background p-4"><div className="min-w-0 flex-1"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 truncate font-semibold">{value}</p>{hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}</div>{onCopy && <Button size="icon" variant="ghost" onClick={onCopy} aria-label={`Copy ${label}`}><Copy /></Button>}</div>; }
+
+export function StatusBadge({ status }: { status: string }) { return <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{status}</span>; }
