@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Users, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Wallet, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatXAF } from "@/lib/format";
@@ -46,6 +47,12 @@ function AdminOverview() {
         supabase.from("deposits").select("amount").eq("status", "approved"),
         supabase.from("withdrawals").select("amount").in("status", ["approved", "paid"]),
       ]);
+      const failed = [u, pd, pw, ai, td, tw].find((result) => result.error);
+      if (failed?.error) {
+        console.error("[v0] Failed to load admin overview", failed.error);
+        toast.error(`Unable to load admin overview: ${failed.error.message}`);
+        return;
+      }
       setS({
         users: u.count ?? 0,
         pendingDeposits: pd.count ?? 0,
