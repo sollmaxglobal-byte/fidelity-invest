@@ -108,8 +108,9 @@ function AdminSettings() {
     }
     setBusy(true);
     try {
-      const { error } = await (supabase as any).rpc("admin_update_app_settings", {
-        settings: {
+      const { error } = await supabase
+        .from("app_settings")
+        .update({
           site_name: s.site_name ?? "Fidelity",
           site_url: s.site_url,
           tidio_public_key: s.tidio_public_key,
@@ -137,8 +138,8 @@ function AdminSettings() {
           auto_withdraw_max_amount: s.auto_withdraw_max_amount,
           auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
           withdrawals_require_active_investment: !!s.withdrawals_require_active_investment,
-        },
-      });
+        })
+        .eq("id", 1);
       if (error) throw error;
       toast.success("Settings saved");
     } catch (e) {
