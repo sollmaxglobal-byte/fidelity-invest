@@ -109,41 +109,45 @@ function AdminSettings() {
     }
     setBusy(true);
     try {
-      const { error } = await supabase
-        .from("app_settings")
-        .update({
-          site_name: s.site_name ?? "Fidelity",
-          site_url: s.site_url,
-          tidio_public_key: s.tidio_public_key,
-          sendpulse_chat_id: s.sendpulse_chat_id,
-          sendpulse_embed_html: s.sendpulse_embed_html,
-          tawk_property_id: s.tawk_property_id,
-          tawk_widget_id: s.tawk_widget_id,
-          referral_percent: s.referral_percent ?? 5,
-          smtp_host: s.smtp_host,
-          smtp_port: s.smtp_port,
-          smtp_secure: s.smtp_secure,
-          smtp_user: s.smtp_user,
-          smtp_password: s.smtp_password,
-          smtp_from_name: s.smtp_from_name,
-          smtp_from_email: s.smtp_from_email,
-          announcement_enabled: !!s.announcement_enabled,
-          announcement_title: s.announcement_title,
-          announcement_message: s.announcement_message,
-          announcement_link: s.announcement_link,
-          announcement_link_label: s.announcement_link_label,
-          announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
-          auto_approve_enabled: s.auto_approve_enabled ?? true,
-          auto_approve_max_amount: s.auto_approve_max_amount,
-          auto_withdraw_enabled: !!s.auto_withdraw_enabled,
-          auto_withdraw_max_amount: s.auto_withdraw_max_amount,
-          auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
-          deposit_min_amount: Number(s.deposit_min_amount) || 1000,
-          deposit_max_amount: Number(s.deposit_max_amount) || 10000000,
-                })
-        .eq("id", 1);
+      const settingsPayload = {
+        site_name: s.site_name ?? "Fidelity",
+        site_url: s.site_url,
+        tidio_public_key: s.tidio_public_key,
+        sendpulse_chat_id: s.sendpulse_chat_id,
+        sendpulse_embed_html: s.sendpulse_embed_html,
+        tawk_property_id: s.tawk_property_id,
+        tawk_widget_id: s.tawk_widget_id,
+        referral_percent: s.referral_percent ?? 5,
+        smtp_host: s.smtp_host,
+        smtp_port: s.smtp_port,
+        smtp_secure: s.smtp_secure,
+        smtp_user: s.smtp_user,
+        smtp_password: s.smtp_password,
+        smtp_from_name: s.smtp_from_name,
+        smtp_from_email: s.smtp_from_email,
+        announcement_enabled: !!s.announcement_enabled,
+        announcement_title: s.announcement_title,
+        announcement_message: s.announcement_message,
+        announcement_link: s.announcement_link,
+        announcement_link_label: s.announcement_link_label,
+        announcement_version: (s.announcement_version ?? 1) + (reshow ? 1 : 0),
+        auto_approve_enabled: s.auto_approve_enabled ?? true,
+        auto_approve_max_amount: s.auto_approve_max_amount,
+        auto_withdraw_enabled: !!s.auto_withdraw_enabled,
+        auto_withdraw_max_amount: s.auto_withdraw_max_amount,
+        auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
+        deposit_min_amount: Number(s.deposit_min_amount) || 1000,
+        deposit_max_amount: Number(s.deposit_max_amount) || 10000000,
+      };
+      let { error } = await supabase.from("app_settings").update(settingsPayload).eq("id", 1);
+      if (error && /schema cache|column .* does not exist/i.test(error.message)) {
+        const { deposit_min_amount: _min, deposit_max_amount: _max, ...legacyPayload } = settingsPayload;
+        ({ error } = await supabase.from("app_settings").update(legacyPayload).eq("id", 1));
+        if (!error) toast.info("Settings saved; deposit limits will apply after the database migration is installed");
+      }
       if (error) throw error;
-      toast.success("Settings saved");
+      await supabase.rpc("reload_schema_cache");
+      if (!error) toast.success("Settings saved");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
