@@ -34,10 +34,13 @@ function DepositPage() {
   const [selected, setSelected] = useState<string>("");
   const [step, setStep] = useState<1 | 2>(1);
   const [amount, setAmount] = useState<string>("");
+  const [limits, setLimits] = useState({ min: 1000, max: 10000000 });
 
   useEffect(() => {
     if (!user) return;
     (async () => {
+      const { data: settings } = await supabase.from("app_settings").select("deposit_min_amount,deposit_max_amount").eq("id", 1).maybeSingle();
+      if (settings) setLimits({ min: Number(settings.deposit_min_amount) || 1000, max: Number(settings.deposit_max_amount) || 10000000 });
       const { data: m } = await supabase
         .from("payment_methods")
         .select("*")
@@ -51,7 +54,7 @@ function DepositPage() {
   }, [user]);
 
   const amountNum = Number(amount);
-  const canStep1 = amountNum >= 1000;
+  const canStep1 = amountNum >= limits.min && amountNum <= limits.max;
   const canStep2 = !!selected;
 
   function goContinue() {
@@ -129,7 +132,8 @@ function DepositPage() {
                 id="amount"
                 type="number"
                 inputMode="numeric"
-                min={1000}
+                min={limits.min}
+                max={limits.max}
                 step={500}
                 placeholder={t("deposit.amountPlaceholder")}
                 value={amount}

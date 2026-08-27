@@ -53,6 +53,8 @@ type Settings = {
   auto_withdraw_enabled: boolean | null;
   auto_withdraw_max_amount: number | null;
   auto_withdraw_ussd_template: string | null;
+  deposit_min_amount: number | null;
+  deposit_max_amount: number | null;
 };
 
 function CopyField({ label, value }: { label: string; value: string }) {
@@ -136,6 +138,8 @@ function AdminSettings() {
           auto_withdraw_enabled: !!s.auto_withdraw_enabled,
           auto_withdraw_max_amount: s.auto_withdraw_max_amount,
           auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
+          deposit_min_amount: Number(s.deposit_min_amount) || 1000,
+          deposit_max_amount: Number(s.deposit_max_amount) || 10000000,
                 })
         .eq("id", 1);
       if (error) throw error;
@@ -161,6 +165,15 @@ function AdminSettings() {
         <h1 className="font-display text-3xl text-primary md:text-4xl">Site settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">Branding, live chat & email.</p>
       </div>
+
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <h2 className="font-display text-lg text-primary">Deposit limits</h2>
+        <p className="text-sm text-muted-foreground">Control the minimum and maximum amount users can submit for deposits.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div><Label>Minimum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_min_amount ?? 1000} onChange={(e) => set("deposit_min_amount", Number(e.target.value))} /></div>
+          <div><Label>Maximum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_max_amount ?? 10000000} onChange={(e) => set("deposit_max_amount", Number(e.target.value))} /></div>
+        </div>
+      </section>
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <h2 className="font-display text-lg text-primary">Branding</h2>
