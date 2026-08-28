@@ -210,6 +210,15 @@ function AdminSettings() {
               placeholder="https://..."
             />
           </div>
+          <div className="sm:col-span-2">
+            <Label>WhatsApp support link</Label>
+            <Input
+              value={s.announcement_link ?? ""}
+              onChange={(e) => set("announcement_link", e.target.value)}
+              placeholder="https://wa.me/237..."
+            />
+            <p className="mt-1 text-xs text-muted-foreground">Used by the Contact Support on WhatsApp button on deposit processing pages.</p>
+          </div>
         </div>
       </section>
 

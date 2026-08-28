@@ -63,7 +63,7 @@ function DepositPaymentPage() {
   const Icon = sel ? ICONS[sel.type] : Smartphone;
 
   return (
-    <CheckoutShell step={2} total={3} title={t("deposit.payTitle")} subtitle={t("deposit.paySub")}>
+    <div className="min-h-screen bg-[#101014] text-[#f8f7f2] py-4"><CheckoutShell step={2} total={3} title={t("deposit.payTitle")} subtitle={t("deposit.paySub")}>
       {!sel ? (
         <div className="p-8 text-center text-sm text-muted-foreground">{t("common.loading")}</div>
       ) : (
@@ -156,7 +156,7 @@ function DepositPaymentPage() {
           </div>
         </>
       )}
-    </CheckoutShell>
+    </CheckoutShell></div>
   );
 }
 
