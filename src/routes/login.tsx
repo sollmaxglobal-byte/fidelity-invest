@@ -53,8 +53,20 @@ function LoginPage() {
       if (error) throw error;
       toast.success(t("auth.welcomeToast"));
     } catch (err) {
-      const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
-      toast.error(msg);
+      const msg = err instanceof z.ZodError
+        ? err.issues[0]?.message ?? "Enter a valid email and password."
+        : (err as { message?: string }).message ?? "Unable to sign in. Please try again.";
+      const normalized = msg.toLowerCase();
+      const friendly = normalized.includes("invalid login credentials")
+        ? "Email or password is incorrect. Check both fields and try again."
+        : normalized.includes("email not confirmed")
+          ? "Please confirm your email address before signing in."
+          : normalized.includes("rate limit")
+            ? "Too many attempts. Please wait a moment and try again."
+            : normalized.includes("missing supabase")
+              ? "Sign-in is temporarily unavailable. Please try again shortly."
+              : msg;
+      toast.error(friendly);
     } finally {
       setBusy(false);
     }
