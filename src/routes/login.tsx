@@ -46,7 +46,6 @@ function LoginPage() {
     const fd = new FormData(e.currentTarget);
     try {
       const v = loginSchema.parse({ email: fd.get("email"), password: fd.get("password") });
-      console.log("[v0] Supabase auth URL:", import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || "missing");
       const { error } = await supabase.auth.signInWithPassword({
         email: v.email,
         password: v.password,
