@@ -28,6 +28,7 @@ function PendingDepositPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [deposit, setDeposit] = useState<Deposit | null>(null);
+  const [whatsappLink, setWhatsappLink] = useState("");
   const [elapsed, setElapsed] = useState(0);
   const startRef = useRef<number>(Date.now());
 
@@ -38,11 +39,11 @@ function PendingDepositPage() {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const fetchOnce = async () => {
-      const { data } = await supabase
-        .from("deposits")
-        .select("id,user_id,amount,status,created_at")
-        .eq("id", id)
-        .maybeSingle();
+      const [{ data }, { data: settings }] = await Promise.all([
+        supabase.from("deposits").select("id,user_id,amount,status,created_at").eq("id", id).maybeSingle(),
+        supabase.from("app_settings").select("announcement_link").eq("id", 1).maybeSingle(),
+      ]);
+      if (settings?.announcement_link) setWhatsappLink(settings.announcement_link);
       if (cancelled) return;
       const d = data as Deposit | null;
       if (d) {
@@ -173,7 +174,7 @@ function PendingDepositPage() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-auto max-w-md space-y-5 py-6"
+      className="mx-auto min-h-screen max-w-md space-y-5 bg-[#101014] px-4 py-6 text-[#f8f7f2]"
     >
       <div className="text-center">
         <div className="relative mx-auto flex h-32 w-32 items-center justify-center">
@@ -286,20 +287,9 @@ function PendingDepositPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Button asChild variant="outline">
-          <Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}>
-            <History className="mr-2 h-4 w-4" />
-            History
-          </Link>
-        </Button>
-        <Button asChild className="bg-primary text-primary-foreground hover:opacity-90">
-          <Link to="/dashboard">
-            <Home className="mr-2 h-4 w-4" />
-            Dashboard
-          </Link>
-        </Button>
-      </div>
+      <div className="rounded-2xl border border-[#7f6731] bg-[#25252a] p-4"><div className="flex items-center justify-between text-sm"><span>Estimated time: 5–15 minutes</span><Clock className="size-5 text-[#ffd45a]" /></div><p className="mt-1 text-sm text-[#bdb7bd]">You&apos;ll receive a notification once credited.</p><p className="mt-3 text-sm text-[#bdb7bd]">Transaction ID: <span className="font-mono text-[#f8f7f2]">{deposit.id}</span></p></div>
+      <div><div className="mb-2 flex justify-between font-semibold"><span>Progress</span><span className="text-[#ffd45a]">{Math.round(pct)}%</span></div><div className="h-3 overflow-hidden rounded-full bg-[#3b3b42]"><motion.div className="h-full rounded-full bg-[#ffd45a]" animate={{ width: `${pct}%` }} /></div></div>
+      <div className="grid grid-cols-2 gap-3"><Button asChild className="bg-[#eab532] text-[#101014] hover:bg-[#ffd45a]"><Link to="/dashboard"><Home className="mr-2 size-4" />Back to Dashboard</Link></Button>{whatsappLink ? <Button asChild variant="outline" className="border-[#d9b54a] text-[#ffd45a]"><a href={whatsappLink} target="_blank" rel="noreferrer">Contact Support on WhatsApp</a></Button> : <Button asChild variant="outline"><Link to="/dashboard/wallet" search={{ filter: "Deposits" } as never}><History className="mr-2 size-4" />History</Link></Button>}</div>
     </motion.div>
   );
 }
