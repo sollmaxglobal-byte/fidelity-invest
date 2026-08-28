@@ -11,11 +11,11 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/dashboard/deposit")({ component: DepositPage });
 
-type MethodId = "mtn" | "orange";
-type Method = { id: MethodId; name: string; number: string; enabled: boolean; color: string };
-type Settings = { deposit_min_amount?: number; deposit_max_amount?: number; mtn_number?: string; orange_number?: string; mtn_enabled?: boolean; orange_enabled?: boolean };
+type MethodId = string;
+type Method = { id: MethodId; name: string; number: string; enabled: boolean; color: string; instructions?: string; accountName?: string };
+type Settings = { deposit_min_amount?: number; deposit_max_amount?: number };
 const QUICK_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 200000];
-const fallbackSettings: Required<Pick<Settings, "deposit_min_amount" | "deposit_max_amount" | "mtn_enabled" | "orange_enabled">> = { deposit_min_amount: 1000, deposit_max_amount: 10000000, mtn_enabled: false, orange_enabled: false };
+const fallbackSettings: Required<Pick<Settings, "deposit_min_amount" | "deposit_max_amount">> = { deposit_min_amount: 1000, deposit_max_amount: 10000000 };
 
 function money(value: string | number) { return Number(value || 0).toLocaleString("fr-FR"); }
 function makeReference() { return `FID-${Math.random().toString(36).slice(2, 7).toUpperCase()}`; }
@@ -35,10 +35,7 @@ function DepositPage() {
   const [remaining, setRemaining] = useState(900);
   const [depositStatus, setDepositStatus] = useState("pending");
 
-  const activeMethods = useMemo<Method[]>(() => [
-    { id: "mtn", name: "MTN Mobile Money", number: settings.mtn_number ?? "", enabled: !!settings.mtn_enabled, color: "#FFCC00" },
-    { id: "orange", name: "Orange Money", number: settings.orange_number ?? "", enabled: !!settings.orange_enabled, color: "#FF7900" },
-  ].filter((m) => m.enabled && m.number), [settings]);
+  const [activeMethods, setActiveMethods] = useState<Method[]>([]);
   const selectedMethod = activeMethods.find((m) => m.id === method);
   const amountNumber = Number(amount);
   const minAmount = Number(settings.deposit_min_amount ?? fallbackSettings.deposit_min_amount);
@@ -48,9 +45,14 @@ function DepositPage() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const { data, error } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
-      if (error) toast.error("Could not load deposit settings.");
-      if (mounted && data) setSettings(data as Settings);
+      const [{ data: settingsData, error: settingsError }, { data: methodsData, error: methodsError }] = await Promise.all([
+        supabase.from("app_settings").select("deposit_min_amount, deposit_max_amount").eq("id", 1).maybeSingle(),
+        supabase.from("payment_methods").select("id, label, account_name, account_number, instructions, active, scope").eq("active", true).in("scope", ["deposit", "both"]).order("type"),
+      ]);
+      if (settingsError) toast.error("Could not load deposit settings.");
+      if (methodsError) toast.error("Could not load payment methods.");
+      if (mounted && settingsData) setSettings(settingsData as Settings);
+      if (mounted && methodsData) setActiveMethods(methodsData.map((item) => ({ id: item.id, name: item.label, number: item.account_number ?? "", enabled: item.active, color: item.label.toLowerCase().includes("orange") ? "#FF7900" : item.label.toLowerCase().includes("mtn") ? "#FFCC00" : "#0f766e", instructions: item.instructions ?? undefined, accountName: item.account_name ?? undefined })).filter((item) => item.number));
       setLoading(false);
     })();
     return () => { mounted = false; };
