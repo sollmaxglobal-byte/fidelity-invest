@@ -148,7 +148,7 @@ function AdminSettings() {
         mtn_enabled: !!s.mtn_enabled,
         orange_enabled: !!s.orange_enabled,
       };
-      let { error } = await supabase.from("app_settings").update(settingsPayload).eq("id", 1);
+      let { error } = await dbUntyped.from("app_settings").update(settingsPayload).eq("id", 1);
       if (error && /schema cache|column .* does not exist/i.test(error.message)) {
         const { deposit_min_amount: _min, deposit_max_amount: _max, ...legacyPayload } = settingsPayload;
         ({ error } = await supabase.from("app_settings").update(legacyPayload).eq("id", 1));
