@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import {
@@ -95,7 +96,7 @@ function WalletPage() {
     if (!user) return;
     setPinBusy(true);
     const pin = String(new FormData(e.currentTarget).get("new_pin") ?? "");
-    const { error } = await supabase.rpc("set_transfer_pin", { _pin: pin });
+    const { error } = await dbUntyped.rpc("set_transfer_pin", { _pin: pin });
     setPinBusy(false);
     if (error) return toast.error(error.message);
     e.currentTarget.reset();
@@ -287,7 +288,7 @@ function WalletPage() {
           <DialogHeader><DialogTitle>Confirm transfer</DialogTitle></DialogHeader>
           <p className="text-sm text-muted-foreground">Enter your transfer PIN to send {transferDraft ? formatXAF(transferDraft.amount) : ""}.</p>
           <Input value={confirmPin} onChange={(e) => setConfirmPin(e.target.value.replace(/\\D/g, "").slice(0, 6))} type="password" inputMode="numeric" autoComplete="off" placeholder="4–6 digit PIN" aria-label="Transfer PIN" />
-          <DialogFooter><Button variant="outline" type="button" onClick={() => { setTransferDraft(null); setConfirmPin(""); }}>Cancel</Button><Button type="button" disabled={transferBusy || confirmPin.length < 4} onClick={async () => { if (!transferDraft) return; setTransferBusy(true); const { error } = await supabase.rpc("create_transfer", { _recipient_email: transferDraft.email, _amount: transferDraft.amount, _pin: confirmPin, _note: transferDraft.note }); setTransferBusy(false); if (error) return toast.error(error.message); setBalance((current) => current - transferDraft.amount); setTransferDraft(null); setConfirmPin(""); toast.success("Transfer sent securely"); }}> {transferBusy ? "Sending…" : "Confirm transfer"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" type="button" onClick={() => { setTransferDraft(null); setConfirmPin(""); }}>Cancel</Button><Button type="button" disabled={transferBusy || confirmPin.length < 4} onClick={async () => { if (!transferDraft) return; setTransferBusy(true); const { error } = await dbUntyped.rpc("create_transfer", { _recipient_email: transferDraft.email, _amount: transferDraft.amount, _pin: confirmPin, _note: transferDraft.note }); setTransferBusy(false); if (error) return toast.error(error.message); setBalance((current) => current - transferDraft.amount); setTransferDraft(null); setConfirmPin(""); toast.success("Transfer sent securely"); }}> {transferBusy ? "Sending…" : "Confirm transfer"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 

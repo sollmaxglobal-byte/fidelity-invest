@@ -79,6 +79,16 @@ function DashboardLayout() {
 
   const isActive = (to: string, exact?: boolean) => (exact ? path === to : path.startsWith(to));
 
+  // Deposit flow runs full-screen: no header, side nav or bottom nav.
+  if (path.startsWith("/dashboard/deposit")) {
+    return (
+      <div className={`app-shell min-h-screen bg-background ${appMode ? "app-shell-standalone" : ""}`}>
+        <Outlet />
+        <PushSetup />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`app-shell min-h-screen bg-background pb-24 md:pb-0 ${appMode ? "app-shell-standalone" : ""}`}
