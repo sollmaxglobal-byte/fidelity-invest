@@ -151,7 +151,7 @@ function AdminSettings() {
       let { error } = await dbUntyped.from("app_settings").update(settingsPayload).eq("id", 1);
       if (error && /schema cache|column .* does not exist/i.test(error.message)) {
         const { deposit_min_amount: _min, deposit_max_amount: _max, ...legacyPayload } = settingsPayload;
-        ({ error } = await supabase.from("app_settings").update(legacyPayload).eq("id", 1));
+        ({ error } = await dbUntyped.from("app_settings").update(legacyPayload).eq("id", 1));
         if (!error) toast.info("Settings saved; deposit limits will apply after the database migration is installed");
       }
       if (error) throw error;
