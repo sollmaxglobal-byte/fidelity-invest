@@ -75,7 +75,7 @@ function WithdrawPage() {
     ]);
     setBalance(Number(p?.balance ?? 0));
     setList((w as Withdrawal[]) ?? []);
-    const { data: payoutAccounts } = await supabase
+    const { data: payoutAccounts } = await dbUntyped
       .from("payout_accounts")
       .select("id,method,account_name,account_number,is_default")
       .eq("user_id", user.id)

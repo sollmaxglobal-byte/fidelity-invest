@@ -59,7 +59,7 @@ function ProfilePage() {
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data as Profile));
-    supabase
+    dbUntyped
       .from("payout_accounts")
       .select("id,method,account_name,account_number,is_default")
       .eq("user_id", user.id)
@@ -79,7 +79,7 @@ function ProfilePage() {
       account_number: String(fd.get("payout_number")),
       is_default: accounts.length === 0,
     };
-    const { data, error } = await supabase
+    const { data, error } = await dbUntyped
       .from("payout_accounts")
       .insert(payload)
       .select("id,method,account_name,account_number,is_default")
