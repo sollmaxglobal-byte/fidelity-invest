@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Save, Mail, Send, Languages } from "lucide-react";
@@ -102,7 +103,7 @@ function AdminEmails() {
       return toast.error("Add a subject and message first");
     setBroadcastBusy(true);
     try {
-      const { data: users, error: directoryError } = await supabase.rpc("get_admin_user_emails");
+      const { data: users, error: directoryError } = await dbUntyped.rpc("get_admin_user_emails");
       if (directoryError) throw directoryError;
       const recipients = (users as { email: string }[]).map((item) => item.email).filter(Boolean);
       if (!recipients.length) throw new Error("No users found");

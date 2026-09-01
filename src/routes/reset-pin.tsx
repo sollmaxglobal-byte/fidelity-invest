@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -32,7 +33,7 @@ function ResetPinPage() {
     const form = new FormData(event.currentTarget);
     try {
       const value = schema.parse({ pin: form.get("pin"), confirm: form.get("confirm") });
-      const { error } = await supabase.rpc("set_security_pin", { _kind: kind, _pin: value.pin });
+      const { error } = await dbUntyped.rpc("set_security_pin", { _kind: kind, _pin: value.pin });
       if (error) throw error;
       toast.success(`${kind === "withdrawal" ? "Withdrawal" : "Transfer"} PIN updated`);
       nav({ to: "/dashboard/profile" });

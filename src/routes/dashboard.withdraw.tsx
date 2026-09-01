@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -110,7 +111,7 @@ function WithdrawPage() {
         account_number: String(fd.get("account_number") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
-      const { data: canWithdraw, error: eligibilityError } = await supabase.rpc("can_withdraw", {
+      const { data: canWithdraw, error: eligibilityError } = await dbUntyped.rpc("can_withdraw", {
         _user_id: user.id,
       });
       if (eligibilityError) throw eligibilityError;
@@ -131,7 +132,7 @@ function WithdrawPage() {
     if (!user || !pending || !/^\d{6}$/.test(pin)) return toast.error("Enter your 6-digit PIN");
     setBusy(true);
     try {
-      const { data: newId, error } = await supabase.rpc("create_withdrawal", {
+      const { data: newId, error } = await dbUntyped.rpc("create_withdrawal", {
         _amount: pending.amount, _method: pending.method, _account_name: pending.account_name,
         _account_number: pending.account_number, _pin: pin,
       } as never);

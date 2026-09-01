@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -154,7 +155,7 @@ function AdminSettings() {
         if (!error) toast.info("Settings saved; deposit limits will apply after the database migration is installed");
       }
       if (error) throw error;
-      await supabase.rpc("reload_schema_cache");
+      await dbUntyped.rpc("reload_schema_cache");
       if (!error) toast.success("Settings saved");
     } catch (e) {
       toast.error((e as Error).message);

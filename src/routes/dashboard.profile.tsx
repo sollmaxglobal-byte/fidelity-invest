@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -91,7 +92,7 @@ function ProfilePage() {
   }
 
   async function removeAccount(id: string) {
-    const { error } = await supabase.from("payout_accounts").delete().eq("id", id);
+    const { error } = await dbUntyped.from("payout_accounts").delete().eq("id", id);
     if (error) return toast.error(error.message);
     setAccounts((prev) => prev.filter((a) => a.id !== id));
     toast.success("Payout account removed");
