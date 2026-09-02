@@ -189,12 +189,14 @@ function AdminSettings() {
       </div>
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-display text-lg text-primary">Deposit limits</h2>
-        <p className="text-sm text-muted-foreground">Control the minimum and maximum amount users can submit for deposits.</p>
+        <h2 className="font-display text-lg text-primary">Transaction limits</h2>
+        <p className="text-sm text-muted-foreground">Control the minimum and maximum deposit, and the minimum withdrawal amount.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <div><Label>Minimum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_min_amount ?? 1000} onChange={(e) => set("deposit_min_amount", Number(e.target.value))} /></div>
           <div><Label>Maximum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_max_amount ?? 10000000} onChange={(e) => set("deposit_max_amount", Number(e.target.value))} /></div>
+          <div><Label>Minimum withdrawal (XAF)</Label><Input type="number" min={1} value={s.withdraw_min_amount ?? 250} onChange={(e) => set("withdraw_min_amount", Number(e.target.value))} /></div>
         </div>
+
   </section>
 
   <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
