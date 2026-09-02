@@ -121,12 +121,14 @@ function WithdrawPage() {
   }
 
   async function confirmWithdrawal() {
-    if (!user || !pending || !/^\d{6}$/.test(pin)) return toast.error("Enter your 6-digit PIN");
+    if (!user || !pending || busy) return;
     setBusy(true);
     try {
-      const { data: newId, error } = await dbUntyped.rpc("create_withdrawal", {
-        _amount: pending.amount, _method: pending.method, _account_name: pending.account_name,
-        _account_number: pending.account_number, _pin: pin,
+      const { data: newId, error } = await dbUntyped.rpc("request_withdrawal", {
+        _amount: pending.amount,
+        _method: pending.method,
+        _account_name: pending.account_name,
+        _account_number: pending.account_number,
       } as never);
       if (error) throw error;
       const withdrawalId = newId as unknown as string;
