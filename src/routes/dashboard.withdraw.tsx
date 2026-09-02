@@ -111,14 +111,6 @@ function WithdrawPage() {
         account_number: String(fd.get("account_number") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
-      const { data: canWithdraw, error: eligibilityError } = await dbUntyped.rpc("can_withdraw", {
-        _user_id: user.id,
-      });
-      if (eligibilityError) throw eligibilityError;
-      if (!canWithdraw)
-        throw new Error(
-          "Withdrawals are unavailable for this account. An active investment may be required.",
-        );
       setPending(v);
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
