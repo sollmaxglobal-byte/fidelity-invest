@@ -135,6 +135,7 @@ function WithdrawPage() {
       void notifyAdminOfRequest("withdrawal", { id: withdrawalId, name: requestName(user), email: user.email ?? "Not provided", amount: formatXAF(pending.amount), method: pending.method.replace("_", " "), account: `${pending.account_name} (${pending.account_number})` });
       toast.success(t("withdraw.submitted"));
       setPending(null); setPin("");
+      await refresh();
       navigate({ to: "/dashboard/wallet", search: { filter: "Withdrawals" } as never });
     } catch (err) { toast.error((err as Error).message); }
     finally { setBusy(false); }
