@@ -143,20 +143,27 @@ function AdminSettings() {
         auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
         deposit_min_amount: Number(s.deposit_min_amount) || 1000,
         deposit_max_amount: Number(s.deposit_max_amount) || 10000000,
+        withdraw_min_amount: Number(s.withdraw_min_amount) || 250,
         mtn_number: s.mtn_number,
         orange_number: s.orange_number,
         mtn_enabled: !!s.mtn_enabled,
         orange_enabled: !!s.orange_enabled,
       };
-      let { error } = await dbUntyped.from("app_settings").update(settingsPayload).eq("id", 1);
-      if (error && /schema cache|column .* does not exist/i.test(error.message)) {
-        const { deposit_min_amount: _min, deposit_max_amount: _max, ...legacyPayload } = settingsPayload;
-        ({ error } = await dbUntyped.from("app_settings").update(legacyPayload).eq("id", 1));
-        if (!error) toast.info("Settings saved; deposit limits will apply after the database migration is installed");
+      // Drop any columns the database doesn't have yet, then retry.
+      const payload: Record<string, unknown> = { ...settingsPayload };
+      let error: { message: string } | null = null;
+      for (let attempt = 0; attempt < 8; attempt++) {
+        ({ error } = await dbUntyped.from("app_settings").update(payload).eq("id", 1));
+        if (!error) break;
+        const missing = error.message.match(/'([a-z0-9_]+)' column|column "?([a-z0-9_]+)"? does not exist/i);
+        const key = missing?.[1] || missing?.[2];
+        if (!key || !(key in payload)) break;
+        delete payload[key];
       }
       if (error) throw error;
       await dbUntyped.rpc("reload_schema_cache");
-      if (!error) toast.success("Settings saved");
+      toast.success("Settings saved");
+
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
