@@ -56,7 +56,9 @@ type Settings = {
   auto_withdraw_ussd_template: string | null;
   deposit_min_amount: number | null;
   deposit_max_amount: number | null;
+  withdraw_min_amount: number | null;
   mtn_number: string | null;
+
   orange_number: string | null;
   mtn_enabled: boolean | null;
   orange_enabled: boolean | null;
@@ -143,20 +145,27 @@ function AdminSettings() {
         auto_withdraw_ussd_template: s.auto_withdraw_ussd_template || "*126*9*{phone}*{amount}#",
         deposit_min_amount: Number(s.deposit_min_amount) || 1000,
         deposit_max_amount: Number(s.deposit_max_amount) || 10000000,
+        withdraw_min_amount: Number(s.withdraw_min_amount) || 250,
         mtn_number: s.mtn_number,
         orange_number: s.orange_number,
         mtn_enabled: !!s.mtn_enabled,
         orange_enabled: !!s.orange_enabled,
       };
-      let { error } = await dbUntyped.from("app_settings").update(settingsPayload).eq("id", 1);
-      if (error && /schema cache|column .* does not exist/i.test(error.message)) {
-        const { deposit_min_amount: _min, deposit_max_amount: _max, ...legacyPayload } = settingsPayload;
-        ({ error } = await dbUntyped.from("app_settings").update(legacyPayload).eq("id", 1));
-        if (!error) toast.info("Settings saved; deposit limits will apply after the database migration is installed");
+      // Drop any columns the database doesn't have yet, then retry.
+      const payload: Record<string, unknown> = { ...settingsPayload };
+      let error: { message: string } | null = null;
+      for (let attempt = 0; attempt < 8; attempt++) {
+        ({ error } = await dbUntyped.from("app_settings").update(payload).eq("id", 1));
+        if (!error) break;
+        const missing = error.message.match(/'([a-z0-9_]+)' column|column "?([a-z0-9_]+)"? does not exist/i);
+        const key = missing?.[1] || missing?.[2];
+        if (!key || !(key in payload)) break;
+        delete payload[key];
       }
       if (error) throw error;
       await dbUntyped.rpc("reload_schema_cache");
-      if (!error) toast.success("Settings saved");
+      toast.success("Settings saved");
+
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -180,12 +189,14 @@ function AdminSettings() {
       </div>
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-display text-lg text-primary">Deposit limits</h2>
-        <p className="text-sm text-muted-foreground">Control the minimum and maximum amount users can submit for deposits.</p>
+        <h2 className="font-display text-lg text-primary">Transaction limits</h2>
+        <p className="text-sm text-muted-foreground">Control the minimum and maximum deposit, and the minimum withdrawal amount.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <div><Label>Minimum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_min_amount ?? 1000} onChange={(e) => set("deposit_min_amount", Number(e.target.value))} /></div>
           <div><Label>Maximum deposit (XAF)</Label><Input type="number" min={1} value={s.deposit_max_amount ?? 10000000} onChange={(e) => set("deposit_max_amount", Number(e.target.value))} /></div>
+          <div><Label>Minimum withdrawal (XAF)</Label><Input type="number" min={1} value={s.withdraw_min_amount ?? 250} onChange={(e) => set("withdraw_min_amount", Number(e.target.value))} /></div>
         </div>
+
   </section>
 
   <section className="space-y-4 rounded-2xl border border-border bg-card p-5">

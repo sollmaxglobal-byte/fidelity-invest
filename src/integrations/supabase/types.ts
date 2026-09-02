@@ -27,6 +27,8 @@ export type Database = {
           auto_withdraw_enabled: boolean
           auto_withdraw_max_amount: number | null
           auto_withdraw_ussd_template: string
+          deposit_max_amount: number
+          deposit_min_amount: number
           id: number
           mm_webhook_secret: string | null
           referral_percent: number
@@ -45,6 +47,7 @@ export type Database = {
           tawk_widget_id: string | null
           tidio_public_key: string | null
           updated_at: string
+          withdraw_min_amount: number
         }
         Insert: {
           announcement_enabled?: boolean
@@ -58,6 +61,8 @@ export type Database = {
           auto_withdraw_enabled?: boolean
           auto_withdraw_max_amount?: number | null
           auto_withdraw_ussd_template?: string
+          deposit_max_amount?: number
+          deposit_min_amount?: number
           id?: number
           mm_webhook_secret?: string | null
           referral_percent?: number
@@ -76,6 +81,7 @@ export type Database = {
           tawk_widget_id?: string | null
           tidio_public_key?: string | null
           updated_at?: string
+          withdraw_min_amount?: number
         }
         Update: {
           announcement_enabled?: boolean
@@ -89,6 +95,8 @@ export type Database = {
           auto_withdraw_enabled?: boolean
           auto_withdraw_max_amount?: number | null
           auto_withdraw_ussd_template?: string
+          deposit_max_amount?: number
+          deposit_min_amount?: number
           id?: number
           mm_webhook_secret?: string | null
           referral_percent?: number
@@ -107,6 +115,7 @@ export type Database = {
           tawk_widget_id?: string | null
           tidio_public_key?: string | null
           updated_at?: string
+          withdraw_min_amount?: number
         }
         Relationships: []
       }
@@ -817,6 +826,8 @@ export type Database = {
           auto_withdraw_enabled: boolean
           auto_withdraw_max_amount: number | null
           auto_withdraw_ussd_template: string
+          deposit_max_amount: number
+          deposit_min_amount: number
           id: number
           mm_webhook_secret: string | null
           referral_percent: number
@@ -835,6 +846,7 @@ export type Database = {
           tawk_widget_id: string | null
           tidio_public_key: string | null
           updated_at: string
+          withdraw_min_amount: number
         }[]
         SetofOptions: {
           from: "*"
