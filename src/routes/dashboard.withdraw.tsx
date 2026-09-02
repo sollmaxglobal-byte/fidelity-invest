@@ -111,14 +111,6 @@ function WithdrawPage() {
         account_number: String(fd.get("account_number") ?? ""),
       });
       if (v.amount > balance) throw new Error(t("withdraw.errExceed"));
-      const { data: canWithdraw, error: eligibilityError } = await dbUntyped.rpc("can_withdraw", {
-        _user_id: user.id,
-      });
-      if (eligibilityError) throw eligibilityError;
-      if (!canWithdraw)
-        throw new Error(
-          "Withdrawals are unavailable for this account. An active investment may be required.",
-        );
       setPending(v);
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : (err as Error).message;
@@ -129,18 +121,21 @@ function WithdrawPage() {
   }
 
   async function confirmWithdrawal() {
-    if (!user || !pending || !/^\d{6}$/.test(pin)) return toast.error("Enter your 6-digit PIN");
+    if (!user || !pending || busy) return;
     setBusy(true);
     try {
-      const { data: newId, error } = await dbUntyped.rpc("create_withdrawal", {
-        _amount: pending.amount, _method: pending.method, _account_name: pending.account_name,
-        _account_number: pending.account_number, _pin: pin,
+      const { data: newId, error } = await dbUntyped.rpc("request_withdrawal", {
+        _amount: pending.amount,
+        _method: pending.method,
+        _account_name: pending.account_name,
+        _account_number: pending.account_number,
       } as never);
       if (error) throw error;
       const withdrawalId = newId as unknown as string;
       void notifyAdminOfRequest("withdrawal", { id: withdrawalId, name: requestName(user), email: user.email ?? "Not provided", amount: formatXAF(pending.amount), method: pending.method.replace("_", " "), account: `${pending.account_name} (${pending.account_number})` });
       toast.success(t("withdraw.submitted"));
       setPending(null); setPin("");
+      await refresh();
       navigate({ to: "/dashboard/wallet", search: { filter: "Withdrawals" } as never });
     } catch (err) { toast.error((err as Error).message); }
     finally { setBusy(false); }
@@ -258,9 +253,8 @@ function WithdrawPage() {
       <Dialog open={Boolean(pending)} onOpenChange={(open) => { if (!open && !busy) { setPending(null); setPin(""); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Confirm withdrawal</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">Enter your 6-digit PIN to confirm {pending ? formatXAF(pending.amount) : ""} withdrawal.</p>
-          <Input value={pin} onChange={(e) => setPin(e.target.value.replace(/\\D/g, "").slice(0, 6))} inputMode="numeric" type="password" autoComplete="off" placeholder="6-digit PIN" aria-label="Withdrawal PIN" />
-          <DialogFooter><Button variant="outline" type="button" onClick={() => { setPending(null); setPin(""); }}>Cancel</Button><Button type="button" onClick={confirmWithdrawal} disabled={busy || pin.length !== 6}>{busy ? "Confirming…" : "Confirm withdrawal"}</Button></DialogFooter>
+          <p className="text-sm text-muted-foreground">Confirm your {pending ? formatXAF(pending.amount) : ""} withdrawal. The amount is held from your balance immediately.</p>
+          <DialogFooter><Button variant="outline" type="button" onClick={() => { setPending(null); setPin(""); }}>Cancel</Button><Button type="button" onClick={confirmWithdrawal} disabled={busy}>{busy ? "Confirming…" : "Confirm withdrawal"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
