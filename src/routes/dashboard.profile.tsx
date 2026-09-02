@@ -64,7 +64,7 @@ function ProfilePage() {
       .select("id,method,account_name,account_number,is_default")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .then(({ data }) => setAccounts((data as PayoutAccount[]) ?? []));
+      .then((res: { data: PayoutAccount[] | null }) => setAccounts(res.data ?? []));
   }, [user]);
 
   async function saveAccount(e: React.FormEvent<HTMLFormElement>) {
