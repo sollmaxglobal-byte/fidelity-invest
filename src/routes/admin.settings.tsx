@@ -56,7 +56,9 @@ type Settings = {
   auto_withdraw_ussd_template: string | null;
   deposit_min_amount: number | null;
   deposit_max_amount: number | null;
+  withdraw_min_amount: number | null;
   mtn_number: string | null;
+
   orange_number: string | null;
   mtn_enabled: boolean | null;
   orange_enabled: boolean | null;
