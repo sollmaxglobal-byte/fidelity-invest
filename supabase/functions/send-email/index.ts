@@ -7,6 +7,79 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+async function sendBroadcast(
+  recipients: string[],
+  subject: string | undefined,
+  html: string,
+) {
+  const url = Deno.env.get("SUPABASE_URL")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const admin = createClient(url, serviceKey);
+
+  const { data: settings } = await admin
+    .from("app_settings")
+    .select("*")
+    .eq("id", 1)
+    .maybeSingle();
+  if (!settings?.smtp_host || !settings?.smtp_user || !settings?.smtp_password) {
+    return new Response(
+      JSON.stringify({ error: "SMTP not configured. Open Admin → Settings to add SMTP credentials." }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
+    );
+  }
+
+  const port = Number(settings.smtp_port ?? 465);
+  const secure =
+    settings.smtp_secure === null || settings.smtp_secure === undefined
+      ? port === 465
+      : !!settings.smtp_secure;
+  const transporter = nodemailer.createTransport({
+    host: settings.smtp_host,
+    port,
+    secure,
+    auth: { user: settings.smtp_user, pass: settings.smtp_password },
+    requireTLS: !secure && port === 587,
+    tls: { rejectUnauthorized: true, servername: settings.smtp_host },
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
+  });
+  const fromName = settings.smtp_from_name || settings.site_name || "Fidelity";
+  const fromEmail = settings.smtp_from_email || settings.smtp_user;
+
+  let sent = 0;
+  let failed = 0;
+  for (const recipient of recipients) {
+    try {
+      await transporter.sendMail({
+        from: `"${fromName}" <${fromEmail}>`,
+        to: recipient,
+        subject: subject || "(no subject)",
+        html,
+      });
+      sent++;
+      await admin.from("email_logs").insert({
+        recipient,
+        template_key: "broadcast",
+        subject,
+        status: "sent",
+      });
+    } catch (e) {
+      failed++;
+      await admin.from("email_logs").insert({
+        recipient,
+        template_key: "broadcast",
+        subject,
+        status: "failed",
+        error: String((e as Error)?.message ?? e),
+      });
+    }
+  }
+  return new Response(JSON.stringify({ ok: true, sent, failed }), {
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+}
+
 function render(tpl: string, vars: Record<string, unknown>) {
   return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => {
     const v = vars[k];
