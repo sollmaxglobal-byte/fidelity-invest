@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -46,9 +46,7 @@ type Method = {
   instructions?: string;
 };
 
-const QUICK_AMOUNTS = [5000, 10000, 25000, 50000];
-const MIN_AMOUNT = 1000;
-const MAX_AMOUNT = 1000000;
+const QUICK_AMOUNTS = [500, 1000, 5000, 10000, 25000, 50000, 100000, 250000, 500000];
 
 const money = (value: string | number) => Number(value || 0).toLocaleString("fr-FR");
 const makeReference = () => `FID-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
@@ -57,20 +55,20 @@ function MethodLogo({ method }: { method: Method }) {
   const key = method.name.toLowerCase();
   if (key.includes("mtn"))
     return (
-      <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#FFCC00] text-[11px] font-black italic text-black">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFCC00] text-[10px] font-black italic text-black">
         MTN
       </span>
     );
   if (key.includes("orange"))
     return (
-      <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#FF7900] text-[10px] font-black lowercase text-white">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7900] text-[9px] font-black lowercase text-white">
         orange
       </span>
     );
   const Icon =
     method.type === "bank_transfer" ? Building2 : method.type === "crypto" ? Bitcoin : Smartphone;
   return (
-    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#2a2a33] text-[#ffd45a]">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-amber-500">
       <Icon className="h-5 w-5" />
     </span>
   );
@@ -90,27 +88,40 @@ function DepositPage() {
   const [remaining, setRemaining] = useState(900);
   const [depositId, setDepositId] = useState<string | null>(null);
   const [status, setStatus] = useState("pending");
+  const [limits, setLimits] = useState({ min: 1000, max: 10000000 });
 
   const selected = methods.find((m) => m.id === methodId);
   const amountNumber = Number(amount);
   const amountError =
-    amount && (amountNumber < MIN_AMOUNT || amountNumber > MAX_AMOUNT)
-      ? `Enter an amount between ${money(MIN_AMOUNT)} and ${money(MAX_AMOUNT)} FCFA.`
+    amount && (amountNumber < limits.min || amountNumber > limits.max)
+      ? `Enter between ${money(limits.min)} and ${money(limits.max)} FCFA.`
       : "";
+
+  const chips = useMemo(
+    () => QUICK_AMOUNTS.filter((v) => v >= limits.min && v <= limits.max).slice(0, 9),
+    [limits],
+  );
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const { data, error } = await supabase
-        .from("payment_methods")
-        .select("id, type, label, account_name, account_number, instructions")
-        .eq("active", true)
-        .in("scope", ["deposit", "both"])
-        .order("type");
-      if (error) toast.error("Could not load payment methods.");
-      if (mounted && data)
+      const [methodsRes, settingsRes] = await Promise.all([
+        supabase
+          .from("payment_methods")
+          .select("id, type, label, account_name, account_number, instructions")
+          .eq("active", true)
+          .in("scope", ["deposit", "both"])
+          .order("type"),
+        supabase
+          .from("app_settings")
+          .select("deposit_min_amount, deposit_max_amount")
+          .eq("id", 1)
+          .maybeSingle(),
+      ]);
+      if (methodsRes.error) toast.error("Could not load payment methods.");
+      if (mounted && methodsRes.data)
         setMethods(
-          data
+          methodsRes.data
             .map((m) => ({
               id: m.id,
               name: m.label,
@@ -121,6 +132,11 @@ function DepositPage() {
             }))
             .filter((m) => m.number),
         );
+      if (mounted && settingsRes.data)
+        setLimits({
+          min: Number(settingsRes.data.deposit_min_amount) || 1000,
+          max: Number(settingsRes.data.deposit_max_amount) || 10000000,
+        });
       if (mounted) setLoading(false);
     })();
     return () => {
@@ -158,7 +174,7 @@ function DepositPage() {
 
   function next() {
     if (step === 1) {
-      if (!amount || amountNumber < MIN_AMOUNT || amountNumber > MAX_AMOUNT)
+      if (!amount || amountNumber < limits.min || amountNumber > limits.max)
         return toast.error(amountError || "Enter a valid amount.");
       setStep(2);
     } else if (step === 2) {
@@ -202,59 +218,69 @@ function DepositPage() {
 
   const timer = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
 
+  const titles: Record<number, { title: string; sub: string }> = {
+    1: { title: "Enter amount", sub: "How much would you like to invest?" },
+    2: { title: "Payment method", sub: `You are depositing ${money(amount)} FCFA` },
+    3: { title: "Transfer details", sub: "Send the exact amount below" },
+    4: { title: "Payment proof", sub: "Upload your payment screenshot" },
+    5: { title: "Deposit submitted", sub: "We are verifying your payment" },
+  };
+
   if (loading)
     return (
-      <div className="grid min-h-screen place-items-center bg-[#101014] text-[#a9a9b0]">
+      <div className="grid h-[100dvh] place-items-center bg-zinc-950 text-zinc-500">
         Loading deposit options…
       </div>
     );
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#101014] text-[#f8f7f2]">
-      {/* Top bar + progress */}
-      <header className="flex items-center gap-3 px-5 pb-2 pt-[calc(env(safe-area-inset-top)+1rem)]">
+    <div className="mx-auto flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-zinc-950 px-6 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)] text-white">
+      {/* Header */}
+      <div className="flex shrink-0 items-center justify-between">
         <button
           type="button"
           aria-label="Go back"
-          onClick={() => (step > 1 && step < 5 ? setStep((step - 1) as 1 | 2 | 3 | 4) : navigate({ to: "/dashboard" }))}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1c1c23] text-[#f8f7f2]"
+          onClick={() =>
+            step > 1 && step < 5 ? setStep((step - 1) as 1 | 2 | 3 | 4) : navigate({ to: "/dashboard" })
+          }
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 text-zinc-400"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
         </button>
-        <div className="flex flex-1 items-center gap-2">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#2a2a33]">
-            <motion.div
-              className="h-full rounded-full bg-[#ffd45a]"
-              animate={{ width: `${(Math.min(step, 4) / 4) * 100}%` }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
-            />
-          </div>
-          <div className="flex gap-1.5">
-            {[1, 2, 3, 4].map((n) => (
-              <span
-                key={n}
-                className={`h-2 w-2 rounded-full ${step >= n ? "bg-[#ffd45a]" : "bg-[#3c3c47]"}`}
-              />
-            ))}
-          </div>
-        </div>
-      </header>
+        <h1 className="text-lg font-semibold">Deposit</h1>
+        <div className="w-10" />
+      </div>
 
-      <main className="flex flex-1 flex-col px-5 pb-6">
+      {/* Progress */}
+      <div className="mt-6 flex shrink-0 gap-2">
+        {[1, 2, 3, 4].map((n) => (
+          <motion.div
+            key={n}
+            className={`h-1 flex-1 rounded-full ${Math.min(step, 4) >= n ? "bg-amber-500" : "bg-zinc-800"}`}
+            layout
+          />
+        ))}
+      </div>
+
+      {/* Title */}
+      <div className="mt-6 shrink-0 text-center">
+        <h2 className="text-2xl font-bold">{titles[step].title}</h2>
+        <p className="mt-1 text-sm text-zinc-500">{titles[step].sub}</p>
+      </div>
+
+      {/* Body */}
+      <div className="mt-6 min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
               key="amount"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex flex-1 flex-col"
+              exit={{ opacity: 0, x: -16 }}
             >
-              <h1 className="mt-6 font-display text-[34px] font-bold leading-tight">
-                How much do you want to deposit?
-              </h1>
-              <div className="mt-10">
-                <div className="relative">
+              <div className="flex flex-col items-center justify-center rounded-3xl border border-zinc-800/50 bg-zinc-900/50 py-6 backdrop-blur-sm">
+                <div className="flex w-full items-baseline justify-center gap-2 px-4">
+                  <span className="text-xl font-medium text-zinc-500">FCFA</span>
                   <Input
                     id="deposit-amount"
                     value={amount ? money(amount) : ""}
@@ -262,34 +288,31 @@ function DepositPage() {
                     placeholder="0"
                     inputMode="numeric"
                     aria-label="Amount in FCFA"
-                    className="h-20 rounded-2xl border-2 border-[#ffd45a] bg-transparent pr-24 text-center text-[32px] font-bold uppercase tabular-nums text-[#ffd45a] placeholder:text-[#5c5c66]"
+                    className="h-auto border-0 bg-transparent p-0 text-center text-[44px] font-bold tracking-tight text-white tabular-nums placeholder:text-zinc-800 focus-visible:ring-0"
                   />
-                  <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-[22px] font-bold text-[#ffd45a]">
-                    FCFA
-                  </span>
                 </div>
-                <p className="mt-3 text-center text-sm text-[#a9a9b0]">
-                  Min {money(MIN_AMOUNT)} · Max {money(MAX_AMOUNT)}
-                </p>
-                {amountError && (
-                  <p className="mt-2 text-center text-sm text-destructive">{amountError}</p>
-                )}
+                <div className="mt-2 text-xs font-medium uppercase tracking-wider text-amber-500/80">
+                  Minimum: {money(limits.min)} XAF
+                </div>
               </div>
-              <div className="mt-8 grid grid-cols-2 gap-4">
-                {QUICK_AMOUNTS.map((value) => {
+              {amountError && (
+                <p className="mt-3 text-center text-sm text-destructive">{amountError}</p>
+              )}
+              <div className="mt-6 grid grid-cols-3 gap-3 pb-2">
+                {chips.map((value) => {
                   const active = amountNumber === value;
                   return (
                     <button
                       key={value}
                       type="button"
                       onClick={() => setAmount(String(value))}
-                      className={`h-14 rounded-2xl border-2 text-lg font-bold transition ${
+                      className={`rounded-xl border py-3 text-sm font-semibold tabular-nums transition-colors ${
                         active
-                          ? "border-[#ffd45a] bg-[#ffd45a] text-black"
-                          : "border-[#ffd45a] text-[#ffd45a]"
+                          ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                          : "border-zinc-800 bg-zinc-900 text-white hover:border-amber-500/50"
                       }`}
                     >
-                      {value / 1000}k
+                      {money(value)}
                     </button>
                   );
                 })}
@@ -300,60 +323,52 @@ function DepositPage() {
           {step === 2 && (
             <motion.div
               key="method"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex flex-1 flex-col"
+              exit={{ opacity: 0, x: -16 }}
+              className="flex flex-col gap-3 pb-2"
             >
-              <h1 className="mt-6 font-display text-[34px] font-bold leading-tight">
-                Select payment method
-              </h1>
-              <p className="mt-2 text-sm text-[#a9a9b0]">
-                You are depositing {money(amount)} FCFA.
-              </p>
               {methods.length === 0 ? (
-                <div className="mt-10 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[#3c3c47] p-8 text-center">
-                  <Clock3 className="h-8 w-8 text-[#a9a9b0]" />
-                  <h2 className="font-semibold">No payment methods available</h2>
-                  <p className="text-sm text-[#a9a9b0]">Please check back shortly.</p>
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-800 p-8 text-center">
+                  <Clock3 className="h-8 w-8 text-zinc-500" />
+                  <h3 className="font-semibold">No payment methods available</h3>
+                  <p className="text-sm text-zinc-500">Please check back shortly.</p>
                 </div>
               ) : (
-                <div className="mt-8 flex flex-col gap-4">
-                  {methods.map((m) => {
-                    const active = methodId === m.id;
-                    return (
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        key={m.id}
-                        type="button"
-                        onClick={() => setMethodId(m.id)}
-                        className={`relative flex items-center gap-4 rounded-2xl p-4 text-left transition ${
-                          active ? "bg-[#ffd45a] text-black" : "bg-[#26262e] text-[#f8f7f2]"
-                        }`}
-                      >
-                        <MethodLogo method={m} />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-lg font-bold">{m.name}</span>
-                          <span
-                            className={`block truncate text-xs ${active ? "text-black/70" : "text-[#a9a9b0]"}`}
-                          >
-                            {m.type === "mobile_money"
-                              ? "Mobile Money"
-                              : m.type === "bank_transfer"
-                                ? "Bank transfer"
-                                : "Crypto"}{" "}
-                            · Instant
-                          </span>
+                methods.map((m) => {
+                  const active = methodId === m.id;
+                  return (
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      key={m.id}
+                      type="button"
+                      onClick={() => setMethodId(m.id)}
+                      className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${
+                        active
+                          ? "border-amber-500/40 bg-amber-500/10"
+                          : "border-zinc-800 bg-zinc-900 hover:border-amber-500/50"
+                      }`}
+                    >
+                      <MethodLogo method={m} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold">{m.name}</span>
+                        <span className="block truncate text-xs text-zinc-500">
+                          {m.type === "mobile_money"
+                            ? "Mobile Money"
+                            : m.type === "bank_transfer"
+                              ? "Bank transfer"
+                              : "Crypto"}{" "}
+                          · Instant
                         </span>
-                        {active && (
-                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/20 text-black">
-                            <Check className="h-4 w-4" />
-                          </span>
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
+                      </span>
+                      {active && (
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-zinc-950">
+                          <Check className="h-4 w-4" />
+                        </span>
+                      )}
+                    </motion.button>
+                  );
+                })
               )}
             </motion.div>
           )}
@@ -361,47 +376,37 @@ function DepositPage() {
           {step === 3 && selected && (
             <motion.div
               key="pay"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex flex-1 flex-col"
+              exit={{ opacity: 0, x: -16 }}
+              className="flex flex-col gap-3 pb-2"
             >
-              <h1 className="mt-6 text-center font-display text-[32px] font-bold leading-tight">
-                Complete your payment
-              </h1>
-              <p className="mt-1 text-center text-sm font-semibold text-[#a9a9b0]">
-                Send exact amount
-              </p>
-              <div className="mt-8 flex flex-col gap-4">
-                <Field
-                  label="Amount to send"
-                  value={`${money(amount)} FCFA`}
-                  highlight
-                  onCopy={() => copy(amount)}
-                />
-                <Field
-                  label="Send to number"
-                  value={selected.number}
-                  onCopy={() => copy(selected.number)}
-                />
-                <Field
-                  label="Account name"
-                  value={selected.accountName || selected.name}
-                  hint="Confirm this name before you send the money"
-                  onCopy={() => copy(selected.accountName || selected.name)}
-                />
-                {selected.instructions && (
-                  <p className="rounded-2xl bg-[#1c1c23] p-4 text-sm text-[#a9a9b0]">
-                    {selected.instructions}
-                  </p>
-                )}
-              </div>
-              <div className="mt-8 flex flex-col items-center gap-1">
-                <div className="flex items-center gap-2 text-[28px] font-bold text-[#ffd45a]">
-                  <Clock3 className="h-6 w-6" />
-                  <span className="tabular-nums">{timer}</span>
-                </div>
-                <p className="text-sm text-[#a9a9b0]">Payment window expires in</p>
+              <Field
+                label="Amount to send"
+                value={`${money(amount)} FCFA`}
+                highlight
+                onCopy={() => copy(amount)}
+              />
+              <Field
+                label="Send to number"
+                value={selected.number}
+                onCopy={() => copy(selected.number)}
+              />
+              <Field
+                label="Account name"
+                value={selected.accountName || selected.name}
+                hint="Confirm this name before you send the money"
+                onCopy={() => copy(selected.accountName || selected.name)}
+              />
+              {selected.instructions && (
+                <p className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-400">
+                  {selected.instructions}
+                </p>
+              )}
+              <div className="flex items-center justify-center gap-2 pt-1 text-amber-500">
+                <Clock3 className="h-5 w-5" />
+                <span className="text-xl font-bold tabular-nums">{timer}</span>
+                <span className="text-xs text-zinc-500">left to pay</span>
               </div>
             </motion.div>
           )}
@@ -409,17 +414,18 @@ function DepositPage() {
           {step === 4 && (
             <motion.div
               key="proof"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex flex-1 flex-col"
+              exit={{ opacity: 0, x: -16 }}
+              className="pb-2"
             >
               <label
                 htmlFor="proof"
-                className="mt-6 flex min-h-52 cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[#ffd45a] p-6 text-center"
+                className="flex min-h-44 cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-amber-500/40 bg-zinc-900/50 p-6 text-center"
               >
-                <Upload className="h-9 w-9 text-[#ffd45a]" />
-                <span className="text-2xl font-bold text-[#ffd45a]">Tap to upload</span>
+                <Upload className="h-8 w-8 text-amber-500" />
+                <span className="text-lg font-semibold text-amber-500">Tap to upload</span>
+                <span className="text-xs text-zinc-500">PNG or JPG, up to 5MB</span>
                 <Input
                   id="proof"
                   type="file"
@@ -432,26 +438,23 @@ function DepositPage() {
                   }}
                 />
               </label>
-              <p className="mt-3 text-center text-sm font-semibold">
-                Upload payment screenshot or receipt
-              </p>
               {file && (
-                <div className="mt-4 flex items-center gap-3 rounded-2xl bg-[#1c1c23] p-3">
-                  <FileImage className="h-5 w-5 text-[#ffd45a]" />
+                <div className="mt-4 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-3">
+                  <FileImage className="h-5 w-5 text-amber-500" />
                   <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
                   <button
                     type="button"
                     aria-label="Remove screenshot"
                     onClick={() => setFile(null)}
-                    className="rounded-full p-1 text-[#a9a9b0]"
+                    className="rounded-full p-1 text-zinc-500"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               )}
-              <div className="mt-8 rounded-2xl bg-[#1c1c23] p-4 text-sm text-[#a9a9b0]">
-                Depositing <strong className="text-[#f8f7f2]">{money(amount)} FCFA</strong> via{" "}
-                <strong className="text-[#f8f7f2]">{selected?.name}</strong>
+              <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-3 text-sm text-zinc-400">
+                Depositing <strong className="text-white">{money(amount)} FCFA</strong> via{" "}
+                <strong className="text-white">{selected?.name}</strong>
               </div>
             </motion.div>
           )}
@@ -461,83 +464,76 @@ function DepositPage() {
               key="done"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-1 flex-col items-center pt-10 text-center"
+              className="flex flex-col items-center pb-2 text-center"
             >
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring" }}
-                className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ffd45a] text-black"
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-zinc-950"
               >
                 <Check className="h-8 w-8" />
               </motion.span>
-              <h1 className="mt-5 font-display text-2xl font-bold text-[#ffd45a]">
-                Payment submitted!
-              </h1>
 
-              <div className="mt-10 flex w-full items-center justify-between gap-2">
+              <div className="mt-8 flex w-full items-start justify-between gap-2">
                 {[
                   ["Uploaded", true],
                   ["Verifying", status === "pending"],
                   ["Credited", status === "approved"],
-                ].map(([label, done], i) => (
+                ].map(([label, done]) => (
                   <div key={String(label)} className="flex flex-1 flex-col items-center gap-2">
                     <span
                       className={`flex h-7 w-7 items-center justify-center rounded-full ${
-                        done ? "bg-[#ffd45a] text-black" : "bg-[#2a2a33] text-[#a9a9b0]"
+                        done ? "bg-amber-500 text-zinc-950" : "bg-zinc-800 text-zinc-500"
                       }`}
                     >
                       {done ? <Check className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}
                     </span>
                     <span className="text-xs font-semibold">{label}</span>
-                    {i === 1 && status === "pending" && (
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ffd45a]" />
-                    )}
                   </div>
                 ))}
               </div>
 
-              <div className="mt-10 w-full rounded-2xl bg-[#1c1c23] p-4 text-left text-sm">
+              <div className="mt-8 w-full rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 text-left text-sm">
                 <Row label="Amount" value={`${money(amount)} FCFA`} />
                 <Row label="Method" value={selected?.name ?? "—"} />
                 <Row label="Reference" value={reference} />
               </div>
 
-              <p className="mt-8 text-sm font-semibold">Estimated time: 5–15 minutes</p>
-              <p className="mt-1 text-sm text-[#a9a9b0]">We’ll notify you once credited</p>
+              <p className="mt-6 text-sm font-semibold">Estimated time: 5–15 minutes</p>
+              <p className="mt-1 text-sm text-zinc-500">We’ll notify you once credited</p>
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </div>
 
-      {/* Sticky full-width action */}
-      <div className="sticky bottom-0 bg-[#101014] px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3">
-        {step < 4 && (
-          <Button
-            onClick={next}
-            disabled={step === 2 && methods.length === 0}
-            className="h-14 w-full rounded-2xl bg-[#ffd45a] text-lg font-bold text-black hover:bg-[#ffd45a]/90"
-          >
-            {step === 3 ? "I have paid" : "Continue"}
-          </Button>
+      {/* Footer action */}
+      <div className="shrink-0 pt-4">
+        {step === 1 && (
+          <div className="mb-4 flex items-center justify-between px-2">
+            <span className="text-sm text-zinc-500">Service fee</span>
+            <span className="text-sm font-medium text-zinc-300">0 XAF</span>
+          </div>
         )}
-        {step === 4 && (
-          <Button
-            onClick={submitProof}
-            disabled={!file || submitting}
-            className="h-14 w-full rounded-2xl bg-[#ffd45a] text-lg font-bold text-black hover:bg-[#ffd45a]/90"
-          >
-            {submitting ? "Submitting…" : "Submit payment"}
-          </Button>
-        )}
-        {step === 5 && (
-          <Button
-            onClick={() => navigate({ to: "/dashboard" })}
-            className="h-14 w-full rounded-2xl bg-[#ffd45a] text-lg font-bold text-black hover:bg-[#ffd45a]/90"
-          >
-            Back to dashboard
-          </Button>
-        )}
+        <Button
+          onClick={
+            step < 4 ? next : step === 4 ? submitProof : () => navigate({ to: "/dashboard" })
+          }
+          disabled={
+            (step === 2 && methods.length === 0) || (step === 4 && (!file || submitting))
+          }
+          className="h-14 w-full rounded-2xl bg-amber-500 text-base font-bold text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all hover:bg-amber-400 active:scale-[0.98]"
+        >
+          {step === 3
+            ? "I have paid"
+            : step === 4
+              ? submitting
+                ? "Submitting…"
+                : "Submit payment"
+              : step === 5
+                ? "Back to dashboard"
+                : "Continue"}
+        </Button>
       </div>
     </div>
   );
@@ -557,29 +553,34 @@ function Field({
   onCopy?: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-[#ffd45a]/60 p-4">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
       <div className="flex items-start justify-between gap-3">
-        <span className="text-sm font-semibold text-[#ffd45a]">{label}</span>
+        <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">{label}</span>
         {onCopy && (
-          <button type="button" onClick={onCopy} aria-label={`Copy ${label}`} className="text-[#ffd45a]">
+          <button
+            type="button"
+            onClick={onCopy}
+            aria-label={`Copy ${label}`}
+            className="text-amber-500"
+          >
             <Copy className="h-4 w-4" />
           </button>
         )}
       </div>
       <p
-        className={`mt-1 break-words text-2xl font-bold ${highlight ? "text-[#ffd45a]" : "text-[#f8f7f2]"}`}
+        className={`mt-1 break-words text-xl font-bold tabular-nums ${highlight ? "text-amber-500" : "text-white"}`}
       >
         {value}
       </p>
-      {hint && <p className="mt-1 text-xs text-[#a9a9b0]">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-zinc-500">{hint}</p>}
     </div>
   );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-2 last:border-0">
-      <span className="text-[#a9a9b0]">{label}</span>
+    <div className="flex items-center justify-between gap-3 border-b border-zinc-800 py-2 last:border-0">
+      <span className="text-zinc-500">{label}</span>
       <span className="font-bold">{value}</span>
     </div>
   );
