@@ -62,6 +62,30 @@ Deno.serve(async (req) => {
     let { to } = body ?? {};
     const { template_key, variables = {}, subject: customSubject, html: customHtml } = body ?? {};
 
+    // Broadcast mode: admin/internal sends the same custom email to many recipients.
+    if (Array.isArray(to)) {
+      if (!isAdmin || template_key) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+      const recipients = [
+        ...new Set(
+          to
+            .map((r: unknown) => String(r ?? "").trim().toLowerCase())
+            .filter((r: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r)),
+        ),
+      ];
+      if (!recipients.length || !customHtml) {
+        return new Response(
+          JSON.stringify({ error: "recipients array and html required" }),
+          { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
+        );
+      }
+      return await sendBroadcast(recipients, customSubject, customHtml);
+    }
+
     // Non-admin users may only trigger their own self-notification templates.
     const SELF_TEMPLATES = [
       "welcome",
