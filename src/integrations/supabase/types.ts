@@ -812,6 +812,12 @@ export type Database = {
         Args: { _id: string; _note?: string }
         Returns: Json
       }
+      get_admin_user_emails: {
+        Args: never
+        Returns: {
+          email: string
+        }[]
+      }
       get_app_settings_admin: {
         Args: never
         Returns: {
