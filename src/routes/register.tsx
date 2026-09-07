@@ -140,7 +140,7 @@ function RegisterPage() {
         </div>
         <div>
           <Label htmlFor="email">{t("auth.email")}</Label>
-          <Input id="email" name="email" type="email" required autoComplete="email" />
+          <Input id="email" name="email" type="email" required autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="email" />
         </div>
         <div>
           <Label htmlFor="password">{t("auth.password")}</Label>

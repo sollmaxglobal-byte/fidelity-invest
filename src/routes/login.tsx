@@ -93,7 +93,7 @@ function LoginPage() {
       <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <Label htmlFor="email">{t("auth.email")}</Label>
-          <Input id="email" name="email" type="email" required autoComplete="email" />
+          <Input id="email" name="email" type="email" required autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="email" />
         </div>
         <div>
           <div className="flex items-center justify-between">
