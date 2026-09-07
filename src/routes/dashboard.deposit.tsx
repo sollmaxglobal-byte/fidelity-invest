@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { verifyDepositProof } from "@/lib/deposit-verify.functions";
 
 export const Route = createFileRoute("/dashboard/deposit")({
   head: () => ({
