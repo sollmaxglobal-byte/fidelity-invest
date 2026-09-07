@@ -28,7 +28,13 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
+const loginSchema = z.object({
+  email: z
+    .string()
+    .transform((value) => value.trim().toLowerCase())
+    .pipe(z.string().email()),
+  password: z.string().min(1),
+});
 
 function LoginPage() {
   const { user, loading } = useAuth();
@@ -87,7 +93,7 @@ function LoginPage() {
       <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <Label htmlFor="email">{t("auth.email")}</Label>
-          <Input id="email" name="email" type="email" required autoComplete="email" />
+          <Input id="email" name="email" type="email" required autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="email" />
         </div>
         <div>
           <div className="flex items-center justify-between">
