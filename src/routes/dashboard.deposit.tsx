@@ -254,7 +254,7 @@ function DepositPage() {
       </div>
 
       {/* Progress */}
-      <div className="mt-6 flex shrink-0 gap-2">
+      <div className="mt-4 flex shrink-0 gap-2">
         {[1, 2, 3, 4].map((n) => (
           <motion.div
             key={n}
@@ -265,13 +265,13 @@ function DepositPage() {
       </div>
 
       {/* Title */}
-      <div className="mt-6 shrink-0 text-center">
-        <h2 className="text-2xl font-bold">{titles[step].title}</h2>
+      <div className="mt-4 shrink-0 text-center">
+        <h2 className="text-xl font-bold">{titles[step].title}</h2>
         <p className="mt-1 text-sm text-zinc-500">{titles[step].sub}</p>
       </div>
 
       {/* Body */}
-      <div className="mt-6 min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mt-4 min-h-0 flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
@@ -280,7 +280,7 @@ function DepositPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
             >
-              <div className="flex flex-col items-center justify-center rounded-3xl border border-zinc-800/50 bg-zinc-900/50 py-6 backdrop-blur-sm">
+              <div className="flex flex-col items-center justify-center rounded-3xl border border-zinc-800/50 bg-zinc-900/50 py-4 backdrop-blur-sm">
                 <div className="flex w-full items-baseline justify-center gap-2 px-4">
                   <span className="text-xl font-medium text-zinc-500">FCFA</span>
                   <Input
@@ -290,7 +290,7 @@ function DepositPage() {
                     placeholder="0"
                     inputMode="numeric"
                     aria-label="Amount in FCFA"
-                    className="h-auto border-0 bg-transparent p-0 text-center text-[44px] font-bold tracking-tight text-white tabular-nums placeholder:text-zinc-800 focus-visible:ring-0"
+                    className="h-auto border-0 bg-transparent p-0 text-center text-[38px] font-bold tracking-tight text-white tabular-nums placeholder:text-zinc-800 focus-visible:ring-0"
                   />
                 </div>
                 <div className="mt-2 text-xs font-medium uppercase tracking-wider text-amber-500/80">
@@ -300,7 +300,7 @@ function DepositPage() {
               {amountError && (
                 <p className="mt-3 text-center text-sm text-destructive">{amountError}</p>
               )}
-              <div className="mt-6 grid grid-cols-3 gap-3 pb-2">
+              <div className="mt-4 grid grid-cols-3 gap-2">
                 {chips.map((value) => {
                   const active = amountNumber === value;
                   return (
@@ -308,7 +308,7 @@ function DepositPage() {
                       key={value}
                       type="button"
                       onClick={() => setAmount(String(value))}
-                      className={`rounded-xl border py-3 text-sm font-semibold tabular-nums transition-colors ${
+                      className={`rounded-xl border py-2.5 text-[13px] font-semibold tabular-nums transition-colors ${
                         active
                           ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
                           : "border-zinc-800 bg-zinc-900 text-white hover:border-amber-500/50"
@@ -328,7 +328,7 @@ function DepositPage() {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
-              className="flex flex-col gap-3 pb-2"
+              className="flex h-full flex-col gap-2 overflow-hidden"
             >
               {methods.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-800 p-8 text-center">
@@ -345,7 +345,7 @@ function DepositPage() {
                       key={m.id}
                       type="button"
                       onClick={() => setMethodId(m.id)}
-                      className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${
+                      className={`flex items-center gap-3 rounded-2xl border p-2.5 text-left transition-colors ${
                         active
                           ? "border-amber-500/40 bg-amber-500/10"
                           : "border-zinc-800 bg-zinc-900 hover:border-amber-500/50"
@@ -381,7 +381,7 @@ function DepositPage() {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
-              className="flex flex-col gap-3 pb-2"
+              className="flex h-full flex-col gap-2 overflow-hidden"
             >
               <Field
                 label="Amount to send"
@@ -423,7 +423,7 @@ function DepositPage() {
             >
               <label
                 htmlFor="proof"
-                className="flex min-h-44 cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-amber-500/40 bg-zinc-900/50 p-6 text-center"
+                className="flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-amber-500/40 bg-zinc-900/50 p-5 text-center"
               >
                 <Upload className="h-8 w-8 text-amber-500" />
                 <span className="text-lg font-semibold text-amber-500">Tap to upload</span>
@@ -441,7 +441,7 @@ function DepositPage() {
                 />
               </label>
               {file && (
-                <div className="mt-4 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-3">
+                <div className="mt-3 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-2.5">
                   <FileImage className="h-5 w-5 text-amber-500" />
                   <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
                   <button
@@ -454,7 +454,7 @@ function DepositPage() {
                   </button>
                 </div>
               )}
-              <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-3 text-sm text-zinc-400">
+              <div className="mt-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-3 text-sm text-zinc-400">
                 Depositing <strong className="text-white">{money(amount)} FCFA</strong> via{" "}
                 <strong className="text-white">{selected?.name}</strong>
               </div>
@@ -466,7 +466,7 @@ function DepositPage() {
               key="done"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col items-center pb-2 text-center"
+              className="flex h-full flex-col items-center overflow-hidden text-center"
             >
               <motion.span
                 initial={{ scale: 0 }}
@@ -477,7 +477,7 @@ function DepositPage() {
                 <Check className="h-8 w-8" />
               </motion.span>
 
-              <div className="mt-8 flex w-full items-start justify-between gap-2">
+              <div className="mt-5 flex w-full items-start justify-between gap-2">
                 {[
                   ["Uploaded", true],
                   ["Verifying", status === "pending"],
@@ -496,13 +496,13 @@ function DepositPage() {
                 ))}
               </div>
 
-              <div className="mt-8 w-full rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 text-left text-sm">
+              <div className="mt-5 w-full rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 text-left text-sm">
                 <Row label="Amount" value={`${money(amount)} FCFA`} />
                 <Row label="Method" value={selected?.name ?? "—"} />
                 <Row label="Reference" value={reference} />
               </div>
 
-              <p className="mt-6 text-sm font-semibold">Estimated time: 5–15 minutes</p>
+              <p className="mt-4 text-sm font-semibold">Estimated time: 5–15 minutes</p>
               <p className="mt-1 text-sm text-zinc-500">We’ll notify you once credited</p>
             </motion.div>
           )}
@@ -510,9 +510,9 @@ function DepositPage() {
       </div>
 
       {/* Footer action */}
-      <div className="shrink-0 pt-4">
+      <div className="shrink-0 pt-3">
         {step === 1 && (
-          <div className="mb-4 flex items-center justify-between px-2">
+          <div className="mb-3 flex items-center justify-between px-2">
             <span className="text-sm text-zinc-500">Service fee</span>
             <span className="text-sm font-medium text-zinc-300">0 XAF</span>
           </div>
@@ -524,7 +524,7 @@ function DepositPage() {
           disabled={
             (step === 2 && methods.length === 0) || (step === 4 && (!file || submitting))
           }
-          className="h-14 w-full rounded-2xl bg-amber-500 text-base font-bold text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all hover:bg-amber-400 active:scale-[0.98]"
+          className="h-13 min-h-[52px] w-full rounded-2xl bg-amber-500 text-base font-bold text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all hover:bg-amber-400 active:scale-[0.98]"
         >
           {step === 3
             ? "I have paid"
@@ -555,7 +555,7 @@ function Field({
   onCopy?: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-3">
       <div className="flex items-start justify-between gap-3">
         <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">{label}</span>
         {onCopy && (
