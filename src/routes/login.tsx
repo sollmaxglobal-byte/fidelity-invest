@@ -28,7 +28,13 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
+const loginSchema = z.object({
+  email: z
+    .string()
+    .transform((value) => value.trim().toLowerCase())
+    .pipe(z.string().email()),
+  password: z.string().min(1),
+});
 
 function LoginPage() {
   const { user, loading } = useAuth();
