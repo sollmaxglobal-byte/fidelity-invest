@@ -187,12 +187,12 @@ function DepositPage() {
     if (!user || !file || !selected) return toast.error("Upload your payment screenshot.");
     setSubmitting(true);
     try {
-      const path = `${user.id}/${reference}`;
+      const ext = (file.name.split(".").pop() || "jpg").replace(/[^\w]/g, "");
+      const path = `${user.id}/${Date.now()}-${reference}.${ext}`;
       const { error: uploadError } = await supabase.storage
-        .from("deposit-proofs")
-        .upload(path, file, { upsert: true, contentType: file.type });
+        .from("payment-proofs")
+        .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
       if (uploadError) throw uploadError;
-      const { data: publicFile } = supabase.storage.from("deposit-proofs").getPublicUrl(path);
       const { data, error } = await supabase
         .from("deposits")
         .insert({
@@ -200,13 +200,14 @@ function DepositPage() {
           amount: amountNumber,
           payment_method_id: selected.id,
           reference,
-          proof_url: publicFile.publicUrl,
+          proof_url: path,
           status: "pending",
         })
         .select("id")
         .single();
       if (error) throw error;
       setDepositId(data?.id ?? null);
+      void verifyDepositProof({ data: { depositId: data.id } }).catch(() => {});
       setStep(5);
       toast.success("Payment submitted");
     } catch (error) {
