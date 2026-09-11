@@ -16,6 +16,8 @@ export default defineConfig({
   // while the browser bundle reads VITE_* values at build time.
   vite: {
     define: {
+      "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(env.VITE_SUPABASE_PROJECT_ID || env.SUPABASE_PROJECT_ID || env.SUPABASE_PROJECT_ID_2 || ""),
+      "import.meta.env.VITE_SUPABASE_PROJECT_ID_2": JSON.stringify(env.VITE_SUPABASE_PROJECT_ID_2 || env.SUPABASE_PROJECT_ID_2 || ""),
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL_2 || env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || env.SUPABASE_URL_2 || ""),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY_2 || env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_PUBLISHABLE_KEY_2 || ""),
       "import.meta.env.VITE_SUPABASE_ANON_KEY": JSON.stringify(env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY_2 || env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || ""),

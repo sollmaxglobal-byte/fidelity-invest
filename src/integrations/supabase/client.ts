@@ -6,13 +6,22 @@ import { brokeredPreviewStorage } from "./previewAuthStorage";
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL =
+  const configuredProjectId =
+    import.meta.env.VITE_SUPABASE_PROJECT_ID ||
+    import.meta.env.VITE_SUPABASE_PROJECT_ID_2 ||
+    process.env.SUPABASE_PROJECT_ID ||
+    process.env.SUPABASE_PROJECT_ID_2;
+  const configuredUrl =
     import.meta.env.VITE_SUPABASE_URL ||
     import.meta.env.VITE_SUPABASE_URL_2 ||
     import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.SUPABASE_URL ||
     process.env.SUPABASE_URL_2;
+  const SUPABASE_URL = configuredUrl ||
+    (configuredProjectId && !configuredProjectId.startsWith("process.env.")
+      ? `https://${configuredProjectId}.supabase.co`
+      : undefined);
   const SUPABASE_PUBLISHABLE_KEY =
     import.meta.env.VITE_SUPABASE_ANON_KEY ||
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
@@ -22,7 +31,8 @@ function createSupabaseClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.SUPABASE_PUBLISHABLE_KEY;
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY_2;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
