@@ -52,10 +52,16 @@ function LoginPage() {
     const fd = new FormData(e.currentTarget);
     try {
       const v = loginSchema.parse({ email: fd.get("email"), password: fd.get("password") });
-      const { error } = await supabase.auth.signInWithPassword({
-        email: v.email,
-        password: v.password,
-      });
+      let error: { message?: string } | null = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const result = await supabase.auth.signInWithPassword({
+          email: v.email,
+          password: v.password,
+        });
+        error = result.error;
+        if (!error || !/failed to fetch|network|fetch/i.test(error.message ?? "")) break;
+        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 500));
+      }
       if (error) throw error;
       toast.success(t("auth.welcomeToast"));
     } catch (err) {
@@ -69,6 +75,8 @@ function LoginPage() {
           ? "Please confirm your email address before signing in."
           : normalized.includes("rate limit")
             ? "Too many attempts. Please wait a moment and try again."
+            : normalized.includes("failed to fetch") || normalized.includes("network")
+              ? "We couldn't reach the sign-in service. Check your connection and try again."
             : normalized.includes("missing supabase")
               ? "Sign-in is temporarily unavailable. Please try again shortly."
               : msg;

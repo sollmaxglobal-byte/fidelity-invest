@@ -60,21 +60,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      setLoading(false);
-      if (s?.user) {
-        if (await checkSuspended(s.user.id)) return;
-        const { data } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", s.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
-        setIsAdmin(!!data);
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(async ({ data: { session: s }, error }) => {
+        if (error) {
+          console.warn("[Auth] Unable to restore the existing session", error);
+        }
+        setSession(s);
+        setUser(s?.user ?? null);
+        setLoading(false);
+        if (s?.user) {
+          if (await checkSuspended(s.user.id)) return;
+          const { data } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", s.user.id)
+            .eq("role", "admin")
+            .maybeSingle();
+          setIsAdmin(!!data);
+        }
+      })
+      .catch((error) => {
+        console.warn("[Auth] Session restore failed", error);
+        setLoading(false);
+      });
 
     return () => sub.subscription.unsubscribe();
   }, []);
