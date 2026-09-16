@@ -19,6 +19,7 @@ import {
 import { formatDate, formatXAF } from "@/lib/format";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { dbUntyped } from "@/integrations/supabase/untyped";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { Money } from "@/components/Money";
@@ -63,9 +64,14 @@ const itemVariants = {
 
 type Profile = {
   full_name: string | null;
-  balance: number;
   referral_code: string | null;
   referral_earnings: number | null;
+};
+
+type Balance = {
+  available_balance: number | null;
+  main_wallet: number | null;
+  total_profit: number | null;
 };
 
 type ActiveInvestment = {
@@ -90,54 +96,83 @@ function DashboardHome() {
   const { t } = useI18n();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [balance, setBalance] = useState<Balance | null>(null);
   const [referralCount, setReferralCount] = useState(0);
   const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
-  const [balanceRaw, setBalanceRaw] = useState<unknown>(null);
-  const [sessionExists, setSessionExists] = useState(false);
+  const [transactions, setTransactions] = useState<unknown[]>([]);
+  const [referrals, setReferrals] = useState<unknown[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
     const loadDashboard = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const session = sessionData.session;
-      setSessionExists(Boolean(session));
+      setLoading(true);
       const { data: authData } = await supabase.auth.getUser();
       const currentUser = authData.user;
-      console.log("[v0] LOGGED USER ID:", currentUser?.id);
-      if (!currentUser || cancelled) return;
-
-      const [profileResult, referralResult, investmentsResult] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("full_name,balance,referral_code,referral_earnings")
-          .eq("id", currentUser.id)
-          .maybeSingle(),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("referred_by", currentUser.id),
-        supabase
-          .from("investments")
-          .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
-          .eq("user_id", currentUser.id)
-          .eq("status", "active")
-          .order("end_date", { ascending: true }),
-      ]);
-
-      const rawBalance = profileResult.data?.balance ?? null;
-      console.log("[v0] BALANCE RESULT:", rawBalance, "ERROR:", profileResult.error);
-      if (profileResult.error) {
-        console.error("[v0] SUPABASE ERROR FULL:", JSON.stringify(profileResult.error));
+      if (!currentUser || cancelled) {
+        if (!cancelled) setLoading(false);
+        return;
       }
-      if (referralResult.error) console.error("[v0] REFERRAL ERROR:", referralResult.error);
-      if (investmentsResult.error) console.error("[v0] INVESTMENTS ERROR:", investmentsResult.error);
-      if (cancelled) return;
 
-      setBalanceRaw(rawBalance);
-      setProfile(profileResult.data as Profile | null);
-      setReferralCount(referralResult.count ?? 0);
+      const [profileResult, balanceResult, transactionsResult, referralsResult, investmentsResult] =
+        await Promise.all([
+          supabase
+            .from("profiles")
+            .select("full_name,referral_code,referral_earnings")
+            .eq("id", currentUser.id)
+            .maybeSingle(),
+          dbUntyped.from("balances").select("*").eq("user_id", currentUser.id).maybeSingle(),
+          dbUntyped
+            .from("transactions")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .limit(10),
+          dbUntyped.from("referrals").select("*").eq("referrer_id", currentUser.id),
+          supabase
+            .from("investments")
+            .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
+            .eq("user_id", currentUser.id)
+            .eq("status", "active")
+            .order("end_date", { ascending: true }),
+        ]);
+
+      let loadedProfile = profileResult.data as Profile | null;
+      if (!loadedProfile) {
+        const { data } = await supabase
+          .from("profiles")
+          .insert({
+            id: currentUser.id,
+            full_name: currentUser.user_metadata?.full_name ?? currentUser.email ?? null,
+          })
+          .select("full_name,referral_code,referral_earnings")
+          .maybeSingle();
+        loadedProfile = data as Profile | null;
+      }
+
+      let loadedBalance = balanceResult.data as Balance | null;
+      if (!loadedBalance) {
+        const { data } = await dbUntyped
+          .from("balances")
+          .insert({
+            user_id: currentUser.id,
+            available_balance: 0,
+            main_wallet: 0,
+            total_profit: 0,
+          })
+          .select("*")
+          .maybeSingle();
+        loadedBalance = data as Balance | null;
+      }
+
+      if (cancelled) return;
+      setProfile(loadedProfile);
+      setBalance(loadedBalance);
+      setTransactions(transactionsResult.data ?? []);
+      setReferrals(referralsResult.data ?? []);
+      setReferralCount(referralsResult.data?.length ?? 0);
       setInvestments((investmentsResult.data as unknown as ActiveInvestment[]) ?? []);
+      setLoading(false);
     };
 
     void loadDashboard();
@@ -145,9 +180,16 @@ function DashboardHome() {
       cancelled = true;
     };
   }, [user?.id]);
-
-  const debugUserId = user?.id ?? "none";
   const toggleBalance = () => setBalanceVisible((visible) => !visible);
+
+  if (loading) {
+    return <div className="space-y-4 pb-4" aria-busy="true" aria-label="Loading dashboard">
+      <div className="h-10 w-48 animate-pulse rounded-lg bg-muted" />
+      <div className="h-48 animate-pulse rounded-[2rem] bg-muted" />
+      <div className="h-32 animate-pulse rounded-2xl bg-muted" />
+      <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+    </div>;
+  }
 
   const totalInvested = useMemo(
     () => investments.reduce((s, i) => s + Number(i.amount), 0),
@@ -165,10 +207,6 @@ function DashboardHome() {
       initial="hidden"
       animate="show"
     >
-      <pre className="overflow-auto rounded-xl border border-warning/40 bg-warning/10 p-3 text-[10px] leading-4 text-warning">
-        {JSON.stringify({ userId: debugUserId, sessionExists, balanceRaw }, null, 2)}
-      </pre>
-
       {/* Greeting */}
       <motion.div variants={itemVariants} className="flex items-start justify-between gap-3">
         <div>
@@ -211,7 +249,7 @@ function DashboardHome() {
           </div>
           <div className="mt-1.5 font-display text-3xl leading-tight text-foreground sm:text-4xl">
             {balanceVisible ? (
-              <AnimatedNumber value={profile?.balance ?? 0} />
+              <AnimatedNumber value={balance?.available_balance ?? 0} />
             ) : (
               <span aria-label="Balance hidden">••••••••</span>
             )}
@@ -224,7 +262,7 @@ function DashboardHome() {
               Main wallet
             </p>
             <p className="mt-2 text-lg font-semibold text-foreground">
-              {balanceVisible ? <Money value={Number(profile?.balance ?? 0)} /> : "••••••"}
+              {balanceVisible ? <Money value={Number(balance?.available_balance ?? 0)} /> : "••••••"}
             </p>
             <p className="mt-1 text-[10px] text-muted-foreground">Available balance</p>
           </div>
@@ -478,7 +516,7 @@ function ReferralCard({
   const link = useMemo(
     () =>
       code && typeof window !== "undefined"
-        ? `${window.location.origin}/register?ref=${encodeURIComponent(code)}`
+        ? `https://fidelitycmr.vercel.app/register?ref=${encodeURIComponent(code)}`
         : "",
     [code],
   );
