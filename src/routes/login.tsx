@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +39,6 @@ const loginSchema = z.object({
 function LoginPage() {
   const { user, loading } = useAuth();
   const { t } = useI18n();
-  const queryClient = useQueryClient();
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
 
@@ -62,14 +60,11 @@ function LoginPage() {
 
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) throw sessionError;
-      if (!sessionData.session?.user?.id) throw new Error("Unable to establish a session.");
-
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["balance"] }),
-        queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
-        queryClient.invalidateQueries({ queryKey: ["user"] }),
-      ]);
+      if (!sessionData.session) throw new Error("No session after login");
+      localStorage.setItem("debug_session", JSON.stringify(sessionData.session));
+      console.log("[v0] SESSION BEFORE NAVIGATE:", sessionData.session);
       toast.success(t("auth.welcomeToast"));
+      nav({ to: "/dashboard" });
     } catch (err) {
       const msg = err instanceof z.ZodError
         ? err.issues[0]?.message ?? "Enter a valid email and password."

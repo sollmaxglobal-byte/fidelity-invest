@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowDownToLine,
@@ -90,44 +89,64 @@ function DashboardHome() {
   const { user } = useAuth();
   const { t } = useI18n();
   const [balanceVisible, setBalanceVisible] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [referralCount, setReferralCount] = useState(0);
+  const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
+  const [balanceRaw, setBalanceRaw] = useState<unknown>(null);
+  const [sessionExists, setSessionExists] = useState(false);
 
-  const dashboardQuery = useQuery({
-    queryKey: ["dashboard", user?.id],
-    enabled: !!user?.id,
-    staleTime: 0,
-    queryFn: async () => {
-      if (!user?.id) throw new Error("A signed-in user is required.");
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDashboard = async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+      setSessionExists(Boolean(session));
+      const { data: authData } = await supabase.auth.getUser();
+      const currentUser = authData.user;
+      console.log("[v0] LOGGED USER ID:", currentUser?.id);
+      if (!currentUser || cancelled) return;
+
       const [profileResult, referralResult, investmentsResult] = await Promise.all([
         supabase
           .from("profiles")
           .select("full_name,balance,referral_code,referral_earnings")
-          .eq("id", user.id)
+          .eq("id", currentUser.id)
           .maybeSingle(),
         supabase
           .from("profiles")
-          .select("*", { count: "exact", head: true })
-          .eq("referred_by", user.id),
+          .select("id", { count: "exact", head: true })
+          .eq("referred_by", currentUser.id),
         supabase
           .from("investments")
           .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
-          .eq("user_id", user.id)
+          .eq("user_id", currentUser.id)
           .eq("status", "active")
           .order("end_date", { ascending: true }),
       ]);
-      if (profileResult.error) throw profileResult.error;
-      if (referralResult.error) throw referralResult.error;
-      if (investmentsResult.error) throw investmentsResult.error;
-      return {
-        profile: profileResult.data as Profile | null,
-        referralCount: referralResult.count ?? 0,
-        investments: (investmentsResult.data as unknown as ActiveInvestment[]) ?? [],
-      };
-    },
-  });
 
-  const profile = dashboardQuery.data?.profile ?? null;
-  const referralCount = dashboardQuery.data?.referralCount ?? 0;
-  const investments = dashboardQuery.data?.investments ?? [];
+      const rawBalance = profileResult.data?.balance ?? null;
+      console.log("[v0] BALANCE RESULT:", rawBalance, "ERROR:", profileResult.error);
+      if (profileResult.error) {
+        console.error("[v0] SUPABASE ERROR FULL:", JSON.stringify(profileResult.error));
+      }
+      if (referralResult.error) console.error("[v0] REFERRAL ERROR:", referralResult.error);
+      if (investmentsResult.error) console.error("[v0] INVESTMENTS ERROR:", investmentsResult.error);
+      if (cancelled) return;
+
+      setBalanceRaw(rawBalance);
+      setProfile(profileResult.data as Profile | null);
+      setReferralCount(referralResult.count ?? 0);
+      setInvestments((investmentsResult.data as unknown as ActiveInvestment[]) ?? []);
+    };
+
+    void loadDashboard();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  const debugUserId = user?.id ?? "none";
   const toggleBalance = () => setBalanceVisible((visible) => !visible);
 
   const totalInvested = useMemo(
@@ -146,6 +165,10 @@ function DashboardHome() {
       initial="hidden"
       animate="show"
     >
+      <pre className="overflow-auto rounded-xl border border-warning/40 bg-warning/10 p-3 text-[10px] leading-4 text-warning">
+        {JSON.stringify({ userId: debugUserId, sessionExists, balanceRaw }, null, 2)}
+      </pre>
+
       {/* Greeting */}
       <motion.div variants={itemVariants} className="flex items-start justify-between gap-3">
         <div>
