@@ -61,8 +61,6 @@ function LoginPage() {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) throw sessionError;
       if (!sessionData.session) throw new Error("No session after login");
-      localStorage.setItem("debug_session", JSON.stringify(sessionData.session));
-      console.log("[v0] SESSION BEFORE NAVIGATE:", sessionData.session);
       toast.success(t("auth.welcomeToast"));
       nav({ to: "/dashboard" });
     } catch (err) {
