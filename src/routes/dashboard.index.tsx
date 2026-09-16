@@ -92,50 +92,45 @@ function DashboardHome() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [referralCount, setReferralCount] = useState(0);
   const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
-  const [balanceRaw, setBalanceRaw] = useState<unknown>(null);
-  const [sessionExists, setSessionExists] = useState(false);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     const loadDashboard = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const session = sessionData.session;
-      setSessionExists(Boolean(session));
-      const { data: authData } = await supabase.auth.getUser();
-      const currentUser = authData.user;
-      console.log("[v0] LOGGED USER ID:", currentUser?.id);
-      if (!currentUser || cancelled) return;
+      if (!user?.id) return;
+      setDashboardError(null);
 
       const [profileResult, referralResult, investmentsResult] = await Promise.all([
         supabase
           .from("profiles")
           .select("full_name,balance,referral_code,referral_earnings")
-          .eq("id", currentUser.id)
+          .eq("id", user.id)
           .maybeSingle(),
         supabase
           .from("profiles")
           .select("id", { count: "exact", head: true })
-          .eq("referred_by", currentUser.id),
+          .eq("referred_by", user.id),
         supabase
           .from("investments")
           .select("id,amount,total_earned,start_date,end_date,is_paused,plans(name)")
-          .eq("user_id", currentUser.id)
+          .eq("user_id", user.id)
           .eq("status", "active")
           .order("end_date", { ascending: true }),
       ]);
 
-      const rawBalance = profileResult.data?.balance ?? null;
-      console.log("[v0] BALANCE RESULT:", rawBalance, "ERROR:", profileResult.error);
-      if (profileResult.error) {
-        console.error("[v0] SUPABASE ERROR FULL:", JSON.stringify(profileResult.error));
-      }
-      if (referralResult.error) console.error("[v0] REFERRAL ERROR:", referralResult.error);
-      if (investmentsResult.error) console.error("[v0] INVESTMENTS ERROR:", investmentsResult.error);
       if (cancelled) return;
+      const firstError = profileResult.error ?? referralResult.error ?? investmentsResult.error;
+      if (firstError) {
+        setDashboardError(firstError.message);
+        return;
+      }
+      if (!profileResult.data) {
+        setDashboardError("Your profile could not be found. Please contact support.");
+        return;
+      }
 
-      setBalanceRaw(rawBalance);
-      setProfile(profileResult.data as Profile | null);
+      setProfile(profileResult.data as Profile);
       setReferralCount(referralResult.count ?? 0);
       setInvestments((investmentsResult.data as unknown as ActiveInvestment[]) ?? []);
     };
@@ -145,8 +140,6 @@ function DashboardHome() {
       cancelled = true;
     };
   }, [user?.id]);
-
-  const debugUserId = user?.id ?? "none";
   const toggleBalance = () => setBalanceVisible((visible) => !visible);
 
   const totalInvested = useMemo(
@@ -165,9 +158,11 @@ function DashboardHome() {
       initial="hidden"
       animate="show"
     >
-      <pre className="overflow-auto rounded-xl border border-warning/40 bg-warning/10 p-3 text-[10px] leading-4 text-warning">
-        {JSON.stringify({ userId: debugUserId, sessionExists, balanceRaw }, null, 2)}
-      </pre>
+      {dashboardError && (
+        <div role="alert" className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          We couldn&apos;t load your account data: {dashboardError}
+        </div>
+      )}
 
       {/* Greeting */}
       <motion.div variants={itemVariants} className="flex items-start justify-between gap-3">

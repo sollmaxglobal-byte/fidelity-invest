@@ -41,29 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) {
-        setTimeout(async () => {
-          if (await checkSuspended(s.user.id)) return;
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", s.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(!!data);
-        }, 0);
-      } else {
-        setIsAdmin(false);
-      }
-    });
+    let active = true;
 
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+    const loadUserState = async (s: Session | null) => {
+      if (!active) return;
       setSession(s);
       setUser(s?.user ?? null);
-      setLoading(false);
+      setIsAdmin(false);
+
       if (s?.user) {
         if (await checkSuspended(s.user.id)) return;
         const { data } = await supabase
@@ -72,11 +57,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq("user_id", s.user.id)
           .eq("role", "admin")
           .maybeSingle();
-        setIsAdmin(!!data);
+        if (active) setIsAdmin(!!data);
       }
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      void loadUserState(s);
     });
 
-    return () => sub.subscription.unsubscribe();
+    void supabase.auth.getSession().then(({ data: { session: s } }) => {
+      void loadUserState(s).finally(() => {
+        if (active) setLoading(false);
+      });
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+
   }, []);
 
   return (

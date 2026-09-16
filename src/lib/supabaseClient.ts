@@ -1,7 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { brokeredPreviewStorage } from "@/integrations/supabase/previewAuthStorage";
-
 const url = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
 const anon =
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
@@ -17,7 +15,7 @@ if (!url || !anon) {
 
 export const supabase = createClient<Database>(url, anon, {
   auth: {
-    storage: brokeredPreviewStorage(),
+    // Supabase's browser storage persists the session across Vercel refreshes.
     persistSession: true,
     autoRefreshToken: true,
   },
