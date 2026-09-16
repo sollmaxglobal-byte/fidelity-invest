@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +40,7 @@ const loginSchema = z.object({
 function LoginPage() {
   const { user, loading } = useAuth();
   const { t } = useI18n();
+  const queryClient = useQueryClient();
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
 
@@ -57,6 +59,16 @@ function LoginPage() {
         password: v.password,
       });
       if (error) throw error;
+
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!sessionData.session?.user?.id) throw new Error("Unable to establish a session.");
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["balance"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["user"] }),
+      ]);
       toast.success(t("auth.welcomeToast"));
     } catch (err) {
       const msg = err instanceof z.ZodError
