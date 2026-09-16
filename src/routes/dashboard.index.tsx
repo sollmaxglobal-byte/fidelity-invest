@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowDownToLine,
@@ -88,17 +89,15 @@ type RangeKey = (typeof RANGES)[number]["key"];
 function DashboardHome() {
   const { user } = useAuth();
   const { t } = useI18n();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [referralCount, setReferralCount] = useState(0);
-  const [investments, setInvestments] = useState<ActiveInvestment[]>([]);
   const [balanceVisible, setBalanceVisible] = useState(true);
 
-  const toggleBalance = () => setBalanceVisible((visible) => !visible);
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const [{ data: p }, { count: refCount }, { data: inv }] = await Promise.all([
+  const dashboardQuery = useQuery({
+    queryKey: ["dashboard", user?.id],
+    enabled: !!user?.id,
+    staleTime: 0,
+    queryFn: async () => {
+      if (!user?.id) throw new Error("A signed-in user is required.");
+      const [profileResult, referralResult, investmentsResult] = await Promise.all([
         supabase
           .from("profiles")
           .select("full_name,balance,referral_code,referral_earnings")
@@ -115,11 +114,21 @@ function DashboardHome() {
           .eq("status", "active")
           .order("end_date", { ascending: true }),
       ]);
-      setProfile(p as Profile);
-      setReferralCount(refCount ?? 0);
-      setInvestments((inv as unknown as ActiveInvestment[]) ?? []);
-    })();
-  }, [user]);
+      if (profileResult.error) throw profileResult.error;
+      if (referralResult.error) throw referralResult.error;
+      if (investmentsResult.error) throw investmentsResult.error;
+      return {
+        profile: profileResult.data as Profile | null,
+        referralCount: referralResult.count ?? 0,
+        investments: (investmentsResult.data as unknown as ActiveInvestment[]) ?? [],
+      };
+    },
+  });
+
+  const profile = dashboardQuery.data?.profile ?? null;
+  const referralCount = dashboardQuery.data?.referralCount ?? 0;
+  const investments = dashboardQuery.data?.investments ?? [];
+  const toggleBalance = () => setBalanceVisible((visible) => !visible);
 
   const totalInvested = useMemo(
     () => investments.reduce((s, i) => s + Number(i.amount), 0),
